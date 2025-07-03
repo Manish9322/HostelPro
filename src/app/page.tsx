@@ -1,3 +1,4 @@
+
 import Image from 'next/image';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
@@ -47,7 +48,7 @@ export default function Home() {
         </section>
 
         {/* Features Section */}
-        <section id="features" className="w-full py-12 md:py-24 lg:py-32 bg-background">
+        <section id="features" className="w-full py-12 md:py-16 lg:py-20 bg-background">
           <div className="container mx-auto px-4 md:px-6">
             <div className="text-center mb-12">
               <h2 className="text-3xl md:text-4xl font-bold font-headline">Why Choose HostelPro?</h2>
@@ -92,7 +93,7 @@ export default function Home() {
         </section>
 
         {/* Gallery Section */}
-        <section id="gallery" className="w-full py-12 md:py-24 lg:py-32 bg-secondary">
+        <section id="gallery" className="w-full py-12 md:py-16 lg:py-20 bg-secondary">
           <div className="container mx-auto px-4 md:px-6">
             <div className="text-center mb-12">
               <h2 className="text-3xl md:text-4xl font-bold font-headline">Glimpses of Our Hostel</h2>
@@ -130,7 +131,7 @@ export default function Home() {
         </section>
 
         {/* Amenities Section */}
-        <section id="amenities" className="w-full py-12 md:py-24 lg:py-32">
+        <section id="amenities" className="w-full py-12 md:py-16 lg:py-20">
           <div className="container mx-auto px-4 md:px-6">
             <div className="text-center mb-12">
               <h2 className="text-3xl md:text-4xl font-bold font-headline">Everything You Need</h2>
@@ -198,7 +199,7 @@ export default function Home() {
         </section>
 
         {/* Testimonials Section */}
-        <section id="testimonials" className="w-full py-12 md:py-24 lg:py-32 bg-secondary">
+        <section id="testimonials" className="w-full py-12 md:py-16 lg:py-20 bg-secondary">
           <div className="container mx-auto px-4 md:px-6">
             <div className="text-center mb-12">
               <h2 className="text-3xl md:text-4xl font-bold font-headline">What Our Residents Say</h2>
@@ -271,7 +272,7 @@ export default function Home() {
         </section>
 
         {/* FAQ Section */}
-        <section id="faq" className="w-full py-12 md:py-24 lg:py-32">
+        <section id="faq" className="w-full py-12 md:py-16 lg:py-20">
           <div className="container mx-auto px-4 md:px-6 max-w-3xl">
             <div className="text-center mb-12">
               <h2 className="text-3xl md:text-4xl font-bold font-headline">Frequently Asked Questions</h2>
@@ -319,7 +320,7 @@ export default function Home() {
         </section>
 
         {/* Location Section */}
-        <section id="location" className="w-full py-12 md:py-24 lg:py-32 bg-secondary">
+        <section id="location" className="w-full py-12 md:py-16 lg:py-20 bg-secondary">
           <div className="container mx-auto px-4 md:px-6">
             <div className="text-center mb-12">
               <h2 className="text-3xl md:text-4xl font-bold font-headline">Our Prime Location</h2>
@@ -339,7 +340,7 @@ export default function Home() {
         </section>
 
         {/* Final CTA */}
-        <section className="w-full py-12 md:py-24 lg:py-32 bg-primary text-primary-foreground">
+        <section className="w-full py-12 md:py-16 lg:py-20 bg-primary text-primary-foreground">
           <div className="container mx-auto grid items-center justify-center gap-4 px-4 text-center md:px-6">
             <div className="space-y-3">
               <h2 className="text-3xl font-bold tracking-tighter md:text-4xl/tight font-headline">
