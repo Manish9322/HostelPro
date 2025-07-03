@@ -12,7 +12,8 @@ import {ai} from '@/ai/genkit';
 import {z} from 'genkit';
 
 const CategorizeComplaintInputSchema = z.object({
-  complaintText: z.string().describe('The text of the complaint.'),
+  complaintSubject: z.string().describe('The subject line of the complaint.'),
+  complaintText: z.string().describe('The full text of the complaint.'),
 });
 
 export type CategorizeComplaintInput = z.infer<typeof CategorizeComplaintInputSchema>;
@@ -44,10 +45,11 @@ const prompt = ai.definePrompt({
   input: {schema: CategorizeComplaintInputSchema},
   output: {schema: CategorizeComplaintOutputSchema},
   prompt: `You are an AI assistant specializing in categorizing hostel complaints.
-  Given the following complaint text, categorize it into one of the following categories: Maintenance, Noise, Safety, Harassment, Other.
+  Given the following complaint, categorize it into one of the following categories: Maintenance, Noise, Safety, Harassment, Other.
   Also, determine the urgency of the complaint as High, Medium, or Low.
   Finally, provide a short summary of the complaint.
 
+  Subject: {{{complaintSubject}}}
   Complaint Text: {{{complaintText}}}
   `,
 });

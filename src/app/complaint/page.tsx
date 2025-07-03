@@ -12,7 +12,8 @@ import { useEffect, useRef } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { Badge } from "@/components/ui/badge";
 import { GanttChartSquare, Sparkles, ShieldCheck, AlertTriangle, PhoneOutgoing } from "lucide-react";
-import { Separator } from "@/components/ui/separator";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 
 function SubmitButton() {
   const { pending } = useFormStatus();
@@ -52,7 +53,7 @@ export default function ComplaintPage() {
     } else if (state.message && state.errors) {
        toast({
         title: "Error",
-        description: state.message,
+        description: "Please check the form for errors and try again.",
         variant: "destructive",
       });
     }
@@ -75,36 +76,57 @@ export default function ComplaintPage() {
                     </CardDescription>
                   </CardHeader>
                   <CardContent>
-                    <div className="space-y-2">
-                      <Textarea
-                        name="complaintText"
-                        placeholder="Please describe your complaint here. The more detail, the better our AI can understand and categorize your issue."
-                        className="min-h-[200px] text-base"
-                        required
-                      />
-                      {state.errors?.complaintText &&
-                        state.errors.complaintText.map((error: string) => (
-                          <p className="text-sm font-medium text-destructive" key={error}>
-                            {error}
-                          </p>
-                      ))}
+                    <div className="space-y-6">
+                      <div>
+                        <Label htmlFor="complaintSubject">Subject</Label>
+                        <Input
+                          id="complaintSubject"
+                          name="complaintSubject"
+                          placeholder="e.g., Leaky Faucet in Room 201"
+                          className="mt-1"
+                          required
+                        />
+                        {state.errors?.complaintSubject &&
+                          state.errors.complaintSubject.map((error: string) => (
+                            <p className="text-sm font-medium text-destructive pt-1" key={error}>
+                              {error}
+                            </p>
+                        ))}
+                      </div>
+                      <div>
+                        <Label htmlFor="complaintText">Complaint Details</Label>
+                        <Textarea
+                          id="complaintText"
+                          name="complaintText"
+                          placeholder="Please describe your complaint here. The more detail, the better our AI can understand and categorize your issue."
+                          className="min-h-[200px] text-base mt-1"
+                          required
+                        />
+                        {state.errors?.complaintText &&
+                          state.errors.complaintText.map((error: string) => (
+                            <p className="text-sm font-medium text-destructive pt-1" key={error}>
+                              {error}
+                            </p>
+                        ))}
+                      </div>
+
+                       {state.data && (
+                        <Alert className="mt-4 w-full">
+                            <Sparkles className="h-4 w-4" />
+                            <AlertTitle>AI Analysis Complete</AlertTitle>
+                            <AlertDescription className="space-y-2 mt-2">
+                                <p><strong>Summary:</strong> {state.data.summary}</p>
+                                <div className="flex flex-wrap gap-4">
+                                    <span><strong>Category:</strong> <Badge>{state.data.category}</Badge></span>
+                                    <span><strong>Urgency:</strong> <Badge variant={urgencyVariant(state.data.urgency)}>{state.data.urgency}</Badge></span>
+                                </div>
+                            </AlertDescription>
+                        </Alert>
+                      )}
                     </div>
                   </CardContent>
-                  <CardFooter className="flex flex-col gap-4 items-start">
+                  <CardFooter>
                     <SubmitButton />
-                    {state.data && (
-                      <Alert className="mt-4 w-full">
-                          <Sparkles className="h-4 w-4" />
-                          <AlertTitle>AI Analysis Complete</AlertTitle>
-                          <AlertDescription className="space-y-2 mt-2">
-                              <p><strong>Summary:</strong> {state.data.summary}</p>
-                              <div className="flex flex-wrap gap-4">
-                                  <span><strong>Category:</strong> <Badge>{state.data.category}</Badge></span>
-                                  <span><strong>Urgency:</strong> <Badge variant={urgencyVariant(state.data.urgency)}>{state.data.urgency}</Badge></span>
-                              </div>
-                          </AlertDescription>
-                      </Alert>
-                    )}
                   </CardFooter>
                 </form>
               </Card>
