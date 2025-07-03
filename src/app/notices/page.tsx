@@ -15,9 +15,9 @@ function NoticeModal({ notice, onClose }: { notice: Notice | null, onClose: () =
 
   return (
     <Dialog open={!!notice} onOpenChange={(isOpen) => !isOpen && onClose()}>
-      <DialogContent className="bg-transparent border-none shadow-none p-2 sm:p-4 w-full max-w-2xl">
+      <DialogContent className="bg-transparent border-none shadow-none p-2 sm:p-4 w-full max-w-3xl">
         {/* The Notice Board Frame */}
-        <div className="bg-notice-board p-4 sm:p-6 rounded-lg shadow-2xl data-[state=open]:animate-shake-and-appear relative border-8 border-yellow-950/50">
+        <div className="bg-notice-board p-4 sm:p-6 rounded-lg shadow-2xl data-[state=open]:animate-modal-show relative border-8 border-yellow-950/50">
           <button
             onClick={onClose}
             aria-label="Close notice"
