@@ -38,4 +38,6 @@ export type Notice = {
   content: string;
   author: string;
   publishedAt: Date;
+  category: 'Maintenance' | 'Event' | 'General' | 'Urgent';
+  featured?: boolean;
 };
