@@ -4,15 +4,138 @@ import { useState } from "react";
 import PublicHeader from "@/components/public-header";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+  CardFooter,
+} from "@/components/ui/card";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { CheckCircle, XCircle, Clock } from "lucide-react";
+import {
+  CheckCircle,
+  XCircle,
+  Clock,
+  Info,
+  Search,
+  AlertTriangle,
+} from "lucide-react";
+import { Badge } from "@/components/ui/badge";
+import { Separator } from "@/components/ui/separator";
+import { format } from "date-fns";
+import { mockApplications } from "@/lib/data";
 
-type Status = 'Pending' | 'Approved' | 'Rejected' | 'Not Found';
+// Define a type for the application details we'll show
+type ApplicationDetails = {
+  id: string;
+  name: string;
+  submittedAt: Date;
+  status: "Pending" | "Approved" | "Rejected";
+};
+
+// Component to render the status result
+function StatusResultCard({
+  application,
+}: {
+  application: ApplicationDetails | { status: "Not Found" };
+}) {
+  if (!application) return null;
+
+  if (application.status === "Not Found") {
+    return (
+      <Alert variant="destructive">
+        <AlertTriangle className="h-4 w-4" />
+        <AlertTitle>Application Not Found</AlertTitle>
+        <AlertDescription>
+          We couldn't find an application with the ID you provided. Please
+          double-check the ID and try again.
+        </AlertDescription>
+      </Alert>
+    );
+  }
+
+  const { id, name, submittedAt, status } = application;
+
+  const statusConfig = {
+    Approved: {
+      icon: <CheckCircle className="h-12 w-12 text-green-500" />,
+      title: "Application Approved!",
+      badgeVariant: "default" as const,
+      description:
+        "Congratulations! Your application has been accepted. Welcome to HostelPro!",
+      nextSteps:
+        "You will receive an email with payment details and check-in instructions within the next 48 hours. Please check your spam folder if you don't see it.",
+    },
+    Pending: {
+      icon: <Clock className="h-12 w-12 text-yellow-500" />,
+      title: "Application Pending",
+      badgeVariant: "secondary" as const,
+      description:
+        "Your application is currently under review by our administrative team.",
+      nextSteps:
+        "The review process typically takes 5-7 business days. We appreciate your patience and will notify you via email as soon as a decision is made.",
+    },
+    Rejected: {
+      icon: <XCircle className="h-12 w-12 text-destructive" />,
+      title: "Application Not Approved",
+      badgeVariant: "destructive" as const,
+      description:
+        "We regret to inform you that your application was not successful at this time.",
+      nextSteps:
+        "We receive a high volume of applications and have limited availability. You are welcome to re-apply in the next admission cycle. For specific queries, please contact the admissions office.",
+    },
+  };
+
+  const config = statusConfig[status];
+
+  return (
+    <Card className="w-full mt-6 animate-in fade-in-50">
+      <CardHeader className="text-center">
+        <div className="mx-auto mb-4">{config.icon}</div>
+        <CardTitle className="text-2xl">{config.title}</CardTitle>
+        <CardDescription>{config.description}</CardDescription>
+      </CardHeader>
+      <CardContent className="space-y-4">
+        <Separator />
+        <div className="grid grid-cols-2 gap-4 text-sm">
+          <div>
+            <p className="text-muted-foreground">Applicant Name</p>
+            <p className="font-semibold">{name}</p>
+          </div>
+          <div className="text-right">
+            <p className="text-muted-foreground">Application ID</p>
+            <p className="font-semibold">{id}</p>
+          </div>
+          <div>
+            <p className="text-muted-foreground">Submitted On</p>
+            <p className="font-semibold">{format(submittedAt, "PPP")}</p>
+          </div>
+          <div className="text-right">
+            <p className="text-muted-foreground">Status</p>
+            <Badge variant={config.badgeVariant} className="font-semibold">
+              {status}
+            </Badge>
+          </div>
+        </div>
+        <Separator />
+      </CardContent>
+      <CardFooter>
+        <Alert>
+          <Info className="h-4 w-4" />
+          <AlertTitle>What's Next?</AlertTitle>
+          <AlertDescription>{config.nextSteps}</AlertDescription>
+        </Alert>
+      </CardFooter>
+    </Card>
+  );
+}
 
 export default function StatusPage() {
   const [applicationId, setApplicationId] = useState("");
-  const [status, setStatus] = useState<Status | null>(null);
+  const [result, setResult] = useState<
+    ApplicationDetails | { status: "Not Found" } | null
+  >(null);
   const [loading, setLoading] = useState(false);
 
   const handleCheckStatus = (e: React.FormEvent) => {
@@ -20,70 +143,26 @@ export default function StatusPage() {
     if (!applicationId) return;
 
     setLoading(true);
-    setStatus(null);
+    setResult(null);
 
-    // Mock API call
+    // Mock API call using data from lib/data.ts
     setTimeout(() => {
-      if (applicationId.toLowerCase() === "app001") {
-        setStatus("Approved");
-      } else if (applicationId.toLowerCase() === "app002") {
-        setStatus("Pending");
-      } else if (applicationId.toLowerCase() === "app003") {
-        setStatus("Rejected");
+      const foundApp = mockApplications.find(
+        (app) => app.studentId.toLowerCase() === applicationId.toLowerCase()
+      );
+
+      if (foundApp) {
+        setResult({
+          id: foundApp.studentId,
+          name: foundApp.name,
+          submittedAt: foundApp.submittedAt,
+          status: foundApp.status as "Pending" | "Approved" | "Rejected",
+        });
       } else {
-        setStatus("Not Found");
+        setResult({ status: "Not Found" });
       }
       setLoading(false);
-    }, 1500);
-  };
-
-  const StatusAlert = () => {
-    if (!status) return null;
-
-    switch (status) {
-      case "Approved":
-        return (
-          <Alert variant="default" className="bg-green-100 border-green-400 text-green-800">
-            <CheckCircle className="h-4 w-4 !text-green-800" />
-            <AlertTitle>Approved!</AlertTitle>
-            <AlertDescription>
-              Congratulations! Your application has been approved. Please check your email for further instructions.
-            </AlertDescription>
-          </Alert>
-        );
-      case "Pending":
-        return (
-          <Alert variant="default" className="bg-yellow-100 border-yellow-400 text-yellow-800">
-            <Clock className="h-4 w-4 !text-yellow-800" />
-            <AlertTitle>Pending Review</AlertTitle>
-            <AlertDescription>
-              Your application is still under review. Please check back later.
-            </AlertDescription>
-          </Alert>
-        );
-      case "Rejected":
-        return (
-          <Alert variant="destructive">
-            <XCircle className="h-4 w-4" />
-            <AlertTitle>Application Rejected</AlertTitle>
-            <AlertDescription>
-              We regret to inform you that your application was not successful at this time.
-            </AlertDescription>
-          </Alert>
-        );
-      case "Not Found":
-        return (
-          <Alert variant="destructive">
-            <XCircle className="h-4 w-4" />
-            <AlertTitle>Not Found</AlertTitle>
-            <AlertDescription>
-              We could not find an application with the ID you provided.
-            </AlertDescription>
-          </Alert>
-        );
-      default:
-        return null;
-    }
+    }, 1000);
   };
 
   return (
@@ -93,26 +172,50 @@ export default function StatusPage() {
         <div className="container mx-auto max-w-md">
           <Card>
             <CardHeader>
-              <CardTitle className="font-headline text-3xl">Check Application Status</CardTitle>
-              <CardDescription>Enter your Application ID to see the current status.</CardDescription>
+              <CardTitle className="font-headline text-3xl">
+                Check Application Status
+              </CardTitle>
+              <CardDescription>
+                Enter your Student ID to see the current status of your
+                application.
+              </CardDescription>
             </CardHeader>
             <CardContent>
-              <form onSubmit={handleCheckStatus} className="space-y-4">
+              <form onSubmit={handleCheckStatus} className="flex gap-2">
                 <Input
                   placeholder="e.g., APP001"
                   value={applicationId}
-                  onChange={(e) => setApplicationId(e.target.value.toUpperCase())}
-                  className="text-lg"
+                  onChange={(e) => setApplicationId(e.target.value)}
+                  className="text-base h-11"
+                  required
                 />
-                <Button type="submit" className="w-full bg-accent hover:bg-accent/90 text-accent-foreground" disabled={loading}>
-                  {loading ? "Checking..." : "Check Status"}
+                <Button
+                  type="submit"
+                  size="lg"
+                  className="bg-accent hover:bg-accent/90 text-accent-foreground px-4"
+                  disabled={loading}
+                >
+                  {loading ? (
+                    <Clock className="h-5 w-5 animate-spin" />
+                  ) : (
+                    <Search className="h-5 w-5" />
+                  )}
+                  <span className="sr-only">Check Status</span>
                 </Button>
               </form>
-              <div className="mt-6">
-                {loading ? <p className="text-center text-muted-foreground">Loading status...</p> : <StatusAlert />}
-              </div>
             </CardContent>
           </Card>
+
+          <div className="mt-6">
+            {loading ? (
+              <div className="flex flex-col items-center gap-2 text-muted-foreground">
+                <Clock className="h-6 w-6 animate-spin" />
+                <p>Checking application status...</p>
+              </div>
+            ) : (
+              result && <StatusResultCard application={result} />
+            )}
+          </div>
         </div>
       </main>
     </div>
