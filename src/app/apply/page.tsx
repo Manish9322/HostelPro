@@ -1,8 +1,13 @@
 "use client";
 
+import Link from "next/link";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
+import { format } from "date-fns";
+import { CalendarIcon, ShieldCheck, Users, Wifi } from "lucide-react";
+
+import { cn } from "@/lib/utils";
 import PublicHeader from "@/components/public-header";
 import { Button } from "@/components/ui/button";
 import {
@@ -14,16 +19,27 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
+import { Separator } from "@/components/ui/separator";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Calendar } from "@/components/ui/calendar";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Textarea } from "@/components/ui/textarea";
 
 const applicationSchema = z.object({
   name: z.string().min(2, "Name must be at least 2 characters."),
   studentId: z.string().regex(/^STU\d{3,}$/, "Invalid Student ID format (e.g., STU001)."),
   email: z.string().email("Invalid email address."),
   phone: z.string().min(10, "Phone number must be at least 10 digits."),
+  dob: z.date({ required_error: "Date of birth is required." }),
+  gender: z.string({ required_error: "Please select a gender." }),
+  address: z.string().min(10, "Address must be at least 10 characters long."),
   course: z.string().min(2, "Course name is required."),
   year: z.coerce.number().min(1).max(5, "Year must be between 1 and 5."),
+  roomPreference: z.string({ required_error: "Please select a room preference." }),
+  guardianName: z.string().min(2, "Guardian's name is required."),
+  guardianPhone: z.string().min(10, "Guardian's phone number is required."),
 });
 
 type ApplicationFormValues = z.infer<typeof applicationSchema>;
@@ -38,8 +54,13 @@ export default function ApplyPage() {
       studentId: "",
       email: "",
       phone: "",
+      gender: undefined,
       course: "",
       year: 1,
+      address: "",
+      guardianName: "",
+      guardianPhone: "",
+      roomPreference: undefined,
     },
   });
 
@@ -53,105 +74,216 @@ export default function ApplyPage() {
   }
 
   return (
-    <div className="flex flex-col min-h-screen bg-secondary/50">
+    <div className="flex flex-col min-h-screen bg-muted/40">
       <PublicHeader />
       <main className="flex-1 py-12 px-4">
-        <div className="container mx-auto max-w-2xl">
-          <Card>
-            <CardHeader>
-              <CardTitle className="font-headline text-3xl">Hostel Application</CardTitle>
-              <CardDescription>Fill out the form below to apply for a room in our hostel.</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <Form {...form}>
-                <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-                  <FormField
-                    control={form.control}
-                    name="name"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Full Name</FormLabel>
-                        <FormControl>
-                          <Input placeholder="John Doe" {...field} />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                  <FormField
-                    control={form.control}
-                    name="studentId"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Student ID</FormLabel>
-                        <FormControl>
-                          <Input placeholder="STU123" {...field} />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <FormField
-                      control={form.control}
-                      name="email"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Email Address</FormLabel>
-                          <FormControl>
-                            <Input type="email" placeholder="john.doe@example.com" {...field} />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                    <FormField
-                      control={form.control}
-                      name="phone"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Phone Number</FormLabel>
-                          <FormControl>
-                            <Input placeholder="123-456-7890" {...field} />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
+        <div className="container mx-auto max-w-6xl">
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-12">
+            <div className="lg:col-span-2">
+              <Card>
+                <CardHeader>
+                  <CardTitle className="font-headline text-3xl">Hostel Application Form</CardTitle>
+                  <CardDescription>Fill out the form below to apply for a room. Please provide accurate information.</CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <Form {...form}>
+                    <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
+                      {/* Personal Details */}
+                      <div>
+                        <h3 className="text-lg font-medium mb-4 text-primary">Personal Information</h3>
+                        <div className="space-y-6">
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <FormField control={form.control} name="name" render={({ field }) => (
+                                <FormItem>
+                                  <FormLabel>Full Name</FormLabel>
+                                  <FormControl><Input placeholder="John Doe" {...field} /></FormControl>
+                                  <FormMessage />
+                                </FormItem>
+                              )}
+                            />
+                            <FormField control={form.control} name="studentId" render={({ field }) => (
+                                <FormItem>
+                                  <FormLabel>Student ID</FormLabel>
+                                  <FormControl><Input placeholder="STU123" {...field} /></FormControl>
+                                  <FormMessage />
+                                </FormItem>
+                              )}
+                            />
+                          </div>
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <FormField control={form.control} name="email" render={({ field }) => (
+                                <FormItem>
+                                  <FormLabel>Email Address</FormLabel>
+                                  <FormControl><Input type="email" placeholder="john.doe@example.com" {...field} /></FormControl>
+                                  <FormMessage />
+                                </FormItem>
+                              )}
+                            />
+                            <FormField control={form.control} name="phone" render={({ field }) => (
+                                <FormItem>
+                                  <FormLabel>Phone Number</FormLabel>
+                                  <FormControl><Input placeholder="123-456-7890" {...field} /></FormControl>
+                                  <FormMessage />
+                                </FormItem>
+                              )}
+                            />
+                          </div>
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <FormField control={form.control} name="dob" render={({ field }) => (
+                                <FormItem className="flex flex-col pt-2">
+                                  <FormLabel>Date of Birth</FormLabel>
+                                  <Popover>
+                                    <PopoverTrigger asChild>
+                                      <FormControl>
+                                        <Button variant={"outline"} className={cn("pl-3 text-left font-normal", !field.value && "text-muted-foreground")}>
+                                          {field.value ? format(field.value, "PPP") : <span>Pick a date</span>}
+                                          <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+                                        </Button>
+                                      </FormControl>
+                                    </PopoverTrigger>
+                                    <PopoverContent className="w-auto p-0" align="start">
+                                      <Calendar mode="single" selected={field.value} onSelect={field.onChange} disabled={(date) => date > new Date() || date < new Date("1950-01-01")} initialFocus />
+                                    </PopoverContent>
+                                  </Popover>
+                                  <FormMessage />
+                                </FormItem>
+                              )}
+                            />
+                            <FormField control={form.control} name="gender" render={({ field }) => (
+                                <FormItem className="pt-2">
+                                  <FormLabel>Gender</FormLabel>
+                                  <Select onValueChange={field.onChange} defaultValue={field.value}>
+                                    <FormControl><SelectTrigger><SelectValue placeholder="Select your gender" /></SelectTrigger></FormControl>
+                                    <SelectContent>
+                                      <SelectItem value="Male">Male</SelectItem>
+                                      <SelectItem value="Female">Female</SelectItem>
+                                      <SelectItem value="Other">Other</SelectItem>
+                                    </SelectContent>
+                                  </Select>
+                                  <FormMessage />
+                                </FormItem>
+                              )}
+                            />
+                          </div>
+                          <FormField control={form.control} name="address" render={({ field }) => (
+                              <FormItem>
+                                <FormLabel>Permanent Address</FormLabel>
+                                <FormControl><Textarea placeholder="Enter your full permanent address" className="resize-none" {...field} /></FormControl>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+                        </div>
+                      </div>
+
+                      <Separator />
+
+                      {/* Academic & Hostel Details */}
+                      <div>
+                        <h3 className="text-lg font-medium mb-4 text-primary">Academic & Hostel Details</h3>
+                        <div className="space-y-6">
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                             <FormField control={form.control} name="course" render={({ field }) => (
+                                <FormItem>
+                                  <FormLabel>Course</FormLabel>
+                                  <FormControl><Input placeholder="Computer Science" {...field} /></FormControl>
+                                  <FormMessage />
+                                </FormItem>
+                              )}
+                            />
+                            <FormField control={form.control} name="year" render={({ field }) => (
+                                <FormItem>
+                                  <FormLabel>Year of Study</FormLabel>
+                                  <FormControl><Input type="number" min="1" max="5" {...field} /></FormControl>
+                                  <FormMessage />
+                                </FormItem>
+                              )}
+                            />
+                          </div>
+                           <FormField control={form.control} name="roomPreference" render={({ field }) => (
+                              <FormItem>
+                                <FormLabel>Room Preference</FormLabel>
+                                <Select onValueChange={field.onChange} defaultValue={field.value}>
+                                  <FormControl><SelectTrigger><SelectValue placeholder="Select a room type" /></SelectTrigger></FormControl>
+                                  <SelectContent>
+                                    <SelectItem value="Single">Single Occupancy</SelectItem>
+                                    <SelectItem value="Shared">Shared Occupancy</SelectItem>
+                                  </SelectContent>
+                                </Select>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+                        </div>
+                      </div>
+                      
+                      <Separator />
+
+                      {/* Guardian Details */}
+                      <div>
+                        <h3 className="text-lg font-medium mb-4 text-primary">Guardian's Information</h3>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                           <FormField control={form.control} name="guardianName" render={({ field }) => (
+                              <FormItem>
+                                <FormLabel>Guardian's Full Name</FormLabel>
+                                <FormControl><Input placeholder="Jane Doe" {...field} /></FormControl>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+                           <FormField control={form.control} name="guardianPhone" render={({ field }) => (
+                              <FormItem>
+                                <FormLabel>Guardian's Phone Number</FormLabel>
+                                <FormControl><Input placeholder="123-456-7890" {...field} /></FormControl>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+                        </div>
+                      </div>
+
+                      <Button type="submit" className="w-full bg-accent hover:bg-accent/90 text-accent-foreground" size="lg">Submit Application</Button>
+                    </form>
+                  </Form>
+                </CardContent>
+              </Card>
+            </div>
+            <div className="lg:col-span-1">
+              <Card className="sticky top-20">
+                <CardHeader>
+                  <CardTitle>Why Stay With Us?</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-6">
+                  <div className="flex items-start gap-4">
+                    <ShieldCheck className="w-10 h-10 text-accent flex-shrink-0" />
+                    <div>
+                      <h4 className="font-semibold">Safe & Secure</h4>
+                      <p className="text-sm text-muted-foreground">24/7 security and controlled access for your peace of mind.</p>
+                    </div>
                   </div>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <FormField
-                      control={form.control}
-                      name="course"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Course</FormLabel>
-                          <FormControl>
-                            <Input placeholder="Computer Science" {...field} />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                    <FormField
-                      control={form.control}
-                      name="year"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Year of Study</FormLabel>
-                          <FormControl>
-                            <Input type="number" min="1" max="5" {...field} />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
+                  <div className="flex items-start gap-4">
+                    <Users className="w-10 h-10 text-accent flex-shrink-0" />
+                    <div>
+                      <h4 className="font-semibold">Vibrant Community</h4>
+                      <p className="text-sm text-muted-foreground">Connect with fellow students in our common areas and events.</p>
+                    </div>
                   </div>
-                  <Button type="submit" className="w-full bg-accent hover:bg-accent/90 text-accent-foreground" size="lg">Submit Application</Button>
-                </form>
-              </Form>
-            </CardContent>
-          </Card>
+                  <div className="flex items-start gap-4">
+                    <Wifi className="w-10 h-10 text-accent flex-shrink-0" />
+                    <div>
+                      <h4 className="font-semibold">All-Inclusive Amenities</h4>
+                      <p className="text-sm text-muted-foreground">High-speed Wi-Fi, laundry, gym, and more included.</p>
+                    </div>
+                  </div>
+                </CardContent>
+                <CardFooter>
+                  <Button variant="outline" className="w-full" asChild>
+                    <Link href="/#faq">Read our FAQ</Link>
+                  </Button>
+                </CardFooter>
+              </Card>
+            </div>
+          </div>
         </div>
       </main>
     </div>
