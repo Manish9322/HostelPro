@@ -11,9 +11,16 @@ import { submitComplaint, type ComplaintState } from "@/lib/actions";
 import { useEffect, useRef } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { Badge } from "@/components/ui/badge";
-import { GanttChartSquare, Sparkles, ShieldCheck, AlertTriangle, PhoneOutgoing } from "lucide-react";
+import { GanttChartSquare, Sparkles, ShieldCheck, AlertTriangle, PhoneOutgoing, ListChecks, HelpCircle } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion";
+
 
 function SubmitButton() {
   const { pending } = useFormStatus();
@@ -134,6 +141,26 @@ export default function ComplaintPage() {
 
             <div className="lg:col-span-1">
               <div className="sticky top-20 space-y-8">
+                <Card className="border-destructive/50">
+                   <CardHeader>
+                     <CardTitle className="flex items-center gap-2 text-destructive">
+                       <AlertTriangle className="w-6 h-6" />
+                       Is It an Emergency?
+                     </CardTitle>
+                     <CardDescription>For urgent matters, please act immediately.</CardDescription>
+                   </CardHeader>
+                   <CardContent>
+                     <p className="text-sm text-muted-foreground">If you are facing a situation that poses an immediate threat to your safety or health (e.g., fire, medical emergency, security threat), please do not use this form. Contact the hostel security or warden directly.</p>
+                   </CardContent>
+                   <CardFooter>
+                     <Button variant="destructive" className="w-full" asChild>
+                       <a href="tel:+1-234-567-8900">
+                         <PhoneOutgoing className="mr-2 h-4 w-4" />
+                         Call Emergency Line
+                       </a>
+                     </Button>
+                   </CardFooter>
+                </Card>
                 <Card>
                     <CardHeader>
                       <CardTitle className="flex items-center gap-2">
@@ -169,25 +196,52 @@ export default function ComplaintPage() {
                     </CardContent>
                 </Card>
 
-                <Card className="border-destructive/50">
-                   <CardHeader>
-                     <CardTitle className="flex items-center gap-2 text-destructive">
-                       <AlertTriangle className="w-6 h-6" />
-                       Is It an Emergency?
-                     </CardTitle>
-                     <CardDescription>For urgent matters, please act immediately.</CardDescription>
-                   </CardHeader>
-                   <CardContent>
-                     <p className="text-sm text-muted-foreground">If you are facing a situation that poses an immediate threat to your safety or health (e.g., fire, medical emergency, security threat), please do not use this form. Contact the hostel security or warden directly.</p>
-                   </CardContent>
-                   <CardFooter>
-                     <Button variant="destructive" className="w-full" asChild>
-                       <a href="tel:+1-234-567-8900">
-                         <PhoneOutgoing className="mr-2 h-4 w-4" />
-                         Call Emergency Line
-                       </a>
-                     </Button>
-                   </CardFooter>
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="flex items-center gap-2">
+                      <ListChecks className="w-6 h-6 text-primary" />
+                      Tips for an Effective Complaint
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <ul className="space-y-2 text-sm text-muted-foreground list-disc pl-5">
+                      <li><strong>Be Specific:</strong> Include dates, times, locations, and who was involved.</li>
+                      <li><strong>Be Factual:</strong> Describe the events objectively, without exaggeration.</li>
+                      <li><strong>State the Impact:</strong> Explain how the issue has affected you.</li>
+                      <li><strong>Suggest a Resolution:</strong> If you have an idea for a solution, please share it.</li>
+                    </ul>
+                  </CardContent>
+                </Card>
+                
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="flex items-center gap-2">
+                      <HelpCircle className="w-6 h-6 text-primary" />
+                      Frequently Asked Questions
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <Accordion type="single" collapsible className="w-full">
+                      <AccordionItem value="item-1">
+                        <AccordionTrigger>What happens after I submit?</AccordionTrigger>
+                        <AccordionContent>
+                          Your complaint is analyzed by our AI for categorization and urgency, then routed to the appropriate department. An administrator will review it for action.
+                        </AccordionContent>
+                      </AccordionItem>
+                      <AccordionItem value="item-2">
+                        <AccordionTrigger>Is my submission anonymous?</AccordionTrigger>
+                        <AccordionContent>
+                          Yes, this form is anonymous. We do not collect personal identification. However, this may limit our ability to follow up with you directly for more information.
+                        </AccordionContent>
+                      </AccordionItem>
+                      <AccordionItem value="item-3">
+                        <AccordionTrigger>How long does resolution take?</AccordionTrigger>
+                        <AccordionContent>
+                          Resolution time varies depending on the complexity of the issue. Urgent matters are addressed immediately, while others are handled in the order they are received.
+                        </AccordionContent>
+                      </AccordionItem>
+                    </Accordion>
+                  </CardContent>
                 </Card>
               </div>
             </div>
