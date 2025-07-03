@@ -37,6 +37,9 @@
     --sidebar-accent-foreground: 240 10% 3.9%;
     --sidebar-border: 240 5.9% 90%;
     --sidebar-ring: 232 78% 70%;
+    --notice-board-bg: 30 54% 45%;
+    --notice-paper-bg: 48 83% 90%;
+    --notice-paper-foreground: 240 10% 3.9%;
   }
   .dark {
     --background: 240 10% 3.9%;
@@ -71,6 +74,9 @@
     --sidebar-accent-foreground: 0 0% 98%;
     --sidebar-border: 240 3.7% 15.9%;
     --sidebar-ring: 232 78% 70%;
+    --notice-board-bg: 30 20% 25%;
+    --notice-paper-bg: 48 10% 20%;
+    --notice-paper-foreground: 0 0% 98%;
   }
 }
 
