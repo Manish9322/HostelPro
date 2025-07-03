@@ -27,6 +27,9 @@ import {
   Search,
   AlertTriangle,
   HelpCircle,
+  FileText,
+  GanttChartSquare,
+  MailCheck,
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
@@ -138,6 +141,65 @@ function StatusResultCard({
   );
 }
 
+function ApplicationProcessOverview() {
+  const steps = [
+    {
+      icon: FileText,
+      title: "1. Application Submitted",
+      description: "You submit your application through our online portal.",
+    },
+    {
+      icon: GanttChartSquare,
+      title: "2. Under Review",
+      description:
+        "Our admissions team reviews your application for eligibility and completeness.",
+    },
+    {
+      icon: MailCheck,
+      title: "3. Decision Made",
+      description:
+        "A final decision is made, and you are notified via email and this portal.",
+    },
+  ];
+
+  return (
+    <Card>
+      <CardHeader>
+        <CardTitle>Application Process Overview</CardTitle>
+        <CardDescription>
+          Understand the journey of your application from submission to decision.
+        </CardDescription>
+      </CardHeader>
+      <CardContent>
+        <div className="flex flex-col md:flex-row justify-between space-y-8 md:space-y-0 md:space-x-4">
+          {steps.map((step, index) => (
+            <div
+              key={step.title}
+              className="flex-1 flex items-start gap-4 relative"
+            >
+              <div className="flex flex-col items-center">
+                <div className="flex h-12 w-12 items-center justify-center rounded-full bg-primary/10 text-primary">
+                  <step.icon className="h-6 w-6" />
+                </div>
+              </div>
+              <div>
+                <h3 className="font-semibold">{step.title}</h3>
+                <p className="text-sm text-muted-foreground">
+                  {step.description}
+                </p>
+              </div>
+              {index < steps.length - 1 && (
+                <div className="hidden md:block absolute top-6 left-full w-full h-px bg-border -translate-x-1/2 ml-2" />
+              )}
+            </div>
+          ))}
+        </div>
+      </CardContent>
+    </Card>
+  );
+}
+
+
 export default function StatusPage() {
   const [applicationId, setApplicationId] = useState("");
   const [result, setResult] = useState<
@@ -178,7 +240,7 @@ export default function StatusPage() {
       <main className="flex-1 py-12 px-4">
         <div className="container mx-auto max-w-6xl">
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-12">
-            <div className="lg:col-span-2 space-y-6">
+            <div className="lg:col-span-2 space-y-8">
               <Card>
                 <CardHeader>
                   <CardTitle className="font-headline text-3xl">
@@ -214,6 +276,8 @@ export default function StatusPage() {
                   </form>
                 </CardContent>
               </Card>
+
+              <ApplicationProcessOverview />
 
               {loading && (
                   <div className="flex flex-col items-center gap-2 text-muted-foreground pt-8">
