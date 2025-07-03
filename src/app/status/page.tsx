@@ -199,6 +199,45 @@ function ApplicationProcessOverview() {
   );
 }
 
+function ProcessingTimeline() {
+  return (
+    <Card>
+      <CardHeader>
+        <CardTitle>Typical Processing Timeline</CardTitle>
+        <CardDescription>
+          While times may vary, here is a general estimate of our timeline.
+        </CardDescription>
+      </CardHeader>
+      <CardContent>
+        <div className="relative pl-2">
+            <div className="absolute left-6 top-1 bottom-1 w-0.5 bg-border -z-0"></div>
+            <div className="flex items-start gap-4 mb-8 relative">
+              <div className="flex h-8 w-8 items-center justify-center rounded-full bg-primary text-primary-foreground font-bold z-10">1</div>
+              <div>
+                <p className="font-semibold">Initial Review & Verification</p>
+                <p className="text-sm text-muted-foreground">1-2 business days from submission.</p>
+              </div>
+            </div>
+            <div className="flex items-start gap-4 mb-8 relative">
+              <div className="flex h-8 w-8 items-center justify-center rounded-full bg-primary text-primary-foreground font-bold z-10">2</div>
+              <div>
+                <p className="font-semibold">Committee Decision</p>
+                <p className="text-sm text-muted-foreground">3-5 business days after initial review.</p>
+              </div>
+            </div>
+            <div className="flex items-start gap-4 relative">
+              <div className="flex h-8 w-8 items-center justify-center rounded-full bg-primary text-primary-foreground font-bold z-10">3</div>
+              <div>
+                <p className="font-semibold">Final Notification</p>
+                <p className="text-sm text-muted-foreground">Within 7 business days from submission.</p>
+              </div>
+            </div>
+        </div>
+      </CardContent>
+    </Card>
+  );
+}
+
 
 export default function StatusPage() {
   const [applicationId, setApplicationId] = useState("");
@@ -278,6 +317,8 @@ export default function StatusPage() {
               </Card>
 
               <ApplicationProcessOverview />
+
+              <ProcessingTimeline />
 
               {loading && (
                   <div className="flex flex-col items-center gap-2 text-muted-foreground pt-8">
