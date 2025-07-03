@@ -14,12 +14,19 @@ import {
 } from "@/components/ui/card";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion";
+import {
   CheckCircle,
   XCircle,
   Clock,
   Info,
   Search,
   AlertTriangle,
+  HelpCircle,
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
@@ -169,7 +176,7 @@ export default function StatusPage() {
     <div className="flex flex-col min-h-screen bg-secondary/50">
       <PublicHeader />
       <main className="flex-1 py-12 px-4">
-        <div className="container mx-auto max-w-md">
+        <div className="container mx-auto max-w-2xl">
           <Card>
             <CardHeader>
               <CardTitle className="font-headline text-3xl">
@@ -215,6 +222,109 @@ export default function StatusPage() {
             ) : (
               result && <StatusResultCard application={result} />
             )}
+          </div>
+
+          <div className="mt-12 space-y-8">
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <HelpCircle className="w-6 h-6 text-primary" />
+                  Frequently Asked Questions
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <Accordion type="single" collapsible className="w-full">
+                  <AccordionItem value="item-1">
+                    <AccordionTrigger>
+                      What do the different application statuses mean?
+                    </AccordionTrigger>
+                    <AccordionContent>
+                      <ul className="list-disc pl-5 space-y-2 text-muted-foreground">
+                        <li>
+                          <strong>Approved:</strong> Congratulations! Your
+                          application was successful. You'll receive check-in
+                          details via email soon.
+                        </li>
+                        <li>
+                          <strong>Pending:</strong> Your application is under
+                          review. This process usually takes 5-7 business days.
+                        </li>
+                        <li>
+                          <strong>Rejected:</strong> Unfortunately, we couldn't
+                          offer you a spot at this time due to high demand or
+                          unmet criteria.
+                        </li>
+                        <li>
+                          <strong>Not Found:</strong> We couldn't find an
+                          application with the ID you provided. Please check the
+                          ID and try again.
+                        </li>
+                      </ul>
+                    </AccordionContent>
+                  </AccordionItem>
+                  <AccordionItem value="item-2">
+                    <AccordionTrigger>
+                      How long does the review process take?
+                    </AccordionTrigger>
+                    <AccordionContent>
+                      Our admissions team carefully reviews each application. The
+                      process typically takes between 5 to 7 business days
+                      after submission. You will be notified by email once a
+                      decision has been made.
+                    </AccordionContent>
+                  </AccordionItem>
+                  <AccordionItem value="item-3">
+                    <AccordionTrigger>
+                      My application was rejected. Can I reapply?
+                    </AccordionTrigger>
+                    <AccordionContent>
+                      Yes, you are welcome to re-apply for the next admission
+                      cycle. We receive a high volume of applications, and
+                      availability is limited. We recommend reviewing the
+                      application criteria before reapplying.
+                    </AccordionContent>
+                  </AccordionItem>
+                  <AccordionItem value="item-4">
+                    <AccordionTrigger>
+                      I haven't received an email after my application was
+                      approved. What should I do?
+                    </AccordionTrigger>
+                    <AccordionContent>
+                      Please allow up to 48 hours for the email with check-in
+                      and payment details to arrive. Don't forget to check your
+                      spam or junk folder. If you still haven't received it,
+                      please contact our admissions office.
+                    </AccordionContent>
+                  </AccordionItem>
+                </Accordion>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Info className="w-5 h-5 text-accent" />
+                  Need Further Assistance?
+                </CardTitle>
+                <CardDescription>
+                  Our admissions team is here to help.
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <p className="text-sm text-muted-foreground mb-4">
+                  If you have specific questions about your application that are
+                  not answered here, please feel free to reach out to us.
+                </p>
+                <div className="space-y-1">
+                  <p className="text-sm font-semibold">
+                    admissions@hostelpro.com
+                  </p>
+                  <p className="text-sm text-muted-foreground">
+                    +1 (234) 567-8900
+                  </p>
+                </div>
+              </CardContent>
+            </Card>
           </div>
         </div>
       </main>
