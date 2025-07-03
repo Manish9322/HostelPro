@@ -97,7 +97,7 @@ function StatusResultCard({
   const config = statusConfig[status];
 
   return (
-    <Card className="w-full mt-6 animate-in fade-in-50">
+    <Card className="w-full animate-in fade-in-50">
       <CardHeader className="text-center">
         <div className="mx-auto mb-4">{config.icon}</div>
         <CardTitle className="text-2xl">{config.title}</CardTitle>
@@ -176,155 +176,160 @@ export default function StatusPage() {
     <div className="flex flex-col min-h-screen bg-secondary/50">
       <PublicHeader />
       <main className="flex-1 py-12 px-4">
-        <div className="container mx-auto max-w-2xl">
-          <Card>
-            <CardHeader>
-              <CardTitle className="font-headline text-3xl">
-                Check Application Status
-              </CardTitle>
-              <CardDescription>
-                Enter your Student ID to see the current status of your
-                application.
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <form onSubmit={handleCheckStatus} className="flex gap-2">
-                <Input
-                  placeholder="e.g., APP001"
-                  value={applicationId}
-                  onChange={(e) => setApplicationId(e.target.value)}
-                  className="text-base h-11"
-                  required
-                />
-                <Button
-                  type="submit"
-                  size="lg"
-                  className="bg-accent hover:bg-accent/90 text-accent-foreground px-4"
-                  disabled={loading}
-                >
-                  {loading ? (
-                    <Clock className="h-5 w-5 animate-spin" />
-                  ) : (
-                    <Search className="h-5 w-5" />
-                  )}
-                  <span className="sr-only">Check Status</span>
-                </Button>
-              </form>
-            </CardContent>
-          </Card>
+        <div className="container mx-auto max-w-6xl">
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-12">
+            <div className="lg:col-span-2 space-y-6">
+              <Card>
+                <CardHeader>
+                  <CardTitle className="font-headline text-3xl">
+                    Check Application Status
+                  </CardTitle>
+                  <CardDescription>
+                    Enter your Student ID to see the current status of your
+                    application.
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <form onSubmit={handleCheckStatus} className="flex gap-2">
+                    <Input
+                      placeholder="e.g., APP001"
+                      value={applicationId}
+                      onChange={(e) => setApplicationId(e.target.value)}
+                      className="text-base h-11"
+                      required
+                    />
+                    <Button
+                      type="submit"
+                      size="lg"
+                      className="bg-accent hover:bg-accent/90 text-accent-foreground px-4"
+                      disabled={loading}
+                    >
+                      {loading ? (
+                        <Clock className="h-5 w-5 animate-spin" />
+                      ) : (
+                        <Search className="h-5 w-5" />
+                      )}
+                      <span className="sr-only">Check Status</span>
+                    </Button>
+                  </form>
+                </CardContent>
+              </Card>
 
-          <div className="mt-6">
-            {loading ? (
-              <div className="flex flex-col items-center gap-2 text-muted-foreground">
-                <Clock className="h-6 w-6 animate-spin" />
-                <p>Checking application status...</p>
+              {loading && (
+                  <div className="flex flex-col items-center gap-2 text-muted-foreground pt-8">
+                    <Clock className="h-8 w-8 animate-spin" />
+                    <p className="text-lg">Checking application status...</p>
+                  </div>
+              )}
+              {result && !loading && (
+                 <StatusResultCard application={result} />
+              )}
+            </div>
+
+            <div className="lg:col-span-1">
+              <div className="sticky top-20 space-y-8">
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="flex items-center gap-2">
+                      <HelpCircle className="w-6 h-6 text-primary" />
+                      Frequently Asked Questions
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <Accordion type="single" collapsible className="w-full">
+                      <AccordionItem value="item-1">
+                        <AccordionTrigger>
+                          What do the different application statuses mean?
+                        </AccordionTrigger>
+                        <AccordionContent>
+                          <ul className="list-disc pl-5 space-y-2 text-muted-foreground">
+                            <li>
+                              <strong>Approved:</strong> Congratulations! Your
+                              application was successful. You'll receive check-in
+                              details via email soon.
+                            </li>
+                            <li>
+                              <strong>Pending:</strong> Your application is under
+                              review. This process usually takes 5-7 business days.
+                            </li>
+                            <li>
+                              <strong>Rejected:</strong> Unfortunately, we couldn't
+                              offer you a spot at this time due to high demand or
+                              unmet criteria.
+                            </li>
+                            <li>
+                              <strong>Not Found:</strong> We couldn't find an
+                              application with the ID you provided. Please check the
+                              ID and try again.
+                            </li>
+                          </ul>
+                        </AccordionContent>
+                      </AccordionItem>
+                      <AccordionItem value="item-2">
+                        <AccordionTrigger>
+                          How long does the review process take?
+                        </AccordionTrigger>
+                        <AccordionContent>
+                          Our admissions team carefully reviews each application. The
+                          process typically takes between 5 to 7 business days
+                          after submission. You will be notified by email once a
+                          decision has been made.
+                        </AccordionContent>
+                      </AccordionItem>
+                      <AccordionItem value="item-3">
+                        <AccordionTrigger>
+                          My application was rejected. Can I reapply?
+                        </AccordionTrigger>
+                        <AccordionContent>
+                          Yes, you are welcome to re-apply for the next admission
+                          cycle. We receive a high volume of applications, and
+                          availability is limited. We recommend reviewing the
+                          application criteria before reapplying.
+                        </AccordionContent>
+                      </AccordionItem>
+                      <AccordionItem value="item-4">
+                        <AccordionTrigger>
+                          I haven't received an email after my application was
+                          approved. What should I do?
+                        </AccordionTrigger>
+                        <AccordionContent>
+                          Please allow up to 48 hours for the email with check-in
+                          and payment details to arrive. Don't forget to check your
+                          spam or junk folder. If you still haven't received it,
+                          please contact our admissions office.
+                        </AccordionContent>
+                      </AccordionItem>
+                    </Accordion>
+                  </CardContent>
+                </Card>
+
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="flex items-center gap-2">
+                      <Info className="w-5 h-5 text-accent" />
+                      Need Further Assistance?
+                    </CardTitle>
+                    <CardDescription>
+                      Our admissions team is here to help.
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <p className="text-sm text-muted-foreground mb-4">
+                      If you have specific questions about your application that are
+                      not answered here, please feel free to reach out to us.
+                    </p>
+                    <div className="space-y-1">
+                      <p className="text-sm font-semibold">
+                        admissions@hostelpro.com
+                      </p>
+                      <p className="text-sm text-muted-foreground">
+                        +1 (234) 567-8900
+                      </p>
+                    </div>
+                  </CardContent>
+                </Card>
               </div>
-            ) : (
-              result && <StatusResultCard application={result} />
-            )}
-          </div>
-
-          <div className="mt-12 space-y-8">
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <HelpCircle className="w-6 h-6 text-primary" />
-                  Frequently Asked Questions
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <Accordion type="single" collapsible className="w-full">
-                  <AccordionItem value="item-1">
-                    <AccordionTrigger>
-                      What do the different application statuses mean?
-                    </AccordionTrigger>
-                    <AccordionContent>
-                      <ul className="list-disc pl-5 space-y-2 text-muted-foreground">
-                        <li>
-                          <strong>Approved:</strong> Congratulations! Your
-                          application was successful. You'll receive check-in
-                          details via email soon.
-                        </li>
-                        <li>
-                          <strong>Pending:</strong> Your application is under
-                          review. This process usually takes 5-7 business days.
-                        </li>
-                        <li>
-                          <strong>Rejected:</strong> Unfortunately, we couldn't
-                          offer you a spot at this time due to high demand or
-                          unmet criteria.
-                        </li>
-                        <li>
-                          <strong>Not Found:</strong> We couldn't find an
-                          application with the ID you provided. Please check the
-                          ID and try again.
-                        </li>
-                      </ul>
-                    </AccordionContent>
-                  </AccordionItem>
-                  <AccordionItem value="item-2">
-                    <AccordionTrigger>
-                      How long does the review process take?
-                    </AccordionTrigger>
-                    <AccordionContent>
-                      Our admissions team carefully reviews each application. The
-                      process typically takes between 5 to 7 business days
-                      after submission. You will be notified by email once a
-                      decision has been made.
-                    </AccordionContent>
-                  </AccordionItem>
-                  <AccordionItem value="item-3">
-                    <AccordionTrigger>
-                      My application was rejected. Can I reapply?
-                    </AccordionTrigger>
-                    <AccordionContent>
-                      Yes, you are welcome to re-apply for the next admission
-                      cycle. We receive a high volume of applications, and
-                      availability is limited. We recommend reviewing the
-                      application criteria before reapplying.
-                    </AccordionContent>
-                  </AccordionItem>
-                  <AccordionItem value="item-4">
-                    <AccordionTrigger>
-                      I haven't received an email after my application was
-                      approved. What should I do?
-                    </AccordionTrigger>
-                    <AccordionContent>
-                      Please allow up to 48 hours for the email with check-in
-                      and payment details to arrive. Don't forget to check your
-                      spam or junk folder. If you still haven't received it,
-                      please contact our admissions office.
-                    </AccordionContent>
-                  </AccordionItem>
-                </Accordion>
-              </CardContent>
-            </Card>
-
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Info className="w-5 h-5 text-accent" />
-                  Need Further Assistance?
-                </CardTitle>
-                <CardDescription>
-                  Our admissions team is here to help.
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <p className="text-sm text-muted-foreground mb-4">
-                  If you have specific questions about your application that are
-                  not answered here, please feel free to reach out to us.
-                </p>
-                <div className="space-y-1">
-                  <p className="text-sm font-semibold">
-                    admissions@hostelpro.com
-                  </p>
-                  <p className="text-sm text-muted-foreground">
-                    +1 (234) 567-8900
-                  </p>
-                </div>
-              </CardContent>
-            </Card>
+            </div>
           </div>
         </div>
       </main>
