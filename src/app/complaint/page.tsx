@@ -74,73 +74,75 @@ export default function ComplaintPage() {
         <div className="container mx-auto max-w-6xl">
            <div className="grid grid-cols-1 lg:grid-cols-3 gap-12">
             <div className="lg:col-span-2">
-              <Card>
-                <form ref={formRef} action={dispatch}>
-                  <CardHeader>
-                    <CardTitle className="font-headline text-3xl">Submit a Complaint</CardTitle>
-                    <CardDescription>
-                      Your feedback is important. Please describe your issue in detail. All submissions are treated with confidentiality.
-                    </CardDescription>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="space-y-6">
-                      <div>
-                        <Label htmlFor="complaintSubject">Subject</Label>
-                        <Input
-                          id="complaintSubject"
-                          name="complaintSubject"
-                          placeholder="e.g., Leaky Faucet in Room 201"
-                          className="mt-1"
-                          required
-                        />
-                        {state.errors?.complaintSubject &&
-                          state.errors.complaintSubject.map((error: string) => (
-                            <p className="text-sm font-medium text-destructive pt-1" key={error}>
-                              {error}
-                            </p>
-                        ))}
-                      </div>
-                      <div>
-                        <Label htmlFor="complaintText">Complaint Details</Label>
-                        <Textarea
-                          id="complaintText"
-                          name="complaintText"
-                          placeholder="Please describe your complaint here. The more detail, the better our AI can understand and categorize your issue."
-                          className="min-h-[200px] text-base mt-1"
-                          required
-                        />
-                        {state.errors?.complaintText &&
-                          state.errors.complaintText.map((error: string) => (
-                            <p className="text-sm font-medium text-destructive pt-1" key={error}>
-                              {error}
-                            </p>
-                        ))}
-                      </div>
+              <div className="sticky top-20">
+                <Card>
+                  <form ref={formRef} action={dispatch}>
+                    <CardHeader>
+                      <CardTitle className="font-headline text-3xl">Submit a Complaint</CardTitle>
+                      <CardDescription>
+                        Your feedback is important. Please describe your issue in detail. All submissions are treated with confidentiality.
+                      </CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="space-y-6">
+                        <div>
+                          <Label htmlFor="complaintSubject">Subject</Label>
+                          <Input
+                            id="complaintSubject"
+                            name="complaintSubject"
+                            placeholder="e.g., Leaky Faucet in Room 201"
+                            className="mt-1"
+                            required
+                          />
+                          {state.errors?.complaintSubject &&
+                            state.errors.complaintSubject.map((error: string) => (
+                              <p className="text-sm font-medium text-destructive pt-1" key={error}>
+                                {error}
+                              </p>
+                          ))}
+                        </div>
+                        <div>
+                          <Label htmlFor="complaintText">Complaint Details</Label>
+                          <Textarea
+                            id="complaintText"
+                            name="complaintText"
+                            placeholder="Please describe your complaint here. The more detail, the better our AI can understand and categorize your issue."
+                            className="min-h-[200px] text-base mt-1"
+                            required
+                          />
+                          {state.errors?.complaintText &&
+                            state.errors.complaintText.map((error: string) => (
+                              <p className="text-sm font-medium text-destructive pt-1" key={error}>
+                                {error}
+                              </p>
+                          ))}
+                        </div>
 
-                       {state.data && (
-                        <Alert className="mt-4 w-full">
-                            <Sparkles className="h-4 w-4" />
-                            <AlertTitle>AI Analysis Complete</AlertTitle>
-                            <AlertDescription className="space-y-2 mt-2">
-                                <p><strong>Summary:</strong> {state.data.summary}</p>
-                                <div className="flex flex-wrap gap-4">
-                                    <span><strong>Category:</strong> <Badge>{state.data.category}</Badge></span>
-                                    <span><strong>Urgency:</strong> <Badge variant={urgencyVariant(state.data.urgency)}>{state.data.urgency}</Badge></span>
-                                </div>
-                            </AlertDescription>
-                        </Alert>
-                      )}
-                    </div>
-                  </CardContent>
-                  <CardFooter>
-                    <SubmitButton />
-                  </CardFooter>
-                </form>
-              </Card>
+                        {state.data && (
+                          <Alert className="mt-4 w-full">
+                              <Sparkles className="h-4 w-4" />
+                              <AlertTitle>AI Analysis Complete</AlertTitle>
+                              <AlertDescription className="space-y-2 mt-2">
+                                  <p><strong>Summary:</strong> {state.data.summary}</p>
+                                  <div className="flex flex-wrap gap-4">
+                                      <span><strong>Category:</strong> <Badge>{state.data.category}</Badge></span>
+                                      <span><strong>Urgency:</strong> <Badge variant={urgencyVariant(state.data.urgency)}>{state.data.urgency}</Badge></span>
+                                  </div>
+                              </AlertDescription>
+                          </Alert>
+                        )}
+                      </div>
+                    </CardContent>
+                    <CardFooter>
+                      <SubmitButton />
+                    </CardFooter>
+                  </form>
+                </Card>
+              </div>
             </div>
 
             <div className="lg:col-span-1">
-              <div className="sticky top-20 space-y-8">
+              <div className="space-y-8">
                 <Card className="border-destructive/50">
                    <CardHeader>
                      <CardTitle className="flex items-center gap-2 text-destructive">
