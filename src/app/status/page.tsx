@@ -316,10 +316,6 @@ export default function StatusPage() {
                 </CardContent>
               </Card>
 
-              <ApplicationProcessOverview />
-
-              <ProcessingTimeline />
-
               {loading && (
                   <div className="flex flex-col items-center gap-2 text-muted-foreground pt-8">
                     <Clock className="h-8 w-8 animate-spin" />
@@ -329,6 +325,11 @@ export default function StatusPage() {
               {result && !loading && (
                  <StatusResultCard application={result} />
               )}
+
+              <ApplicationProcessOverview />
+
+              <ProcessingTimeline />
+
             </div>
 
             <div className="lg:col-span-1">
