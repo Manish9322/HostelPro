@@ -248,58 +248,60 @@ export default function ApplyPage() {
                 </CardContent>
               </Card>
             </div>
-            <div className="lg:col-span-1 space-y-8">
-              <Card className="sticky top-20">
-                <CardHeader>
-                  <CardTitle>Why Stay With Us?</CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-6">
-                  <div className="flex items-start gap-4">
-                    <ShieldCheck className="w-10 h-10 text-accent flex-shrink-0" />
-                    <div>
-                      <h4 className="font-semibold">Safe & Secure</h4>
-                      <p className="text-sm text-muted-foreground">24/7 security and controlled access for your peace of mind.</p>
+            <div className="lg:col-span-1">
+              <div className="sticky top-20 space-y-8">
+                <Card>
+                  <CardHeader>
+                    <CardTitle>Why Stay With Us?</CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-6">
+                    <div className="flex items-start gap-4">
+                      <ShieldCheck className="w-10 h-10 text-accent flex-shrink-0" />
+                      <div>
+                        <h4 className="font-semibold">Safe & Secure</h4>
+                        <p className="text-sm text-muted-foreground">24/7 security and controlled access for your peace of mind.</p>
+                      </div>
                     </div>
-                  </div>
-                  <div className="flex items-start gap-4">
-                    <Users className="w-10 h-10 text-accent flex-shrink-0" />
-                    <div>
-                      <h4 className="font-semibold">Vibrant Community</h4>
-                      <p className="text-sm text-muted-foreground">Connect with fellow students in our common areas and events.</p>
+                    <div className="flex items-start gap-4">
+                      <Users className="w-10 h-10 text-accent flex-shrink-0" />
+                      <div>
+                        <h4 className="font-semibold">Vibrant Community</h4>
+                        <p className="text-sm text-muted-foreground">Connect with fellow students in our common areas and events.</p>
+                      </div>
                     </div>
-                  </div>
-                  <div className="flex items-start gap-4">
-                    <Wifi className="w-10 h-10 text-accent flex-shrink-0" />
-                    <div>
-                      <h4 className="font-semibold">All-Inclusive Amenities</h4>
-                      <p className="text-sm text-muted-foreground">High-speed Wi-Fi, laundry, gym, and more included.</p>
+                    <div className="flex items-start gap-4">
+                      <Wifi className="w-10 h-10 text-accent flex-shrink-0" />
+                      <div>
+                        <h4 className="font-semibold">All-Inclusive Amenities</h4>
+                        <p className="text-sm text-muted-foreground">High-speed Wi-Fi, laundry, gym, and more included.</p>
+                      </div>
                     </div>
-                  </div>
-                </CardContent>
-                <CardFooter>
-                  <Button variant="outline" className="w-full" asChild>
-                    <Link href="/#faq">Read our FAQ</Link>
-                  </Button>
-                </CardFooter>
-              </Card>
-              <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <Info className="w-5 h-5 text-accent" />
-                    Need Assistance?
-                  </CardTitle>
-                  <CardDescription>Our team is ready to help you.</CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-sm text-muted-foreground mb-4">
-                    If you have any questions about the application process, don't hesitate to reach out.
-                  </p>
-                  <div className="space-y-1">
-                    <p className="text-sm font-semibold">admissions@hostelpro.com</p>
-                    <p className="text-sm text-muted-foreground">+1 (234) 567-8900</p>
-                  </div>
-                </CardContent>
-              </Card>
+                  </CardContent>
+                  <CardFooter>
+                    <Button variant="outline" className="w-full" asChild>
+                      <Link href="/#faq">Read our FAQ</Link>
+                    </Button>
+                  </CardFooter>
+                </Card>
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="flex items-center gap-2">
+                      <Info className="w-5 h-5 text-accent" />
+                      Need Assistance?
+                    </CardTitle>
+                    <CardDescription>Our team is ready to help you.</CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <p className="text-sm text-muted-foreground mb-4">
+                      If you have any questions about the application process, don't hesitate to reach out.
+                    </p>
+                    <div className="space-y-1">
+                      <p className="text-sm font-semibold">admissions@hostelpro.com</p>
+                      <p className="text-sm text-muted-foreground">+1 (234) 567-8900</p>
+                    </div>
+                  </CardContent>
+                </Card>
+              </div>
             </div>
           </div>
         </div>
