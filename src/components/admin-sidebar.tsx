@@ -12,10 +12,11 @@ import {
   SidebarMenuButton,
   SidebarFooter,
 } from '@/components/ui/sidebar';
-import { LayoutDashboard, Users, MessageSquareWarning, LogOut, University, Bell, Bed, UsersRound } from 'lucide-react';
+import { LayoutDashboard, Users, MessageSquareWarning, LogOut, University, Bell, Bed, UsersRound, ClipboardList } from 'lucide-react';
 
 const menuItems = [
   { href: '/admin/dashboard', label: 'Dashboard', icon: LayoutDashboard },
+  { href: '/admin/applications', label: 'Applications', icon: ClipboardList },
   { href: '/admin/students', label: 'Students', icon: Users },
   { href: '/admin/rooms', label: 'Rooms', icon: Bed },
   { href: '/admin/complaints', label: 'Complaints', icon: MessageSquareWarning },

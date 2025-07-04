@@ -8,6 +8,7 @@ import {
   CardDescription,
   CardHeader,
   CardTitle,
+  CardFooter,
 } from "@/components/ui/card";
 import {
   ChartContainer,
@@ -20,6 +21,11 @@ import {
 import { Users, FileText, MessageSquareWarning } from "lucide-react";
 import { mockStudents, mockApplications, mockComplaints, mockRooms } from "@/lib/data";
 import React from "react";
+import Link from "next/link";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { format } from "date-fns";
 
 const roomChartConfig = {
   value: {
@@ -86,6 +92,19 @@ const studentYearChartConfig = {
   },
 } satisfies ChartConfig
 
+const urgencyVariant = (urgency: string) => {
+  switch (urgency) {
+    case 'High':
+      return 'destructive';
+    case 'Medium':
+      return 'secondary';
+    case 'Low':
+    default:
+      return 'outline';
+  }
+};
+
+
 export default function Dashboard() {
   const roomStats = React.useMemo(() => {
     const stats = mockRooms.reduce((acc, room) => {
@@ -136,6 +155,21 @@ export default function Dashboard() {
         .map(([year, count]) => ({ name: year, students: count }))
         .sort((a,b) => a.name.localeCompare(b.name));
   }, []);
+
+  const recentApplications = React.useMemo(() => {
+    return mockApplications
+      .filter((app) => app.status === "Pending")
+      .sort((a, b) => b.submittedAt.getTime() - a.submittedAt.getTime())
+      .slice(0, 5);
+  }, []);
+
+  const recentComplaints = React.useMemo(() => {
+    return mockComplaints
+      .filter((complaint) => complaint.status !== "Resolved")
+      .sort((a, b) => b.submittedAt.getTime() - a.submittedAt.getTime())
+      .slice(0, 5);
+  }, []);
+
 
   return (
     <div className="flex flex-col gap-8">
@@ -299,6 +333,72 @@ export default function Dashboard() {
               </BarChart>
             </ChartContainer>
           </CardContent>
+        </Card>
+      </div>
+      
+      <div className="grid gap-8 grid-cols-1 xl:grid-cols-2">
+        <Card>
+          <CardHeader>
+            <CardTitle>Recent Applications</CardTitle>
+            <CardDescription>Newest student applications awaiting review.</CardDescription>
+          </CardHeader>
+          <CardContent className="grid gap-6">
+            {recentApplications.length > 0 ? (
+              recentApplications.map((app) => (
+                <div key={app.id} className="flex items-center gap-4">
+                  <Avatar className="h-10 w-10">
+                    <AvatarImage src={`https://placehold.co/40x40.png`} data-ai-hint="person avatar" alt="Avatar" />
+                    <AvatarFallback>{app.name.split(' ').map(n => n[0]).join('')}</AvatarFallback>
+                  </Avatar>
+                  <div className="grid gap-1">
+                    <p className="text-sm font-medium">{app.name}</p>
+                    <p className="text-sm text-muted-foreground">{app.course}</p>
+                  </div>
+                  <div className="ml-auto text-sm text-muted-foreground">
+                    {format(app.submittedAt, "PP")}
+                  </div>
+                </div>
+              ))
+            ) : (
+              <p className="text-sm text-muted-foreground">No pending applications.</p>
+            )}
+          </CardContent>
+          <CardFooter>
+            <Button asChild size="sm" className="w-full" variant="outline">
+              <Link href="/admin/applications">View All Applications</Link>
+            </Button>
+          </CardFooter>
+        </Card>
+        
+        <Card>
+          <CardHeader>
+            <CardTitle>Recent Complaints</CardTitle>
+            <CardDescription>Latest unresolved issues from residents.</CardDescription>
+          </CardHeader>
+          <CardContent className="grid gap-6">
+             {recentComplaints.length > 0 ? (
+                recentComplaints.map((complaint) => (
+                  <div key={complaint.id} className="flex items-center gap-4">
+                      <div className="grid gap-1">
+                          <p className="text-sm font-medium leading-none">{complaint.summary}</p>
+                          <p className="text-sm text-muted-foreground">
+                              Category: {complaint.category} &bull; {format(complaint.submittedAt, "PP")}
+                          </p>
+                      </div>
+                      <div className="ml-auto font-medium">
+                          <Badge variant={urgencyVariant(complaint.urgency)}>{complaint.urgency}</Badge>
+                      </div>
+                  </div>
+                ))
+             ) : (
+                <p className="text-sm text-muted-foreground">No unresolved complaints.</p>
+             )}
+          </CardContent>
+          <CardFooter>
+            <Button asChild size="sm" className="w-full" variant="outline">
+              <Link href="/admin/complaints">View All Complaints</Link>
+            </Button>
+          </CardFooter>
         </Card>
       </div>
 
