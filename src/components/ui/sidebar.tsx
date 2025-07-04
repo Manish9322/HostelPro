@@ -1,9 +1,10 @@
+
 "use client"
 
 import * as React from "react"
 import { Slot } from "@radix-ui/react-slot"
 import { VariantProps, cva } from "class-variance-authority"
-import { PanelLeft } from "lucide-react"
+import { ChevronLeft, PanelLeft } from "lucide-react"
 
 import { useIsMobile } from "@/hooks/use-mobile"
 import { cn } from "@/lib/utils"
@@ -286,30 +287,35 @@ const SidebarTrigger = React.forwardRef<
 SidebarTrigger.displayName = "SidebarTrigger"
 
 const SidebarRail = React.forwardRef<
-  HTMLButtonElement,
-  React.ComponentProps<"button">
+  React.ElementRef<typeof Button>,
+  React.ComponentProps<typeof Button>
 >(({ className, ...props }, ref) => {
   const { toggleSidebar } = useSidebar()
 
   return (
-    <button
+    <Button
       ref={ref}
       data-sidebar="rail"
       aria-label="Toggle Sidebar"
-      tabIndex={-1}
-      onClick={toggleSidebar}
       title="Toggle Sidebar"
+      variant="ghost"
+      size="icon"
+      onClick={toggleSidebar}
       className={cn(
-        "absolute inset-y-0 z-20 hidden w-4 -translate-x-1/2 transition-all ease-linear after:absolute after:inset-y-0 after:left-1/2 after:w-[2px] hover:after:bg-sidebar-border group-data-[side=left]:-right-4 group-data-[side=right]:left-0 sm:flex",
-        "[[data-side=left]_&]:cursor-w-resize [[data-side=right]_&]:cursor-e-resize",
-        "[[data-side=left][data-state=collapsed]_&]:cursor-e-resize [[data-side=right][data-state=collapsed]_&]:cursor-w-resize",
-        "group-data-[collapsible=offcanvas]:translate-x-0 group-data-[collapsible=offcanvas]:after:left-full group-data-[collapsible=offcanvas]:hover:bg-sidebar",
-        "[[data-side=left][data-collapsible=offcanvas]_&]:-right-2",
-        "[[data-side=right][data-collapsible=offcanvas]_&]:-left-2",
+        "absolute z-20 hidden h-8 w-8 -translate-x-1/2 rounded-full border bg-background text-foreground shadow-md transition-all ease-linear hover:bg-secondary sm:flex",
+        "peer-data-[side=left]:left-[var(--sidebar-width)] peer-data-[state=collapsed]:peer-data-[side=left]:left-[var(--sidebar-width-icon)]",
+        "peer-data-[side=right]:right-[var(--sidebar-width)] peer-data-[state=collapsed]:peer-data-[side=right]:right-[var(--sidebar-width-icon)]",
+        "top-14 -translate-y-1/2",
+        "peer-data-[variant=floating]:peer-data-[side=left]:left-[calc(var(--sidebar-width)_+_0.5rem)] peer-data-[variant=floating]:peer-data-[state=collapsed]:peer-data-[side=left]:left-[calc(var(--sidebar-width-icon)_+_0.5rem)]",
+        "peer-data-[variant=inset]:peer-data-[side=left]:left-[calc(var(--sidebar-width)_-_0.5rem)] peer-data-[variant=inset]:peer-data-[state=collapsed]:peer-data-[side=left]:left-[calc(var(--sidebar-width-icon)_+_0.5rem)]",
+        "peer-data-[collapsible=offcanvas]:hidden",
         className
       )}
       {...props}
-    />
+    >
+      <ChevronLeft className="h-4 w-4 transition-transform peer-data-[state=collapsed]:rotate-180 peer-data-[side=right]:rotate-180 peer-data-[side=right]:peer-data-[state=collapsed]:rotate-0" />
+      <span className="sr-only">Toggle Sidebar</span>
+    </Button>
   )
 })
 SidebarRail.displayName = "SidebarRail"

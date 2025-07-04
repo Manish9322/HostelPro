@@ -1,7 +1,7 @@
 
 "use client"
 
-import { Bar, BarChart, XAxis, YAxis, CartesianGrid, Pie, PieChart, Cell, Legend } from "recharts"
+import { Bar, BarChart, XAxis, YAxis, CartesianGrid, Pie, PieChart, Cell } from "recharts"
 import {
   Card,
   CardContent,
@@ -14,6 +14,8 @@ import {
   ChartTooltip,
   ChartTooltipContent,
   type ChartConfig,
+  ChartLegend,
+  ChartLegendContent,
 } from "@/components/ui/chart"
 import { Users, FileText, MessageSquareWarning } from "lucide-react";
 import { mockStudents, mockApplications, mockComplaints, mockRooms } from "@/lib/data";
@@ -187,12 +189,21 @@ export default function Dashboard() {
                   cursor={false}
                   content={<ChartTooltipContent hideLabel />}
                 />
-                <Pie data={roomStats} dataKey="value" nameKey="name" innerRadius={60} outerRadius={90} cy="50%">
+                <Pie 
+                  data={roomStats} 
+                  dataKey="value" 
+                  nameKey="name" 
+                  innerRadius={80} 
+                  outerRadius={110} 
+                  paddingAngle={2}
+                  cornerRadius={5}
+                  cy="50%"
+                >
                     {roomStats.map((entry) => (
                       <Cell key={entry.name} fill={entry.fill} />
                     ))}
                 </Pie>
-                <Legend content={<ChartTooltipContent nameKey="name" hideLabel hideIndicator />} />
+                <ChartLegend content={<ChartLegendContent nameKey="name" />} />
               </PieChart>
             </ChartContainer>
           </CardContent>
@@ -210,12 +221,21 @@ export default function Dashboard() {
                   cursor={false}
                   content={<ChartTooltipContent hideLabel />}
                 />
-                <Pie data={complaintStats} dataKey="value" nameKey="name" innerRadius={60} outerRadius={90} cy="50%">
+                <Pie 
+                  data={complaintStats} 
+                  dataKey="value" 
+                  nameKey="name" 
+                  innerRadius={80} 
+                  outerRadius={110} 
+                  paddingAngle={2}
+                  cornerRadius={5}
+                  cy="50%"
+                >
                     {complaintStats.map((entry) => (
                       <Cell key={entry.name} fill={entry.fill} />
                     ))}
                 </Pie>
-                 <Legend content={<ChartTooltipContent nameKey="name" hideLabel hideIndicator />} />
+                 <ChartLegend content={<ChartLegendContent nameKey="name" />} />
               </PieChart>
             </ChartContainer>
           </CardContent>
@@ -235,12 +255,21 @@ export default function Dashboard() {
                   cursor={false}
                   content={<ChartTooltipContent hideLabel />}
                 />
-                <Pie data={applicationStats} dataKey="value" nameKey="name" cy="50%" outerRadius={90}>
+                <Pie 
+                  data={applicationStats} 
+                  dataKey="value" 
+                  nameKey="name" 
+                  cy="50%" 
+                  innerRadius={80} 
+                  outerRadius={110}
+                  paddingAngle={2}
+                  cornerRadius={5}
+                >
                     {applicationStats.map((entry) => (
                       <Cell key={entry.name} fill={entry.fill} />
                     ))}
                 </Pie>
-                 <Legend content={<ChartTooltipContent nameKey="name" hideLabel hideIndicator />} />
+                 <ChartLegend content={<ChartLegendContent nameKey="name" />} />
               </PieChart>
             </ChartContainer>
           </CardContent>
@@ -261,12 +290,12 @@ export default function Dashboard() {
                   tickMargin={10}
                   axisLine={false}
                 />
-                <YAxis tickLine={false} axisLine={false} />
+                <YAxis tickLine={false} axisLine={false} allowDecimals={false} />
                 <ChartTooltip
                   cursor={false}
                   content={<ChartTooltipContent indicator="dot" />}
                 />
-                <Bar dataKey="students" fill="var(--color-students)" radius={8} />
+                <Bar dataKey="students" fill="var(--color-students)" radius={[8, 8, 0, 0]} />
               </BarChart>
             </ChartContainer>
           </CardContent>
