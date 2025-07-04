@@ -1,3 +1,4 @@
+
 "use client"
 
 import Link from 'next/link';
@@ -10,7 +11,6 @@ import {
   SidebarMenuItem,
   SidebarMenuButton,
   SidebarFooter,
-  SidebarTrigger,
 } from '@/components/ui/sidebar';
 import { LayoutDashboard, Users, MessageSquareWarning, LogOut, University, Bell, Bed, UsersRound } from 'lucide-react';
 
@@ -28,12 +28,11 @@ export default function AdminSidebar() {
 
   return (
     <Sidebar collapsible="icon" variant="inset">
-      <SidebarHeader className="flex-row items-center justify-between">
-        <Link href="/admin/dashboard" className="flex items-center gap-2">
+      <SidebarHeader>
+        <Link href="/admin/dashboard" className="flex items-center gap-2.5">
           <University className="w-6 h-6 text-primary" />
-          <span className="text-lg font-semibold font-headline">HostelPro</span>
+          <span className="text-lg font-semibold font-headline group-data-[collapsible=icon]/sidebar-wrapper:hidden whitespace-nowrap">HostelPro</span>
         </Link>
-        <SidebarTrigger className="sm:hidden" />
       </SidebarHeader>
       <SidebarContent>
         <SidebarMenu>

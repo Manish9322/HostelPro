@@ -1,12 +1,11 @@
 
 "use client"
 
-import { Bar, BarChart, XAxis, YAxis, CartesianGrid } from "recharts"
+import { Bar, BarChart, XAxis, YAxis, CartesianGrid, Pie, PieChart, Cell, Legend } from "recharts"
 import {
   Card,
   CardContent,
   CardDescription,
-  CardFooter,
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
@@ -16,69 +15,125 @@ import {
   ChartTooltipContent,
   type ChartConfig,
 } from "@/components/ui/chart"
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
-import { Badge } from "@/components/ui/badge";
-import { Users, FileText, MessageSquareWarning, ArrowUpRight } from "lucide-react";
-import { mockStudents, mockApplications, mockComplaints } from "@/lib/data";
-import { format, formatDistanceToNow } from 'date-fns';
-import { Button } from "@/components/ui/button";
-import Link from "next/link";
+import { Users, FileText, MessageSquareWarning } from "lucide-react";
+import { mockStudents, mockApplications, mockComplaints, mockRooms } from "@/lib/data";
 import React from "react";
 
-const applicationStatusVariant = (status: string) => {
-  switch (status) {
-    case 'Approved':
-      return 'default';
-    case 'Pending':
-      return 'secondary';
-    case 'Rejected':
-      return 'destructive';
-    default:
-      return 'outline';
-  }
-};
+const roomChartConfig = {
+  value: {
+    label: "Rooms",
+  },
+  Occupied: {
+    label: "Occupied",
+    color: "hsl(var(--chart-1))",
+  },
+  Available: {
+    label: "Available",
+    color: "hsl(var(--chart-2))",
+  },
+  "Under Maintenance": {
+    label: "Maintenance",
+    color: "hsl(var(--chart-3))",
+  },
+} satisfies ChartConfig
 
-const complaintUrgencyVariant = (urgency: string) => {
-  switch (urgency) {
-    case 'High':
-      return 'destructive';
-    case 'Medium':
-      return 'secondary';
-    case 'Low':
-    default:
-      return 'outline';
-  }
-};
+const complaintChartConfig = {
+  value: {
+    label: "Complaints",
+  },
+  Maintenance: {
+    label: "Maintenance",
+    color: "hsl(var(--chart-1))",
+  },
+  Noise: {
+    label: "Noise",
+    color: "hsl(var(--chart-2))",
+  },
+  Safety: {
+    label: "Safety",
+    color: "hsl(var(--chart-3))",
+  },
+  Other: {
+    label: "Other",
+    color: "hsl(var(--chart-4))",
+  },
+} satisfies ChartConfig
+
+const applicationChartConfig = {
+  value: {
+    label: "Applications",
+  },
+  Approved: {
+    label: "Approved",
+    color: "hsl(var(--chart-2))",
+  },
+  Pending: {
+    label: "Pending",
+    color: "hsl(var(--chart-1))",
+  },
+  Rejected: {
+    label: "Rejected",
+    color: "hsl(var(--chart-3))",
+  },
+} satisfies ChartConfig
+
+const studentYearChartConfig = {
+  students: {
+    label: "Students",
+    color: "hsl(var(--primary))",
+  },
+} satisfies ChartConfig
 
 export default function Dashboard() {
-  const recentApplications = [...mockApplications].sort((a, b) => b.submittedAt.getTime() - a.submittedAt.getTime()).slice(0, 5);
-  const recentComplaints = [...mockComplaints].sort((a, b) => b.submittedAt.getTime() - a.submittedAt.getTime()).slice(0, 4);
-
-  const courseCounts = React.useMemo(() => {
-    const counts: { [key: string]: number } = mockStudents.reduce((acc, student) => {
-      acc[student.course] = (acc[student.course] || 0) + 1;
-      return acc;
-    }, {} as { [key: string]: number });
-    
-    return Object.entries(counts).map(([course, count]) => ({
-      course,
-      students: count,
+  const roomStats = React.useMemo(() => {
+    const stats = mockRooms.reduce((acc, room) => {
+        acc[room.status] = (acc[room.status] || 0) + 1;
+        return acc;
+    }, {} as Record<string, number>);
+    return Object.entries(stats).map(([status, count]) => ({ 
+        name: status, 
+        value: count, 
+        fill: `var(--color-${status.replace(/ /g, '-')})` 
     }));
   }, []);
 
-  const chartConfig = {
-    students: {
-      label: "Students",
-      color: "hsl(var(--primary))",
-    },
-  } satisfies ChartConfig;
+  const complaintStats = React.useMemo(() => {
+    const stats = mockComplaints.reduce((acc, complaint) => {
+        const category = complaint.category as string;
+        if (category !== 'Uncategorized' && category !== 'Harassment') {
+          acc[category] = (acc[category] || 0) + 1;
+        }
+        return acc;
+    }, {} as Record<string, number>);
+    return Object.entries(stats).map(([category, count]) => ({ 
+        name: category, 
+        value: count, 
+        fill: `var(--color-${category})` 
+    }));
+  }, []);
+
+  const applicationStats = React.useMemo(() => {
+      const stats = mockApplications.reduce((acc, app) => {
+          acc[app.status] = (acc[app.status] || 0) + 1;
+          return acc;
+      }, {} as Record<string, number>);
+      return Object.entries(stats).map(([status, count]) => ({ 
+          name: status, 
+          value: count, 
+          fill: `var(--color-${status})` 
+      }));
+  }, []);
+
+  const studentYearStats = React.useMemo(() => {
+      const stats: { [key: string]: number } = mockStudents.reduce((acc, student) => {
+          const yearLabel = `Year ${student.year}`;
+          acc[yearLabel] = (acc[yearLabel] || 0) + 1;
+          return acc;
+      }, {} as { [key: string]: number });
+      return Object.entries(stats)
+        .map(([year, count]) => ({ name: year, students: count }))
+        .sort((a,b) => a.name.localeCompare(b.name));
+  }, []);
 
   return (
     <div className="flex flex-col gap-8">
@@ -122,85 +177,91 @@ export default function Dashboard() {
       <div className="grid gap-8 grid-cols-1 xl:grid-cols-2">
         <Card>
           <CardHeader>
-            <CardTitle>Recent Applications</CardTitle>
-            <CardDescription>A list of the most recent hostel applications.</CardDescription>
+            <CardTitle>Room Occupancy</CardTitle>
+            <CardDescription>A summary of room availability.</CardDescription>
           </CardHeader>
           <CardContent>
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Applicant</TableHead>
-                  <TableHead className="text-center">Status</TableHead>
-                  <TableHead className="text-right">Date</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {recentApplications.map((app) => (
-                  <TableRow key={app.id}>
-                    <TableCell>
-                      <div className="font-medium">{app.name}</div>
-                      <div className="text-sm text-muted-foreground">{app.course}</div>
-                    </TableCell>
-                    <TableCell className="text-center">
-                      <Badge variant={applicationStatusVariant(app.status)}>{app.status}</Badge>
-                    </TableCell>
-                    <TableCell className="text-right">{format(new Date(app.submittedAt), 'PP')}</TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
+             <ChartContainer config={roomChartConfig} className="min-h-[250px] w-full">
+              <PieChart>
+                <ChartTooltip
+                  cursor={false}
+                  content={<ChartTooltipContent hideLabel />}
+                />
+                <Pie data={roomStats} dataKey="value" nameKey="name" innerRadius={60} outerRadius={90} cy="50%">
+                    {roomStats.map((entry) => (
+                      <Cell key={entry.name} fill={entry.fill} />
+                    ))}
+                </Pie>
+                <Legend content={<ChartTooltipContent nameKey="name" hideLabel hideIndicator />} />
+              </PieChart>
+            </ChartContainer>
           </CardContent>
-           <CardFooter className="justify-end">
-            <Button asChild size="sm" variant="outline">
-              <Link href="/admin/applications">View All <ArrowUpRight className="h-4 w-4 ml-2" /></Link>
-            </Button>
-          </CardFooter>
         </Card>
         
         <Card>
           <CardHeader>
-            <CardTitle>Recent Complaints</CardTitle>
-            <CardDescription>The latest complaints filed by residents.</CardDescription>
+            <CardTitle>Complaint Categories</CardTitle>
+            <CardDescription>Breakdown of all submitted complaints by category.</CardDescription>
           </CardHeader>
           <CardContent>
-            <div className="space-y-6">
-              {recentComplaints.map((complaint) => (
-                <div key={complaint.id} className="flex items-start justify-between">
-                  <div className="space-y-1">
-                    <p className="text-sm font-medium leading-none">{complaint.summary}</p>
-                    <p className="text-sm text-muted-foreground">{formatDistanceToNow(complaint.submittedAt, { addSuffix: true })}</p>
-                  </div>
-                  <Badge variant={complaintUrgencyVariant(complaint.urgency)}>{complaint.urgency}</Badge>
-                </div>
-              ))}
-            </div>
+             <ChartContainer config={complaintChartConfig} className="min-h-[250px] w-full">
+              <PieChart>
+                <ChartTooltip
+                  cursor={false}
+                  content={<ChartTooltipContent hideLabel />}
+                />
+                <Pie data={complaintStats} dataKey="value" nameKey="name" innerRadius={60} outerRadius={90} cy="50%">
+                    {complaintStats.map((entry) => (
+                      <Cell key={entry.name} fill={entry.fill} />
+                    ))}
+                </Pie>
+                 <Legend content={<ChartTooltipContent nameKey="name" hideLabel hideIndicator />} />
+              </PieChart>
+            </ChartContainer>
           </CardContent>
-          <CardFooter className="justify-end">
-            <Button asChild size="sm" variant="outline">
-              <Link href="/admin/complaints">View All <ArrowUpRight className="h-4 w-4 ml-2" /></Link>
-            </Button>
-          </CardFooter>
         </Card>
       </div>
 
-      <div>
+       <div className="grid gap-8 grid-cols-1 xl:grid-cols-2">
         <Card>
           <CardHeader>
-            <CardTitle>Student Distribution by Course</CardTitle>
-            <CardDescription>A breakdown of residents by their field of study.</CardDescription>
+            <CardTitle>Application Status</CardTitle>
+            <CardDescription>Overview of recent application outcomes.</CardDescription>
           </CardHeader>
           <CardContent>
-            <ChartContainer config={chartConfig} className="min-h-[300px] w-full">
-              <BarChart accessibilityLayer data={courseCounts} margin={{ top: 20, right: 20, bottom: 20, left: 20 }}>
+             <ChartContainer config={applicationChartConfig} className="min-h-[250px] w-full">
+              <PieChart>
+                <ChartTooltip
+                  cursor={false}
+                  content={<ChartTooltipContent hideLabel />}
+                />
+                <Pie data={applicationStats} dataKey="value" nameKey="name" cy="50%" outerRadius={90}>
+                    {applicationStats.map((entry) => (
+                      <Cell key={entry.name} fill={entry.fill} />
+                    ))}
+                </Pie>
+                 <Legend content={<ChartTooltipContent nameKey="name" hideLabel hideIndicator />} />
+              </PieChart>
+            </ChartContainer>
+          </CardContent>
+        </Card>
+        
+        <Card>
+          <CardHeader>
+            <CardTitle>Student Distribution by Year</CardTitle>
+            <CardDescription>A breakdown of residents by their year of study.</CardDescription>
+          </CardHeader>
+          <CardContent>
+             <ChartContainer config={studentYearChartConfig} className="min-h-[250px] w-full">
+              <BarChart accessibilityLayer data={studentYearStats} margin={{ top: 20, right: 20, bottom: 20, left: 20 }}>
                  <CartesianGrid vertical={false} />
                 <XAxis
-                  dataKey="course"
+                  dataKey="name"
                   tickLine={false}
                   tickMargin={10}
                   axisLine={false}
-                  tickFormatter={(value) => value}
                 />
-                <YAxis />
+                <YAxis tickLine={false} axisLine={false} />
                 <ChartTooltip
                   cursor={false}
                   content={<ChartTooltipContent indicator="dot" />}
@@ -211,6 +272,7 @@ export default function Dashboard() {
           </CardContent>
         </Card>
       </div>
+
     </div>
   );
 }
