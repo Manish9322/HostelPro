@@ -1,11 +1,11 @@
-import type { Student, Complaint, Application, Notice } from './types';
+import type { Student, Complaint, Application, Notice, BoardMember, Room } from './types';
 
 export const mockStudents: Student[] = [
-  { id: '1', name: 'Alice Johnson', studentId: 'STU001', roomNumber: 'A-101', course: 'Computer Science', year: 3, email: 'alice@example.com', phone: '123-456-7890', avatar: '/avatars/01.png' },
-  { id: '2', name: 'Bob Williams', studentId: 'STU002', roomNumber: 'A-102', course: 'Mechanical Engineering', year: 2, email: 'bob@example.com', phone: '123-456-7891', avatar: '/avatars/02.png' },
-  { id: '3', name: 'Charlie Brown', studentId: 'STU003', roomNumber: 'B-205', course: 'Physics', year: 4, email: 'charlie@example.com', phone: '123-456-7892', avatar: '/avatars/03.png' },
-  { id: '4', name: 'Diana Prince', studentId: 'STU004', roomNumber: 'C-301', course: 'History', year: 1, email: 'diana@example.com', phone: '123-456-7893', avatar: '/avatars/04.png' },
-  { id: '5', name: 'Ethan Hunt', studentId: 'STU005', roomNumber: 'B-201', course: 'Chemistry', year: 2, email: 'ethan@example.com', phone: '123-456-7894', avatar: '/avatars/05.png' },
+  { id: '1', name: 'Alice Johnson', studentId: 'STU001', roomNumber: 'A-101', course: 'Computer Science', year: 3, email: 'alice@example.com', phone: '123-456-7890', avatar: 'https://placehold.co/40x40.png' },
+  { id: '2', name: 'Bob Williams', studentId: 'STU002', roomNumber: 'A-102', course: 'Mechanical Engineering', year: 2, email: 'bob@example.com', phone: '123-456-7891', avatar: 'https://placehold.co/40x40.png' },
+  { id: '3', name: 'Charlie Brown', studentId: 'STU003', roomNumber: 'B-205', course: 'Physics', year: 4, email: 'charlie@example.com', phone: '123-456-7892', avatar: 'https://placehold.co/40x40.png' },
+  { id: '4', name: 'Diana Prince', studentId: 'STU004', roomNumber: 'C-301', course: 'History', year: 1, email: 'diana@example.com', phone: '123-456-7893', avatar: 'https://placehold.co/40x40.png' },
+  { id: '5', name: 'Ethan Hunt', studentId: 'STU005', roomNumber: 'B-201', course: 'Chemistry', year: 2, email: 'ethan@example.com', phone: '123-456-7894', avatar: 'https://placehold.co/40x40.png' },
 ];
 
 export const mockComplaints: Complaint[] = [
@@ -62,4 +62,21 @@ export const mockNotices: Notice[] = [
     { id: '5', title: 'Urgent: Water Supply Disruption', content: 'Due to an emergency repair, the water supply to all floors will be temporarily suspended on May 27th from 10 AM to 1 PM. Please store water in advance.', author: 'Admin', publishedAt: new Date('2024-05-26T10:00:00Z'), category: 'Urgent' },
     { id: '6', title: 'Fire Drill Announcement', content: 'A mandatory fire drill will be conducted on Wednesday, May 29th at 3 PM. All residents are required to participate and follow the instructions of the safety officers.', author: 'Warden', publishedAt: new Date('2024-05-24T14:00:00Z'), category: 'Maintenance' },
     { id: '7', title: 'Guest Speaker: Career in Tech', content: 'We are excited to host a guest speaker from a leading tech company on June 2nd. The session will cover career opportunities and resume building tips. Venue: Conference Hall.', author: 'Student Council', publishedAt: new Date('2024-05-23T12:00:00Z'), category: 'Event' },
+];
+
+export const mockBoardMembers: BoardMember[] = [
+  { id: 'bm1', name: 'Dr. Evelyn Reed', position: 'Chairperson', email: 'e.reed@hostelpro.com', phone: '555-0101', joinedAt: new Date('2020-01-15'), avatar: 'https://placehold.co/40x40.png' },
+  { id: 'bm2', name: 'Mr. Samuel Chen', position: 'Treasurer', email: 's.chen@hostelpro.com', phone: '555-0102', joinedAt: new Date('2021-06-01'), avatar: 'https://placehold.co/40x40.png' },
+  { id: 'bm3', name: 'Ms. Olivia Garcia', position: 'Secretary', email: 'o.garcia@hostelpro.com', phone: '555-0103', joinedAt: new Date('2022-03-10'), avatar: 'https://placehold.co/40x40.png' },
+  { id: 'bm4', name: 'Prof. Benjamin Carter', position: 'Member', email: 'b.carter@hostelpro.com', phone: '555-0104', joinedAt: new Date('2023-08-20'), avatar: 'https://placehold.co/40x40.png' },
+];
+
+export const mockRooms: Room[] = [
+  { id: 'r1', roomNumber: 'A-101', capacity: 1, occupancy: 1, status: 'Occupied', condition: 'Excellent', utilities: ['AC', 'Wi-Fi', 'Attached Bathroom'] },
+  { id: 'r2', roomNumber: 'A-102', capacity: 1, occupancy: 1, status: 'Occupied', condition: 'Good', utilities: ['AC', 'Wi-Fi', 'Attached Bathroom'] },
+  { id: 'r3', roomNumber: 'A-103', capacity: 1, occupancy: 0, status: 'Available', condition: 'Excellent', utilities: ['AC', 'Wi-Fi', 'Attached Bathroom'] },
+  { id: 'r4', roomNumber: 'B-201', capacity: 2, occupancy: 1, status: 'Occupied', condition: 'Good', utilities: ['Wi-Fi', 'Common Bathroom'] },
+  { id: 'r5', roomNumber: 'B-205', capacity: 2, occupancy: 1, status: 'Occupied', condition: 'Fair', utilities: ['Wi-Fi', 'Common Bathroom'] },
+  { id: 'r6', roomNumber: 'C-301', capacity: 2, occupancy: 2, status: 'Occupied', condition: 'Excellent', utilities: ['Wi-Fi', 'AC', 'Common Bathroom'] },
+  { id: 'r7', roomNumber: 'C-302', capacity: 2, occupancy: 0, status: 'Under Maintenance', condition: 'Poor', utilities: ['Wi-Fi', 'AC', 'Common Bathroom'] },
 ];

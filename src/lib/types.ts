@@ -41,3 +41,23 @@ export type Notice = {
   category: 'Maintenance' | 'Event' | 'General' | 'Urgent';
   featured?: boolean;
 };
+
+export type BoardMember = {
+  id: string;
+  name: string;
+  position: string;
+  email: string;
+  phone: string;
+  joinedAt: Date;
+  avatar: string;
+};
+
+export type Room = {
+  id: string;
+  roomNumber: string;
+  capacity: number;
+  occupancy: number;
+  status: 'Available' | 'Occupied' | 'Under Maintenance';
+  condition: 'Excellent' | 'Good' | 'Fair' | 'Poor';
+  utilities: string[];
+};

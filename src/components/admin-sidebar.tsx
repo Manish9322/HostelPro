@@ -12,13 +12,15 @@ import {
   SidebarFooter,
   SidebarTrigger,
 } from '@/components/ui/sidebar';
-import { LayoutDashboard, Users, MessageSquareWarning, LogOut, University, Bell } from 'lucide-react';
+import { LayoutDashboard, Users, MessageSquareWarning, LogOut, University, Bell, Bed, UsersRound } from 'lucide-react';
 
 const menuItems = [
   { href: '/admin/dashboard', label: 'Dashboard', icon: LayoutDashboard },
   { href: '/admin/students', label: 'Students', icon: Users },
+  { href: '/admin/rooms', label: 'Rooms', icon: Bed },
   { href: '/admin/complaints', label: 'Complaints', icon: MessageSquareWarning },
   { href: '/admin/notices', label: 'Notices', icon: Bell },
+  { href: '/admin/board-members', label: 'Board Members', icon: UsersRound },
 ];
 
 export default function AdminSidebar() {
