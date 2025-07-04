@@ -24,7 +24,7 @@ export default function AdminSidebar() {
   const pathname = usePathname();
 
   return (
-    <Sidebar>
+    <Sidebar collapsible="icon">
       <SidebarHeader>
         <Link href="/admin/dashboard" className="flex items-center gap-2">
           <University className="w-6 h-6 text-primary" />
