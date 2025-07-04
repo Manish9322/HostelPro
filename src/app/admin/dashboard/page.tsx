@@ -213,6 +213,72 @@ export default function Dashboard() {
       <div className="grid gap-8 grid-cols-1 xl:grid-cols-2">
         <Card>
           <CardHeader>
+            <CardTitle>Recent Applications</CardTitle>
+            <CardDescription>Newest student applications awaiting review.</CardDescription>
+          </CardHeader>
+          <CardContent className="grid gap-6">
+            {recentApplications.length > 0 ? (
+              recentApplications.map((app) => (
+                <div key={app.id} className="flex items-center gap-4">
+                  <Avatar className="h-10 w-10">
+                    <AvatarImage src={`https://placehold.co/40x40.png`} data-ai-hint="person avatar" alt="Avatar" />
+                    <AvatarFallback>{app.name.split(' ').map(n => n[0]).join('')}</AvatarFallback>
+                  </Avatar>
+                  <div className="grid gap-1">
+                    <p className="text-sm font-medium">{app.name}</p>
+                    <p className="text-sm text-muted-foreground">{app.course}</p>
+                  </div>
+                  <div className="ml-auto text-sm text-muted-foreground">
+                    {format(app.submittedAt, "PP")}
+                  </div>
+                </div>
+              ))
+            ) : (
+              <p className="text-sm text-muted-foreground">No pending applications.</p>
+            )}
+          </CardContent>
+          <CardFooter>
+            <Button asChild size="sm" className="w-full" variant="outline">
+              <Link href="/admin/applications">View All Applications</Link>
+            </Button>
+          </CardFooter>
+        </Card>
+        
+        <Card>
+          <CardHeader>
+            <CardTitle>Recent Complaints</CardTitle>
+            <CardDescription>Latest unresolved issues from residents.</CardDescription>
+          </CardHeader>
+          <CardContent className="grid gap-6">
+             {recentComplaints.length > 0 ? (
+                recentComplaints.map((complaint) => (
+                  <div key={complaint.id} className="flex items-center gap-4">
+                      <div className="grid gap-1">
+                          <p className="text-sm font-medium leading-none">{complaint.summary}</p>
+                          <p className="text-sm text-muted-foreground">
+                              Category: {complaint.category} &bull; {format(complaint.submittedAt, "PP")}
+                          </p>
+                      </div>
+                      <div className="ml-auto font-medium">
+                          <Badge variant={urgencyVariant(complaint.urgency)}>{complaint.urgency}</Badge>
+                      </div>
+                  </div>
+                ))
+             ) : (
+                <p className="text-sm text-muted-foreground">No unresolved complaints.</p>
+             )}
+          </CardContent>
+          <CardFooter>
+            <Button asChild size="sm" className="w-full" variant="outline">
+              <Link href="/admin/complaints">View All Complaints</Link>
+            </Button>
+          </CardFooter>
+        </Card>
+      </div>
+
+      <div className="grid gap-8 grid-cols-1 xl:grid-cols-2">
+        <Card>
+          <CardHeader>
             <CardTitle>Room Occupancy</CardTitle>
             <CardDescription>A summary of room availability.</CardDescription>
           </CardHeader>
@@ -335,73 +401,6 @@ export default function Dashboard() {
           </CardContent>
         </Card>
       </div>
-      
-      <div className="grid gap-8 grid-cols-1 xl:grid-cols-2">
-        <Card>
-          <CardHeader>
-            <CardTitle>Recent Applications</CardTitle>
-            <CardDescription>Newest student applications awaiting review.</CardDescription>
-          </CardHeader>
-          <CardContent className="grid gap-6">
-            {recentApplications.length > 0 ? (
-              recentApplications.map((app) => (
-                <div key={app.id} className="flex items-center gap-4">
-                  <Avatar className="h-10 w-10">
-                    <AvatarImage src={`https://placehold.co/40x40.png`} data-ai-hint="person avatar" alt="Avatar" />
-                    <AvatarFallback>{app.name.split(' ').map(n => n[0]).join('')}</AvatarFallback>
-                  </Avatar>
-                  <div className="grid gap-1">
-                    <p className="text-sm font-medium">{app.name}</p>
-                    <p className="text-sm text-muted-foreground">{app.course}</p>
-                  </div>
-                  <div className="ml-auto text-sm text-muted-foreground">
-                    {format(app.submittedAt, "PP")}
-                  </div>
-                </div>
-              ))
-            ) : (
-              <p className="text-sm text-muted-foreground">No pending applications.</p>
-            )}
-          </CardContent>
-          <CardFooter>
-            <Button asChild size="sm" className="w-full" variant="outline">
-              <Link href="/admin/applications">View All Applications</Link>
-            </Button>
-          </CardFooter>
-        </Card>
-        
-        <Card>
-          <CardHeader>
-            <CardTitle>Recent Complaints</CardTitle>
-            <CardDescription>Latest unresolved issues from residents.</CardDescription>
-          </CardHeader>
-          <CardContent className="grid gap-6">
-             {recentComplaints.length > 0 ? (
-                recentComplaints.map((complaint) => (
-                  <div key={complaint.id} className="flex items-center gap-4">
-                      <div className="grid gap-1">
-                          <p className="text-sm font-medium leading-none">{complaint.summary}</p>
-                          <p className="text-sm text-muted-foreground">
-                              Category: {complaint.category} &bull; {format(complaint.submittedAt, "PP")}
-                          </p>
-                      </div>
-                      <div className="ml-auto font-medium">
-                          <Badge variant={urgencyVariant(complaint.urgency)}>{complaint.urgency}</Badge>
-                      </div>
-                  </div>
-                ))
-             ) : (
-                <p className="text-sm text-muted-foreground">No unresolved complaints.</p>
-             )}
-          </CardContent>
-          <CardFooter>
-            <Button asChild size="sm" className="w-full" variant="outline">
-              <Link href="/admin/complaints">View All Complaints</Link>
-            </Button>
-          </CardFooter>
-        </Card>
-      </div>
-
     </div>
   );
 }
