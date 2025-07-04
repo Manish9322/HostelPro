@@ -20,6 +20,7 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion";
+import PublicFooter from "@/components/public-footer";
 
 
 function SubmitButton() {
@@ -250,6 +251,7 @@ export default function ComplaintPage() {
           </div>
         </div>
       </main>
+      <PublicFooter />
     </div>
   );
 }

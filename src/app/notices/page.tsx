@@ -11,6 +11,7 @@ import { X, Search, Pin, Megaphone } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import PublicFooter from "@/components/public-footer";
 
 // The Modal component for displaying a single notice
 function NoticeModal({ notice, onClose }: { notice: Notice | null, onClose: () => void }) {
@@ -195,6 +196,7 @@ export default function NoticesPage() {
             
           </div>
         </main>
+        <PublicFooter />
       </div>
 
       <NoticeModal notice={selectedNotice} onClose={() => setSelectedNotice(null)} />

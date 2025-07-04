@@ -35,6 +35,7 @@ import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { format } from "date-fns";
 import { mockApplications } from "@/lib/data";
+import PublicFooter from "@/components/public-footer";
 
 // Define a type for the application details we'll show
 type ApplicationDetails = {
@@ -439,6 +440,7 @@ export default function StatusPage() {
           </div>
         </div>
       </main>
+      <PublicFooter />
     </div>
   );
 }

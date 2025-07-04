@@ -26,6 +26,7 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { Calendar } from "@/components/ui/calendar";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
+import PublicFooter from "@/components/public-footer";
 
 const applicationSchema = z.object({
   name: z.string().min(2, "Name must be at least 2 characters."),
@@ -306,6 +307,7 @@ export default function ApplyPage() {
           </div>
         </div>
       </main>
+      <PublicFooter />
     </div>
   );
 }
