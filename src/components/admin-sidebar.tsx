@@ -32,7 +32,7 @@ export default function AdminSidebar() {
       <SidebarHeader>
         <Link href="/admin/dashboard" className="flex items-center gap-2.5">
           <University className="w-6 h-6 text-primary" />
-          <span className="text-lg font-semibold font-headline group-data-[collapsible=icon]/sidebar-wrapper:hidden whitespace-nowrap">HostelPro</span>
+          <span className="text-lg font-semibold font-headline group-data-[state=collapsed]:hidden whitespace-nowrap">HostelPro</span>
         </Link>
       </SidebarHeader>
       <SidebarContent>
