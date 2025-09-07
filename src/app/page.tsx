@@ -3,7 +3,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { BedDouble, Users, ShieldCheck, Wifi, Dumbbell, UtensilsCrossed, BookOpen, Tv, Star, University, FileCheck2, Building, Handshake, Smile, Shield, Trophy } from 'lucide-react';
+import { BedDouble, Users, ShieldCheck, Wifi, Dumbbell, UtensilsCrossed, BookOpen, Tv, Star, University, FileCheck2, Building, Handshake, Smile, Shield, Trophy, PartyPopper, Lightbulb, Images, HeartHandshake, HelpCircle, MapPin, Sparkles } from 'lucide-react';
 import PublicHeader from '@/components/public-header';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import {
@@ -14,6 +14,13 @@ import {
 } from "@/components/ui/accordion";
 import PublicFooter from '@/components/public-footer';
 import { Separator } from '@/components/ui/separator';
+
+const SectionTag = ({ icon: Icon, children }: { icon: React.ElementType, children: React.ReactNode }) => (
+  <div className="flex items-center justify-center gap-2 mb-8">
+    <Icon className="w-5 h-5 text-primary" />
+    <span className="text-sm font-medium text-primary tracking-widest uppercase">{children}</span>
+  </div>
+)
 
 export default function Home() {
   return (
@@ -40,22 +47,32 @@ export default function Home() {
                             <Link href="#features">Explore Features</Link>
                         </Button>
                     </div>
-                    <div className="w-full max-w-4xl pt-12">
-                      <div className="grid grid-cols-1 sm:grid-cols-3 gap-8 text-center">
+                    <div className="w-full max-w-5xl pt-12">
+                      <div className="grid grid-cols-2 sm:grid-cols-5 gap-8 text-center">
                         <div className="flex flex-col items-center gap-2">
-                          <Smile className="w-10 h-10 text-primary"/>
-                          <p className="text-2xl font-bold">500+</p>
-                          <p className="text-muted-foreground">Happy Residents</p>
+                          <Smile className="w-8 h-8 text-primary"/>
+                          <p className="text-xl font-bold">500+</p>
+                          <p className="text-sm text-muted-foreground">Happy Residents</p>
                         </div>
                         <div className="flex flex-col items-center gap-2">
-                          <Shield className="w-10 h-10 text-primary"/>
-                          <p className="text-2xl font-bold">150+</p>
-                          <p className="text-muted-foreground">Secure Rooms</p>
+                          <Shield className="w-8 h-8 text-primary"/>
+                          <p className="text-xl font-bold">150+</p>
+                          <p className="text-sm text-muted-foreground">Secure Rooms</p>
                         </div>
                         <div className="flex flex-col items-center gap-2">
-                          <Trophy className="w-10 h-10 text-primary"/>
-                          <p className="text-2xl font-bold">10+</p>
-                          <p className="text-muted-foreground">Years of Service</p>
+                          <Trophy className="w-8 h-8 text-primary"/>
+                          <p className="text-xl font-bold">10+</p>
+                          <p className="text-sm text-muted-foreground">Years of Service</p>
+                        </div>
+                         <div className="flex flex-col items-center gap-2">
+                          <University className="w-8 h-8 text-primary"/>
+                          <p className="text-xl font-bold">5</p>
+                          <p className="text-sm text-muted-foreground">Partner Universities</p>
+                        </div>
+                         <div className="flex flex-col items-center gap-2">
+                          <PartyPopper className="w-8 h-8 text-primary"/>
+                          <p className="text-xl font-bold">20+</p>
+                          <p className="text-sm text-muted-foreground">Community Events</p>
                         </div>
                       </div>
                     </div>
@@ -66,6 +83,7 @@ export default function Home() {
         {/* Features Section */}
         <section id="features" className="w-full py-12 md:py-16 lg:py-20 bg-background">
           <div className="container mx-auto px-4 md:px-6">
+            <SectionTag icon={Lightbulb}>Features</SectionTag>
             <div className="text-center mb-12">
               <h2 className="text-3xl md:text-4xl font-bold font-headline">Why Choose HostelPro?</h2>
               <p className="mt-2 text-muted-foreground max-w-2xl mx-auto">We provide more than just a room. We offer a comprehensive living experience tailored to student life, focusing on convenience, community, and security.</p>
@@ -111,6 +129,7 @@ export default function Home() {
         {/* Gallery Section */}
         <section id="gallery" className="w-full py-12 md:py-16 lg:py-20 bg-secondary">
           <div className="container mx-auto px-4 md:px-6">
+            <SectionTag icon={Images}>Gallery</SectionTag>
             <div className="text-center mb-12">
               <h2 className="text-3xl md:text-4xl font-bold font-headline">Glimpses of Our Hostel</h2>
               <p className="mt-2 text-muted-foreground">A modern, clean, and welcoming environment designed for student success.</p>
@@ -149,6 +168,7 @@ export default function Home() {
         {/* Amenities Section */}
         <section id="amenities" className="w-full py-12 md:py-16 lg:py-20">
           <div className="container mx-auto px-4 md:px-6">
+            <SectionTag icon={Sparkles}>Amenities</SectionTag>
             <div className="text-center mb-12">
               <h2 className="text-3xl md:text-4xl font-bold font-headline">Everything You Need</h2>
               <p className="mt-2 text-muted-foreground">Our amenities are curated to support your academic and personal life.</p>
@@ -217,6 +237,7 @@ export default function Home() {
         {/* Testimonials Section */}
         <section id="testimonials" className="w-full py-12 md:py-16 lg:py-20 bg-secondary">
           <div className="container mx-auto px-4 md:px-6">
+            <SectionTag icon={HeartHandshake}>Testimonials</SectionTag>
             <div className="text-center mb-12">
               <h2 className="text-3xl md:text-4xl font-bold font-headline">What Our Residents Say</h2>
               <p className="mt-2 text-muted-foreground max-w-2xl mx-auto">Real stories from students who have experienced life at HostelPro. Their satisfaction is our best advertisement.</p>
@@ -290,6 +311,7 @@ export default function Home() {
         {/* FAQ Section */}
         <section id="faq" className="w-full py-12 md:py-16 lg:py-20">
           <div className="container mx-auto px-4 md:px-6 max-w-3xl">
+            <SectionTag icon={HelpCircle}>FAQ</SectionTag>
             <div className="text-center mb-12">
               <h2 className="text-3xl md:text-4xl font-bold font-headline">Frequently Asked Questions</h2>
               <p className="mt-2 text-muted-foreground">Have questions? We have answers. Here are some of the most common inquiries we receive.</p>
@@ -338,6 +360,7 @@ export default function Home() {
         {/* Location Section */}
         <section id="location" className="w-full py-12 md:py-16 lg:py-20 bg-secondary">
           <div className="container mx-auto px-4 md:px-6">
+            <SectionTag icon={MapPin}>Location</SectionTag>
             <div className="text-center mb-12">
               <h2 className="text-3xl md:text-4xl font-bold font-headline">Our Prime Location</h2>
               <p className="mt-2 text-muted-foreground">Conveniently located to keep you connected to campus and the city.</p>
