@@ -3,7 +3,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { BedDouble, Users, ShieldCheck, Wifi, Dumbbell, UtensilsCrossed, BookOpen, Tv, Star, University } from 'lucide-react';
+import { BedDouble, Users, ShieldCheck, Wifi, Dumbbell, UtensilsCrossed, BookOpen, Tv, Star, University, FileCheck2, Building, Handshake } from 'lucide-react';
 import PublicHeader from '@/components/public-header';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import {
@@ -20,32 +20,56 @@ export default function Home() {
       <PublicHeader />
       <main className="flex-1">
         {/* Hero Section */}
-        <section className="relative w-full h-[80vh] flex items-center justify-center text-center text-white">
-          <Image
-            src="https://placehold.co/1600x900.png"
-            data-ai-hint="modern hostel building"
-            alt="HostelPro building exterior"
-            fill
-            className="object-cover"
-            priority
-          />
-          <div className="absolute inset-0 bg-black/60" />
-          <div className="relative z-10 container mx-auto px-4 md:px-6">
-            <h1 className="text-4xl md:text-6xl lg:text-7xl font-bold tracking-tighter drop-shadow-lg font-headline">
-              Welcome to HostelPro
-            </h1>
-            <p className="mt-4 max-w-3xl mx-auto text-lg md:text-xl text-neutral-200 drop-shadow-md">
-              Discover a safe, comfortable, and vibrant living space designed for students. Your new home away from home awaits.
-            </p>
-            <div className="mt-8 flex flex-col sm:flex-row gap-4 justify-center">
-              <Button asChild size="lg" className="bg-accent hover:bg-accent/90 text-accent-foreground shadow-lg transform hover:scale-105 transition-transform">
-                <Link href="/apply">Apply for a Room</Link>
-              </Button>
-              <Button asChild size="lg" variant="outline" className="bg-white/20 backdrop-blur-sm border-white/50 text-white hover:bg-white/30 hover:text-white transform hover:scale-105 transition-transform">
-                <Link href="#features">Explore Features</Link>
-              </Button>
+        <section className="w-full py-20 md:py-32 lg:py-40 bg-secondary/50">
+            <div className="container mx-auto px-4 md:px-6">
+                <div className="grid gap-12 lg:grid-cols-2 lg:gap-20 items-center">
+                    <div className="space-y-6 text-center lg:text-left">
+                        <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold tracking-tighter font-headline">
+                           Your New Home Away from Home.
+                        </h1>
+                        <p className="max-w-xl mx-auto lg:mx-0 text-lg text-muted-foreground md:text-xl">
+                            Discover a safe, comfortable, and vibrant living space designed exclusively for students. Simplify your life with our modern amenities and streamlined digital experience.
+                        </p>
+                        <div className="mt-8 flex flex-col sm:flex-row gap-4 justify-center lg:justify-start">
+                            <Button asChild size="lg" className="bg-primary hover:bg-primary/90 text-primary-foreground shadow-lg transform hover:scale-105 transition-transform">
+                                <Link href="/apply">Apply for a Room</Link>
+                            </Button>
+                            <Button asChild size="lg" variant="outline" className="transform hover:scale-105 transition-transform">
+                                <Link href="#features">Explore Features</Link>
+                            </Button>
+                        </div>
+                    </div>
+                    <div className="relative h-80 lg:h-96 group">
+                        <Card className="absolute w-full h-full transform transition-transform duration-500 ease-in-out group-hover:rotate-0 group-hover:scale-100 rotate-6 scale-90 bg-card border-2">
+                           <CardHeader className="flex flex-row items-center gap-4 p-4">
+                                <FileCheck2 className="w-8 h-8 text-primary" />
+                                <div>
+                                    <CardTitle>Easy Application</CardTitle>
+                                    <p className="text-sm text-muted-foreground">Apply online in minutes.</p>
+                                </div>
+                            </CardHeader>
+                        </Card>
+                        <Card className="absolute w-full h-full transform transition-transform duration-500 ease-in-out group-hover:rotate-0 group-hover:scale-100 rotate-[-4deg] scale-95 bg-card border-2">
+                             <CardHeader className="flex flex-row items-center gap-4 p-4">
+                                <Building className="w-8 h-8 text-primary" />
+                                <div>
+                                    <CardTitle>Modern Facilities</CardTitle>
+                                    <p className="text-sm text-muted-foreground">Gym, study halls, and more.</p>
+                                </div>
+                            </CardHeader>
+                        </Card>
+                        <Card className="absolute w-full h-full transform transition-transform duration-500 ease-in-out group-hover:rotate-0 group-hover:scale-100 bg-card border-2">
+                             <CardHeader className="flex flex-row items-center gap-4 p-4">
+                                <Handshake className="w-8 h-8 text-primary" />
+                                <div>
+                                    <CardTitle>Vibrant Community</CardTitle>
+                                    <p className="text-sm text-muted-foreground">Connect and make friends.</p>
+                                </div>
+                            </CardHeader>
+                        </Card>
+                    </div>
+                </div>
             </div>
-          </div>
         </section>
 
         {/* Features Section */}
