@@ -1,3 +1,4 @@
+
 import type { Student, Complaint, Application, Notice, BoardMember, Room } from './types';
 
 export const mockStudents: Student[] = [
@@ -48,8 +49,8 @@ export const mockComplaints: Complaint[] = [
 ];
 
 export const mockApplications: Application[] = [
-  { id: '1', name: 'Frank Castle', studentId: 'APP001', course: 'Law', year: 1, email: 'frank@example.com', phone: '234-567-8901', status: 'Approved', submittedAt: new Date('2024-04-15T10:00:00Z') },
-  { id: '2', name: 'Gwen Stacy', studentId: 'APP002', course: 'Biotechnology', year: 1, email: 'gwen@example.com', phone: '234-567-8902', status: 'Pending', submittedAt: new Date('2024-05-10T11:30:00Z') },
+  { id: '1', name: 'Frank Castle', studentId: 'APP001', course: 'Law', year: 1, email: 'frank@example.com', phone: '234-567-8901', status: 'Approved', submittedAt: new Date('2024-04-15T10:00:00Z'), roommatePreferences: { sleepSchedule: 'night-owl', studyHabits: 'library', socialHabits: 'introvert' } },
+  { id: '2', name: 'Gwen Stacy', studentId: 'APP002', course: 'Biotechnology', year: 1, email: 'gwen@example.com', phone: '234-567-8902', status: 'Pending', submittedAt: new Date('2024-05-10T11:30:00Z'), roommatePreferences: { sleepSchedule: 'early-bird', studyHabits: 'in-room', socialHabits: 'ambivert' } },
   { id: '3', name: 'Hank Pym', studentId: 'APP003', course: 'Robotics', year: 1, email: 'hank@example.com', phone: '234-567-8903', status: 'Rejected', submittedAt: new Date('2024-05-01T09:00:00Z') },
   { id: '4', name: 'Ivy Pepper', studentId: 'APP004', course: 'Botany', year: 1, email: 'ivy@example.com', phone: '234-567-8904', status: 'Pending', submittedAt: new Date('2024-05-20T16:00:00Z') },
 ];

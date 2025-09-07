@@ -1,3 +1,4 @@
+
 export type Student = {
   id: string;
   name: string;
@@ -30,6 +31,11 @@ export type Application = {
   phone: string;
   status: 'Pending' | 'Approved' | 'Rejected';
   submittedAt: Date;
+  roommatePreferences?: {
+    sleepSchedule?: 'early-bird' | 'night-owl';
+    studyHabits?: 'in-room' | 'library' | 'flexible';
+    socialHabits?: 'introvert' | 'extrovert' | 'ambivert';
+  }
 };
 
 export type Notice = {

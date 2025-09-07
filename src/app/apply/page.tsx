@@ -1,3 +1,4 @@
+
 "use client";
 
 import Link from "next/link";
@@ -5,7 +6,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { format } from "date-fns";
-import { CalendarIcon, ShieldCheck, Users, Wifi, Info } from "lucide-react";
+import { CalendarIcon, ShieldCheck, Users, Wifi, Info, Handshake } from "lucide-react";
 
 import { cn } from "@/lib/utils";
 import PublicHeader from "@/components/public-header";
@@ -27,6 +28,7 @@ import { Calendar } from "@/components/ui/calendar";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import PublicFooter from "@/components/public-footer";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 
 const applicationSchema = z.object({
   name: z.string().min(2, "Name must be at least 2 characters."),
@@ -41,6 +43,10 @@ const applicationSchema = z.object({
   roomPreference: z.string({ required_error: "Please select a room preference." }),
   guardianName: z.string().min(2, "Guardian's name is required."),
   guardianPhone: z.string().min(10, "Guardian's phone number is required."),
+  // Roommate preferences
+  sleepSchedule: z.enum(["early-bird", "night-owl"]).optional(),
+  studyHabits: z.enum(["in-room", "library", "flexible"]).optional(),
+  socialHabits: z.enum(["introvert", "extrovert", "ambivert"]).optional(),
 });
 
 type ApplicationFormValues = z.infer<typeof applicationSchema>;
@@ -243,6 +249,103 @@ export default function ApplyPage() {
                         </div>
                       </div>
 
+                      <Separator />
+
+                      {/* Roommate Preferences */}
+                      <div>
+                        <h3 className="text-lg font-medium mb-4 text-primary">Roommate Preferences (Optional)</h3>
+                        <p className="text-sm text-muted-foreground mb-6">Help us find your ideal roommate! This section is optional but highly recommended if you've selected a shared room.</p>
+                        <div className="space-y-8">
+                          <FormField
+                            control={form.control}
+                            name="sleepSchedule"
+                            render={({ field }) => (
+                              <FormItem className="space-y-3">
+                                <FormLabel>What's your typical sleep schedule?</FormLabel>
+                                <FormControl>
+                                  <RadioGroup
+                                    onValueChange={field.onChange}
+                                    defaultValue={field.value}
+                                    className="flex flex-col md:flex-row gap-4"
+                                  >
+                                    <FormItem className="flex items-center space-x-3 space-y-0">
+                                      <FormControl><RadioGroupItem value="early-bird" /></FormControl>
+                                      <FormLabel className="font-normal">Early Bird (asleep by 11 PM)</FormLabel>
+                                    </FormItem>
+                                    <FormItem className="flex items-center space-x-3 space-y-0">
+                                      <FormControl><RadioGroupItem value="night-owl" /></FormControl>
+                                      <FormLabel className="font-normal">Night Owl (up past midnight)</FormLabel>
+                                    </FormItem>
+                                  </RadioGroup>
+                                </FormControl>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+                          <FormField
+                            control={form.control}
+                            name="studyHabits"
+                            render={({ field }) => (
+                              <FormItem className="space-y-3">
+                                <FormLabel>Where do you prefer to study?</FormLabel>
+                                <FormControl>
+                                  <RadioGroup
+                                    onValueChange={field.onChange}
+                                    defaultValue={field.value}
+                                    className="flex flex-col md:flex-row gap-4"
+                                  >
+                                    <FormItem className="flex items-center space-x-3 space-y-0">
+                                      <FormControl><RadioGroupItem value="in-room" /></FormControl>
+                                      <FormLabel className="font-normal">Mostly in my room</FormLabel>
+                                    </FormItem>
+                                    <FormItem className="flex items-center space-x-3 space-y-0">
+                                      <FormControl><RadioGroupItem value="library" /></FormControl>
+                                      <FormLabel className="font-normal">Library or study halls</FormLabel>
+                                    </FormItem>
+                                     <FormItem className="flex items-center space-x-3 space-y-0">
+                                      <FormControl><RadioGroupItem value="flexible" /></FormControl>
+                                      <FormLabel className="font-normal">I'm flexible</FormLabel>
+                                    </FormItem>
+                                  </RadioGroup>
+                                </FormControl>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+                           <FormField
+                            control={form.control}
+                            name="socialHabits"
+                            render={({ field }) => (
+                              <FormItem className="space-y-3">
+                                <FormLabel>How would you describe your social style?</FormLabel>
+                                <FormControl>
+                                  <RadioGroup
+                                    onValueChange={field.onChange}
+                                    defaultValue={field.value}
+                                    className="flex flex-col md:flex-row gap-4"
+                                  >
+                                    <FormItem className="flex items-center space-x-3 space-y-0">
+                                      <FormControl><RadioGroupItem value="introvert" /></FormControl>
+                                      <FormLabel className="font-normal">I prefer quiet and alone time</FormLabel>
+                                    </FormItem>
+                                    <FormItem className="flex items-center space-x-3 space-y-0">
+                                      <FormControl><RadioGroupItem value="extrovert" /></FormControl>
+                                      <FormLabel className="font-normal">I enjoy socializing and having friends over</FormLabel>
+                                    </FormItem>
+                                    <FormItem className="flex items-center space-x-3 space-y-0">
+                                      <FormControl><RadioGroupItem value="ambivert" /></FormControl>
+                                      <FormLabel className="font-normal">A mix of both</FormLabel>
+                                    </FormItem>
+                                  </RadioGroup>
+                                </FormControl>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+                        </div>
+                      </div>
+
+
                       <Button type="submit" className="w-full bg-accent hover:bg-accent/90 text-accent-foreground" size="lg">Submit Application</Button>
                     </form>
                   </Form>
@@ -251,6 +354,20 @@ export default function ApplyPage() {
             </div>
             <div className="lg:col-span-1">
               <div className="sticky top-20 space-y-8">
+                 <Card>
+                  <CardHeader>
+                    <CardTitle className="flex items-center gap-2">
+                       <Handshake className="w-6 h-6 text-primary" />
+                      Find a Great Roommate
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-4">
+                    <p className="text-sm text-muted-foreground">
+                      Living with someone new is a big part of the hostel experience. By answering a few simple questions, you help us match you with someone who has a similar lifestyle, making your stay more enjoyable from day one.
+                    </p>
+                  </CardContent>
+                </Card>
+
                 <Card>
                   <CardHeader>
                     <CardTitle>Why Stay With Us?</CardTitle>
