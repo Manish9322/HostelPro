@@ -1,4 +1,5 @@
 
+
 "use client"
 
 import Link from 'next/link';
@@ -31,7 +32,7 @@ export default function AdminSidebar() {
     <Sidebar collapsible="icon" variant="inset">
       <SidebarHeader>
         <Link href="/admin/dashboard" className="flex items-center gap-2.5">
-          <University className="w-6 h-6 text-primary" />
+          <University className="w-6 h-6 text-sidebar-primary" />
           <span className="text-lg font-semibold font-headline group-data-[state=collapsed]:hidden whitespace-nowrap">HostelPro</span>
         </Link>
       </SidebarHeader>
@@ -68,3 +69,4 @@ export default function AdminSidebar() {
     </Sidebar>
   );
 }
+
