@@ -49,7 +49,23 @@ export default function Home() {
                         </Button>
                     </div>
                     <div className="w-full max-w-5xl pt-12">
-                      <div className="grid grid-cols-2 sm:grid-cols-5 gap-8 text-center">
+                      <div className="flex justify-center items-center -space-x-2 mb-4">
+                          <Avatar className="h-10 w-10 border-2 border-background">
+                              <AvatarImage src="https://placehold.co/40x40.png" data-ai-hint="person avatar" />
+                              <AvatarFallback>S1</AvatarFallback>
+                          </Avatar>
+                          <Avatar className="h-10 w-10 border-2 border-background">
+                              <AvatarImage src="https://placehold.co/40x40.png" data-ai-hint="person avatar" />
+                              <AvatarFallback>S2</AvatarFallback>
+                          </Avatar>
+                          <Avatar className="h-10 w-10 border-2 border-background">
+                              <AvatarImage src="https://placehold.co/40x40.png" data-ai-hint="person avatar" />
+                              <AvatarFallback>S3</AvatarFallback>
+                          </Avatar>
+                      </div>
+                      <p className="text-sm text-muted-foreground font-medium">Join our thriving community of students from around the world!</p>
+                      
+                      <div className="grid grid-cols-2 sm:grid-cols-5 gap-8 text-center mt-8">
                         <div className="flex flex-col items-center gap-2">
                           <Smile className="w-8 h-8 text-primary"/>
                           <p className="text-xl font-bold">500+</p>
