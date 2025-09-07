@@ -12,19 +12,22 @@ import {
   SidebarMenuItem,
   SidebarMenuButton,
   SidebarFooter,
-  SidebarTrigger,
   useSidebar,
 } from '@/components/ui/sidebar';
-import { LayoutDashboard, Users, MessageSquareWarning, LogOut, University, Bell, Bed, UsersRound, ClipboardList, PanelLeft } from 'lucide-react';
+import { LayoutDashboard, Users, MessageSquareWarning, LogOut, University, Bell, Bed, UsersRound, ClipboardList, PanelLeft, CircleDollarSign, Box, KeyRound, BarChart } from 'lucide-react';
 
 const menuItems = [
   { href: '/admin/dashboard', label: 'Dashboard', icon: LayoutDashboard },
   { href: '/admin/applications', label: 'Applications', icon: ClipboardList },
   { href: '/admin/students', label: 'Students', icon: Users },
   { href: '/admin/rooms', label: 'Rooms', icon: Bed },
+  { href: '/admin/allocation', label: 'Room Allocation', icon: KeyRound },
+  { href: '/admin/fees', label: 'Fee Management', icon: CircleDollarSign },
+  { href: '/admin/inventory', label: 'Inventory', icon: Box },
   { href: '/admin/complaints', label: 'Complaints', icon: MessageSquareWarning },
   { href: '/admin/notices', label: 'Notices', icon: Bell },
   { href: '/admin/board-members', label: 'Board Members', icon: UsersRound },
+  { href: '/admin/reports', label: 'Reports', icon: BarChart },
 ];
 
 export default function AdminSidebar() {
@@ -78,5 +81,3 @@ export default function AdminSidebar() {
     </Sidebar>
   );
 }
-
-
