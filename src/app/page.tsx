@@ -3,7 +3,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { BedDouble, Users, ShieldCheck, Wifi, Dumbbell, UtensilsCrossed, BookOpen, Tv, Star, University, FileCheck2, Building, Handshake } from 'lucide-react';
+import { BedDouble, Users, ShieldCheck, Wifi, Dumbbell, UtensilsCrossed, BookOpen, Tv, Star, University, FileCheck2, Building, Handshake, Smile, Shield, Trophy } from 'lucide-react';
 import PublicHeader from '@/components/public-header';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import {
@@ -13,6 +13,7 @@ import {
   AccordionTrigger,
 } from "@/components/ui/accordion";
 import PublicFooter from '@/components/public-footer';
+import { Separator } from '@/components/ui/separator';
 
 export default function Home() {
   return (
@@ -22,51 +23,41 @@ export default function Home() {
         {/* Hero Section */}
         <section className="w-full py-20 md:py-32 lg:py-40 bg-secondary/50">
             <div className="container mx-auto px-4 md:px-6">
-                <div className="grid gap-12 lg:grid-cols-2 lg:gap-20 items-center">
-                    <div className="space-y-6 text-center lg:text-left">
+                <div className="flex flex-col items-center space-y-8 text-center">
+                    <div className="space-y-6">
                         <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold tracking-tighter font-headline">
                            Your New Home Away from Home.
                         </h1>
-                        <p className="max-w-xl mx-auto lg:mx-0 text-lg text-muted-foreground md:text-xl">
+                        <p className="max-w-3xl mx-auto text-lg text-muted-foreground md:text-xl">
                             Discover a safe, comfortable, and vibrant living space designed exclusively for students. Simplify your life with our modern amenities and streamlined digital experience.
                         </p>
-                        <div className="mt-8 flex flex-col sm:flex-row gap-4 justify-center lg:justify-start">
-                            <Button asChild size="lg" className="bg-primary hover:bg-primary/90 text-primary-foreground shadow-lg transform hover:scale-105 transition-transform">
-                                <Link href="/apply">Apply for a Room</Link>
-                            </Button>
-                            <Button asChild size="lg" variant="outline" className="transform hover:scale-105 transition-transform">
-                                <Link href="#features">Explore Features</Link>
-                            </Button>
-                        </div>
                     </div>
-                    <div className="relative h-80 lg:h-96 group">
-                        <Card className="absolute w-full h-full transform transition-transform duration-500 ease-in-out group-hover:rotate-0 group-hover:scale-100 rotate-6 scale-90 bg-card border-2">
-                           <CardHeader className="flex flex-row items-center gap-4 p-4">
-                                <FileCheck2 className="w-8 h-8 text-primary" />
-                                <div>
-                                    <CardTitle>Easy Application</CardTitle>
-                                    <p className="text-sm text-muted-foreground">Apply online in minutes.</p>
-                                </div>
-                            </CardHeader>
-                        </Card>
-                        <Card className="absolute w-full h-full transform transition-transform duration-500 ease-in-out group-hover:rotate-0 group-hover:scale-100 rotate-[-4deg] scale-95 bg-card border-2">
-                             <CardHeader className="flex flex-row items-center gap-4 p-4">
-                                <Building className="w-8 h-8 text-primary" />
-                                <div>
-                                    <CardTitle>Modern Facilities</CardTitle>
-                                    <p className="text-sm text-muted-foreground">Gym, study halls, and more.</p>
-                                </div>
-                            </CardHeader>
-                        </Card>
-                        <Card className="absolute w-full h-full transform transition-transform duration-500 ease-in-out group-hover:rotate-0 group-hover:scale-100 bg-card border-2">
-                             <CardHeader className="flex flex-row items-center gap-4 p-4">
-                                <Handshake className="w-8 h-8 text-primary" />
-                                <div>
-                                    <CardTitle>Vibrant Community</CardTitle>
-                                    <p className="text-sm text-muted-foreground">Connect and make friends.</p>
-                                </div>
-                            </CardHeader>
-                        </Card>
+                    <div className="flex flex-col sm:flex-row gap-4">
+                        <Button asChild size="lg" className="bg-primary hover:bg-primary/90 text-primary-foreground shadow-lg transform hover:scale-105 transition-transform">
+                            <Link href="/apply">Apply for a Room</Link>
+                        </Button>
+                        <Button asChild size="lg" variant="outline" className="transform hover:scale-105 transition-transform">
+                            <Link href="#features">Explore Features</Link>
+                        </Button>
+                    </div>
+                    <div className="w-full max-w-4xl pt-12">
+                      <div className="grid grid-cols-1 sm:grid-cols-3 gap-8 text-center">
+                        <div className="flex flex-col items-center gap-2">
+                          <Smile className="w-10 h-10 text-primary"/>
+                          <p className="text-2xl font-bold">500+</p>
+                          <p className="text-muted-foreground">Happy Residents</p>
+                        </div>
+                        <div className="flex flex-col items-center gap-2">
+                          <Shield className="w-10 h-10 text-primary"/>
+                          <p className="text-2xl font-bold">150+</p>
+                          <p className="text-muted-foreground">Secure Rooms</p>
+                        </div>
+                        <div className="flex flex-col items-center gap-2">
+                          <Trophy className="w-10 h-10 text-primary"/>
+                          <p className="text-2xl font-bold">10+</p>
+                          <p className="text-muted-foreground">Years of Service</p>
+                        </div>
+                      </div>
                     </div>
                 </div>
             </div>
