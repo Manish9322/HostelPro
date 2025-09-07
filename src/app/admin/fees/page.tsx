@@ -1,10 +1,14 @@
 
+"use client";
+
+import { useState } from "react";
 import {
   Card,
   CardContent,
   CardDescription,
   CardHeader,
   CardTitle,
+  CardFooter,
 } from "@/components/ui/card";
 import {
   Table,
@@ -41,9 +45,24 @@ const statusVariant = (status: string) => {
   }
 };
 
+const ITEMS_PER_PAGE = 7;
+
 export default function FeesPage() {
   const totalRevenue = mockFeePayments.filter(p => p.status === 'Paid').reduce((sum, p) => sum + p.amount, 0);
   const outstandingFees = mockFeePayments.filter(p => p.status === 'Overdue').reduce((sum, p) => sum + p.amount, 0);
+  
+  const [currentPage, setCurrentPage] = useState(1);
+
+  const totalPages = Math.ceil(mockFeePayments.length / ITEMS_PER_PAGE);
+  const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
+  const endIndex = startIndex + ITEMS_PER_PAGE;
+  const currentPayments = mockFeePayments.slice(startIndex, endIndex);
+
+  const handlePageChange = (page: number) => {
+    if (page >= 1 && page <= totalPages) {
+      setCurrentPage(page);
+    }
+  };
 
   return (
     <div className="grid gap-8">
@@ -114,7 +133,7 @@ export default function FeesPage() {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {mockFeePayments.map((payment) => (
+              {currentPayments.map((payment) => (
                 <TableRow key={payment.id}>
                   <TableCell className="font-medium">{payment.studentName}</TableCell>
                   <TableCell>{payment.studentId}</TableCell>
@@ -145,6 +164,29 @@ export default function FeesPage() {
             </TableBody>
           </Table>
         </CardContent>
+         <CardFooter>
+            <div className="text-xs text-muted-foreground">
+                Showing <strong>{startIndex + 1}-{Math.min(endIndex, mockFeePayments.length)}</strong> of <strong>{mockFeePayments.length}</strong> payments
+            </div>
+            <div className="ml-auto flex items-center gap-2">
+                <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={() => handlePageChange(currentPage - 1)}
+                    disabled={currentPage === 1}
+                >
+                    Previous
+                </Button>
+                <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={() => handlePageChange(currentPage + 1)}
+                    disabled={currentPage === totalPages}
+                >
+                    Next
+                </Button>
+            </div>
+        </CardFooter>
       </Card>
     </div>
   );

@@ -1,10 +1,14 @@
 
+"use client";
+
+import { useState } from "react";
 import {
   Card,
   CardContent,
   CardDescription,
   CardHeader,
   CardTitle,
+  CardFooter,
 } from "@/components/ui/card";
 import {
   Table,
@@ -54,11 +58,26 @@ const statusVariant = (status: string) => {
     }
   };
 
+const ITEMS_PER_PAGE = 7;
 
 export default function InventoryPage() {
   const totalItems = mockInventory.length;
   const inUseItems = mockInventory.filter(item => item.status === 'In Use').length;
   const damagedItems = mockInventory.filter(item => item.condition === 'Damaged').length;
+
+  const [currentPage, setCurrentPage] = useState(1);
+
+  const totalPages = Math.ceil(mockInventory.length / ITEMS_PER_PAGE);
+  const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
+  const endIndex = startIndex + ITEMS_PER_PAGE;
+  const currentItems = mockInventory.slice(startIndex, endIndex);
+
+  const handlePageChange = (page: number) => {
+    if (page >= 1 && page <= totalPages) {
+      setCurrentPage(page);
+    }
+  };
+
 
   return (
     <div className="grid gap-8">
@@ -128,7 +147,7 @@ export default function InventoryPage() {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {mockInventory.map((item) => (
+              {currentItems.map((item) => (
                 <TableRow key={item.id}>
                   <TableCell className="font-medium">{item.name}</TableCell>
                   <TableCell>{item.category}</TableCell>
@@ -160,6 +179,29 @@ export default function InventoryPage() {
             </TableBody>
           </Table>
         </CardContent>
+        <CardFooter>
+            <div className="text-xs text-muted-foreground">
+                Showing <strong>{startIndex + 1}-{Math.min(endIndex, mockInventory.length)}</strong> of <strong>{mockInventory.length}</strong> items
+            </div>
+            <div className="ml-auto flex items-center gap-2">
+                <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={() => handlePageChange(currentPage - 1)}
+                    disabled={currentPage === 1}
+                >
+                    Previous
+                </Button>
+                <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={() => handlePageChange(currentPage + 1)}
+                    disabled={currentPage === totalPages}
+                >
+                    Next
+                </Button>
+            </div>
+        </CardFooter>
       </Card>
     </div>
   );

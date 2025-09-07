@@ -1,9 +1,14 @@
+
+"use client";
+
+import { useState } from "react";
 import {
   Card,
   CardContent,
   CardDescription,
   CardHeader,
   CardTitle,
+  CardFooter,
 } from "@/components/ui/card";
 import {
   Table,
@@ -25,7 +30,22 @@ import { MoreHorizontal, PlusCircle } from "lucide-react";
 import { mockNotices } from "@/lib/data";
 import { format } from 'date-fns';
 
+const ITEMS_PER_PAGE = 7;
+
 export default function NoticesAdminPage() {
+  const [currentPage, setCurrentPage] = useState(1);
+
+  const totalPages = Math.ceil(mockNotices.length / ITEMS_PER_PAGE);
+  const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
+  const endIndex = startIndex + ITEMS_PER_PAGE;
+  const currentNotices = mockNotices.slice(startIndex, endIndex);
+
+  const handlePageChange = (page: number) => {
+    if (page >= 1 && page <= totalPages) {
+      setCurrentPage(page);
+    }
+  };
+
   return (
     <Card>
       <CardHeader className="flex flex-row items-center justify-between">
@@ -53,7 +73,7 @@ export default function NoticesAdminPage() {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {mockNotices.map((notice) => (
+            {currentNotices.map((notice) => (
               <TableRow key={notice.id}>
                 <TableCell className="font-medium">{notice.title}</TableCell>
                 <TableCell>{notice.author}</TableCell>
@@ -78,6 +98,29 @@ export default function NoticesAdminPage() {
           </TableBody>
         </Table>
       </CardContent>
+      <CardFooter>
+        <div className="text-xs text-muted-foreground">
+          Showing <strong>{startIndex + 1}-{Math.min(endIndex, mockNotices.length)}</strong> of <strong>{mockNotices.length}</strong> notices
+        </div>
+        <div className="ml-auto flex items-center gap-2">
+          <Button
+            size="sm"
+            variant="outline"
+            onClick={() => handlePageChange(currentPage - 1)}
+            disabled={currentPage === 1}
+          >
+            Previous
+          </Button>
+          <Button
+            size="sm"
+            variant="outline"
+            onClick={() => handlePageChange(currentPage + 1)}
+            disabled={currentPage === totalPages}
+          >
+            Next
+          </Button>
+        </div>
+      </CardFooter>
     </Card>
   );
 }

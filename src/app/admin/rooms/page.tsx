@@ -1,9 +1,14 @@
+
+"use client";
+
+import { useState } from "react";
 import {
   Card,
   CardContent,
   CardDescription,
   CardHeader,
   CardTitle,
+  CardFooter,
 } from "@/components/ui/card";
 import {
   Table,
@@ -53,8 +58,22 @@ const roomConditionVariant = (condition: string) => {
     }
   };
 
+const ITEMS_PER_PAGE = 7;
 
 export default function RoomsPage() {
+    const [currentPage, setCurrentPage] = useState(1);
+
+    const totalPages = Math.ceil(mockRooms.length / ITEMS_PER_PAGE);
+    const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
+    const endIndex = startIndex + ITEMS_PER_PAGE;
+    const currentRooms = mockRooms.slice(startIndex, endIndex);
+
+    const handlePageChange = (page: number) => {
+        if (page >= 1 && page <= totalPages) {
+        setCurrentPage(page);
+        }
+    };
+
   return (
     <Card>
       <CardHeader className="flex flex-row items-center justify-between">
@@ -84,7 +103,7 @@ export default function RoomsPage() {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {mockRooms.map((room) => (
+            {currentRooms.map((room) => (
               <TableRow key={room.id}>
                 <TableCell className="font-medium">{room.roomNumber}</TableCell>
                 <TableCell>{`${room.occupancy}/${room.capacity}`}</TableCell>
@@ -120,6 +139,29 @@ export default function RoomsPage() {
           </TableBody>
         </Table>
       </CardContent>
+       <CardFooter>
+        <div className="text-xs text-muted-foreground">
+          Showing <strong>{startIndex + 1}-{Math.min(endIndex, mockRooms.length)}</strong> of <strong>{mockRooms.length}</strong> rooms
+        </div>
+        <div className="ml-auto flex items-center gap-2">
+          <Button
+            size="sm"
+            variant="outline"
+            onClick={() => handlePageChange(currentPage - 1)}
+            disabled={currentPage === 1}
+          >
+            Previous
+          </Button>
+          <Button
+            size="sm"
+            variant="outline"
+            onClick={() => handlePageChange(currentPage + 1)}
+            disabled={currentPage === totalPages}
+          >
+            Next
+          </Button>
+        </div>
+      </CardFooter>
     </Card>
   );
 }

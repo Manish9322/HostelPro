@@ -1,9 +1,14 @@
+
+"use client";
+
+import { useState } from "react";
 import {
   Card,
   CardContent,
   CardDescription,
   CardHeader,
   CardTitle,
+  CardFooter,
 } from "@/components/ui/card";
 import {
   Table,
@@ -26,7 +31,22 @@ import { MoreHorizontal, PlusCircle } from "lucide-react";
 import { mockBoardMembers } from "@/lib/data";
 import { format } from 'date-fns';
 
+const ITEMS_PER_PAGE = 5;
+
 export default function BoardMembersPage() {
+  const [currentPage, setCurrentPage] = useState(1);
+
+  const totalPages = Math.ceil(mockBoardMembers.length / ITEMS_PER_PAGE);
+  const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
+  const endIndex = startIndex + ITEMS_PER_PAGE;
+  const currentMembers = mockBoardMembers.slice(startIndex, endIndex);
+
+  const handlePageChange = (page: number) => {
+    if (page >= 1 && page <= totalPages) {
+      setCurrentPage(page);
+    }
+  };
+
   return (
     <Card>
       <CardHeader className="flex flex-row items-center justify-between">
@@ -55,7 +75,7 @@ export default function BoardMembersPage() {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {mockBoardMembers.map((member) => (
+            {currentMembers.map((member) => (
               <TableRow key={member.id}>
                 <TableCell className="font-medium">
                   <div className="flex items-center gap-3">
@@ -94,6 +114,29 @@ export default function BoardMembersPage() {
           </TableBody>
         </Table>
       </CardContent>
+      <CardFooter>
+        <div className="text-xs text-muted-foreground">
+          Showing <strong>{startIndex + 1}-{Math.min(endIndex, mockBoardMembers.length)}</strong> of <strong>{mockBoardMembers.length}</strong> members
+        </div>
+        <div className="ml-auto flex items-center gap-2">
+          <Button
+            size="sm"
+            variant="outline"
+            onClick={() => handlePageChange(currentPage - 1)}
+            disabled={currentPage === 1}
+          >
+            Previous
+          </Button>
+          <Button
+            size="sm"
+            variant="outline"
+            onClick={() => handlePageChange(currentPage + 1)}
+            disabled={currentPage === totalPages}
+          >
+            Next
+          </Button>
+        </div>
+      </CardFooter>
     </Card>
   );
 }

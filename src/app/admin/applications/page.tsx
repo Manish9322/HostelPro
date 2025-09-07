@@ -1,9 +1,14 @@
+
+"use client";
+
+import { useState } from "react";
 import {
   Card,
   CardContent,
   CardDescription,
   CardHeader,
   CardTitle,
+  CardFooter,
 } from "@/components/ui/card";
 import {
   Table,
@@ -39,7 +44,22 @@ const statusVariant = (status: string) => {
   }
 };
 
+const ITEMS_PER_PAGE = 7;
+
 export default function ApplicationsPage() {
+  const [currentPage, setCurrentPage] = useState(1);
+
+  const totalPages = Math.ceil(mockApplications.length / ITEMS_PER_PAGE);
+  const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
+  const endIndex = startIndex + ITEMS_PER_PAGE;
+  const currentApplications = mockApplications.slice(startIndex, endIndex);
+
+  const handlePageChange = (page: number) => {
+    if (page >= 1 && page <= totalPages) {
+      setCurrentPage(page);
+    }
+  };
+
   return (
     <Card>
       <CardHeader>
@@ -60,7 +80,7 @@ export default function ApplicationsPage() {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {mockApplications.map((app) => (
+            {currentApplications.map((app) => (
               <TableRow key={app.id}>
                 <TableCell className="font-medium">{app.name}</TableCell>
                 <TableCell>{app.course}</TableCell>
@@ -88,6 +108,29 @@ export default function ApplicationsPage() {
           </TableBody>
         </Table>
       </CardContent>
+       <CardFooter>
+        <div className="text-xs text-muted-foreground">
+          Showing <strong>{startIndex + 1}-{Math.min(endIndex, mockApplications.length)}</strong> of <strong>{mockApplications.length}</strong> applications
+        </div>
+        <div className="ml-auto flex items-center gap-2">
+          <Button
+            size="sm"
+            variant="outline"
+            onClick={() => handlePageChange(currentPage - 1)}
+            disabled={currentPage === 1}
+          >
+            Previous
+          </Button>
+          <Button
+            size="sm"
+            variant="outline"
+            onClick={() => handlePageChange(currentPage + 1)}
+            disabled={currentPage === totalPages}
+          >
+            Next
+          </Button>
+        </div>
+      </CardFooter>
     </Card>
   );
 }
