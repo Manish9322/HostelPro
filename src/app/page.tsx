@@ -49,47 +49,48 @@ export default function Home() {
                         </Button>
                     </div>
                     <div className="w-full max-w-5xl pt-12">
-                      <div className="flex justify-center items-center -space-x-2 mb-4">
-                          <Avatar className="h-10 w-10 border-2 border-background">
-                              <AvatarImage src="https://placehold.co/40x40.png" data-ai-hint="person avatar" />
-                              <AvatarFallback>S1</AvatarFallback>
-                          </Avatar>
-                          <Avatar className="h-10 w-10 border-2 border-background">
-                              <AvatarImage src="https://placehold.co/40x40.png" data-ai-hint="person avatar" />
-                              <AvatarFallback>S2</AvatarFallback>
-                          </Avatar>
-                          <Avatar className="h-10 w-10 border-2 border-background">
-                              <AvatarImage src="https://placehold.co/40x40.png" data-ai-hint="person avatar" />
-                              <AvatarFallback>S3</AvatarFallback>
-                          </Avatar>
-                      </div>
-                      <p className="text-sm text-muted-foreground font-medium">Our residents come from diverse backgrounds, creating a vibrant and inclusive community.</p>
-                      
-                      <div className="grid grid-cols-2 sm:grid-cols-5 gap-8 text-center mt-8">
-                        <div className="flex flex-col items-center gap-2">
-                          <Smile className="w-8 h-8 text-primary"/>
-                          <p className="text-xl font-bold">500+</p>
-                          <p className="text-sm text-muted-foreground">Happy Residents</p>
+                      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                        <div className="relative group overflow-hidden rounded-xl">
+                           <Image src="https://placehold.co/400x500.png" data-ai-hint="hostel room" alt="A clean and modern hostel room" width={400} height={500} className="object-cover w-full h-full transition-transform duration-500 group-hover:scale-110" />
+                           <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent"/>
+                           <div className="absolute bottom-4 left-4 text-white">
+                              <h3 className="font-bold text-lg">Comfortable Rooms</h3>
+                              <p className="text-sm">Secure and well-furnished.</p>
+                           </div>
                         </div>
-                        <div className="flex flex-col items-center gap-2">
-                          <Shield className="w-8 h-8 text-primary"/>
-                          <p className="text-xl font-bold">150+</p>
-                          <p className="text-sm text-muted-foreground">Secure Rooms</p>
+                         <div className="relative group overflow-hidden rounded-xl">
+                           <Image src="https://placehold.co/400x500.png" data-ai-hint="hostel exterior" alt="The modern exterior of the hostel building" width={400} height={500} className="object-cover w-full h-full transition-transform duration-500 group-hover:scale-110" />
+                            <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent"/>
+                           <div className="absolute bottom-4 left-4 text-white">
+                              <h3 className="font-bold text-lg">Prime Location</h3>
+                              <p className="text-sm">Close to campus and city.</p>
+                           </div>
                         </div>
-                        <div className="flex flex-col items-center gap-2">
-                          <Trophy className="w-8 h-8 text-primary"/>
-                          <p className="text-xl font-bold">10+</p>
-                          <p className="text-sm text-muted-foreground">Years of Service</p>
+                         <div className="relative group overflow-hidden rounded-xl">
+                           <Image src="https://placehold.co/400x500.png" data-ai-hint="common area" alt="A vibrant common area with students" width={400} height={500} className="object-cover w-full h-full transition-transform duration-500 group-hover:scale-110" />
+                            <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent"/>
+                           <div className="absolute bottom-4 left-4 text-white">
+                              <h3 className="font-bold text-lg">Vibrant Community</h3>
+                              <p className="text-sm">Connect and collaborate.</p>
+                           </div>
                         </div>
-                         <div className="flex flex-col items-center gap-2">
-                          <University className="w-8 h-8 text-primary"/>
-                          <p className="text-xl font-bold">5</p>
-                          <p className="text-sm text-muted-foreground">Partner Universities</p>
-                        </div>
-                         <div className="flex flex-col items-center gap-2">
-                          <PartyPopper className="w-8 h-8 text-primary"/>
-                          <p className="text-xl font-bold">20+</p>
-                          <p className="text-sm text-muted-foreground">Community Events</p>
+                        <div className="space-y-4">
+                           <div className="relative group overflow-hidden rounded-xl">
+                              <Image src="https://placehold.co/400x242.png" data-ai-hint="study lounge" alt="A quiet study lounge for students" width={400} height={242} className="object-cover w-full h-full transition-transform duration-500 group-hover:scale-110" />
+                               <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent"/>
+                              <div className="absolute bottom-4 left-4 text-white">
+                                 <h3 className="font-bold text-lg">Modern Amenities</h3>
+                                 <p className="text-sm">Wi-Fi, gym, and more.</p>
+                              </div>
+                           </div>
+                           <div className="relative group overflow-hidden rounded-xl">
+                             <Image src="https://placehold.co/400x242.png" data-ai-hint="security camera" alt="A security camera ensuring safety" width={400} height={242} className="object-cover w-full h-full transition-transform duration-500 group-hover:scale-110" />
+                              <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent"/>
+                              <div className="absolute bottom-4 left-4 text-white">
+                                 <h3 className="font-bold text-lg">24/7 Security</h3>
+                                 <p className="text-sm">Your safety is our priority.</p>
+                              </div>
+                           </div>
                         </div>
                       </div>
                     </div>
