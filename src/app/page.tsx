@@ -32,6 +32,12 @@ export default function Home() {
             <div className="container mx-auto px-4 md:px-6">
                 <div className="flex flex-col items-center space-y-8 text-center">
                     <div className="space-y-6">
+                        <div className="inline-block rounded-full bg-primary/10 px-4 py-2 text-sm font-medium text-primary shadow-md">
+                          <div className="flex items-center gap-2">
+                             <University className="w-5 h-5" />
+                             <span>Welcome to HostelPro</span>
+                          </div>
+                        </div>
                         <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold tracking-tighter font-headline">
                            Your New Home Away from Home.
                         </h1>
