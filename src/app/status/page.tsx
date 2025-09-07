@@ -70,7 +70,7 @@ function StatusResultCard({
 
   const statusConfig = {
     Approved: {
-      icon: <CheckCircle className="h-12 w-12 text-green-500" />,
+      icon: <CheckCircle className="h-12 w-12 text-foreground" />,
       title: "Application Approved!",
       badgeVariant: "default" as const,
       description:
@@ -79,7 +79,7 @@ function StatusResultCard({
         "You will receive an email with payment details and check-in instructions within the next 48 hours. Please check your spam folder if you don't see it.",
     },
     Pending: {
-      icon: <Clock className="h-12 w-12 text-yellow-500" />,
+      icon: <Clock className="h-12 w-12 text-foreground" />,
       title: "Application Pending",
       badgeVariant: "secondary" as const,
       description:

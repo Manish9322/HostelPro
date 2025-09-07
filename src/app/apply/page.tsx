@@ -257,21 +257,21 @@ export default function ApplyPage() {
                   </CardHeader>
                   <CardContent className="space-y-6">
                     <div className="flex items-start gap-4">
-                      <ShieldCheck className="w-10 h-10 text-accent flex-shrink-0" />
+                      <ShieldCheck className="w-10 h-10 text-primary flex-shrink-0" />
                       <div>
                         <h4 className="font-semibold">Safe & Secure</h4>
                         <p className="text-sm text-muted-foreground">24/7 security and controlled access for your peace of mind.</p>
                       </div>
                     </div>
                     <div className="flex items-start gap-4">
-                      <Users className="w-10 h-10 text-accent flex-shrink-0" />
+                      <Users className="w-10 h-10 text-primary flex-shrink-0" />
                       <div>
                         <h4 className="font-semibold">Vibrant Community</h4>
                         <p className="text-sm text-muted-foreground">Connect with fellow students in our common areas and events.</p>
                       </div>
                     </div>
                     <div className="flex items-start gap-4">
-                      <Wifi className="w-10 h-10 text-accent flex-shrink-0" />
+                      <Wifi className="w-10 h-10 text-primary flex-shrink-0" />
                       <div>
                         <h4 className="font-semibold">All-Inclusive Amenities</h4>
                         <p className="text-sm text-muted-foreground">High-speed Wi-Fi, laundry, gym, and more included.</p>
@@ -287,7 +287,7 @@ export default function ApplyPage() {
                 <Card>
                   <CardHeader>
                     <CardTitle className="flex items-center gap-2">
-                      <Info className="w-5 h-5 text-accent" />
+                      <Info className="w-5 h-5 text-primary" />
                       Need Assistance?
                     </CardTitle>
                     <CardDescription>Our team is ready to help you.</CardDescription>

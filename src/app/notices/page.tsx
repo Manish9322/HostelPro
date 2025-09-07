@@ -21,7 +21,7 @@ function NoticeModal({ notice, onClose }: { notice: Notice | null, onClose: () =
     <Dialog open={!!notice} onOpenChange={(isOpen) => !isOpen && onClose()}>
       <DialogContent className="bg-transparent border-none shadow-none p-2 sm:p-4 w-full max-w-3xl">
         {/* The Notice Board Frame */}
-        <div className="bg-notice-board p-4 sm:p-6 rounded-lg shadow-2xl data-[state=open]:animate-modal-show relative border-8 border-yellow-950/50">
+        <div className="bg-notice-board p-4 sm:p-6 rounded-lg shadow-2xl data-[state=open]:animate-modal-show relative border-8 border-gray-800/50">
           <button
             onClick={onClose}
             aria-label="Close notice"
@@ -33,8 +33,8 @@ function NoticeModal({ notice, onClose }: { notice: Notice | null, onClose: () =
           {/* The Pinned Paper */}
           <div className="bg-notice-paper text-notice-paper-foreground p-6 sm:p-8 rounded-sm shadow-inner relative font-code">
             {/* Pushpin */}
-            <div className="absolute -top-4 left-1/2 -translate-x-1/2 h-8 w-8 bg-red-500 rounded-full shadow-md border-2 border-white/50 flex items-center justify-center">
-              <div className="h-3 w-3 bg-red-700 rounded-full" />
+            <div className="absolute -top-4 left-1/2 -translate-x-1/2 h-8 w-8 bg-gray-500 rounded-full shadow-md border-2 border-white/50 flex items-center justify-center">
+              <div className="h-3 w-3 bg-gray-700 rounded-full" />
             </div>
 
             <h2 className="text-2xl font-bold mb-6 text-center break-words">{notice.title}</h2>

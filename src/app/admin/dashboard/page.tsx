@@ -1,7 +1,7 @@
 
 "use client"
 
-import { Bar, BarChart, XAxis, YAxis, CartesianGrid, Pie, PieChart, Cell } from "recharts"
+import { Pie, PieChart, Cell } from "recharts"
 import {
   Card,
   CardContent,
@@ -382,21 +382,27 @@ export default function Dashboard() {
           </CardHeader>
           <CardContent>
              <ChartContainer config={studentYearChartConfig} className="min-h-[250px] w-full">
-              <BarChart accessibilityLayer data={studentYearStats} margin={{ top: 20, right: 20, bottom: 20, left: 20 }}>
-                 <CartesianGrid vertical={false} />
-                <XAxis
-                  dataKey="name"
-                  tickLine={false}
-                  tickMargin={10}
-                  axisLine={false}
-                />
-                <YAxis tickLine={false} axisLine={false} allowDecimals={false} />
+              <PieChart>
                 <ChartTooltip
                   cursor={false}
-                  content={<ChartTooltipContent indicator="dot" />}
+                  content={<ChartTooltipContent hideLabel />}
                 />
-                <Bar dataKey="students" fill="var(--color-students)" radius={[8, 8, 0, 0]} />
-              </BarChart>
+                <Pie 
+                  data={studentYearStats} 
+                  dataKey="value" 
+                  nameKey="name" 
+                  cy="50%" 
+                  innerRadius={80} 
+                  outerRadius={110}
+                  paddingAngle={2}
+                  cornerRadius={5}
+                >
+                    {studentYearStats.map((entry, index) => (
+                      <Cell key={`cell-${index}`} fill={`hsl(var(--chart-${index + 1}))`} />
+                    ))}
+                </Pie>
+                 <ChartLegend content={<ChartLegendContent nameKey="name" />} />
+              </PieChart>
             </ChartContainer>
           </CardContent>
         </Card>

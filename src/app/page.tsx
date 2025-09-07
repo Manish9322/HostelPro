@@ -58,7 +58,7 @@ export default function Home() {
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
               <Card className="hover:shadow-xl transition-shadow duration-300 border-2 border-transparent hover:border-accent group">
                 <CardHeader className="flex flex-row items-center gap-4">
-                  <BedDouble className="w-10 h-10 text-accent transition-transform group-hover:scale-110" />
+                  <BedDouble className="w-10 h-10 text-primary transition-transform group-hover:scale-110" />
                   <CardTitle>Streamlined Living</CardTitle>
                 </CardHeader>
                 <CardContent>
@@ -69,7 +69,7 @@ export default function Home() {
               </Card>
               <Card className="hover:shadow-xl transition-shadow duration-300 border-2 border-transparent hover:border-accent group">
                 <CardHeader className="flex flex-row items-center gap-4">
-                  <ShieldCheck className="w-10 h-10 text-accent transition-transform group-hover:scale-110" />
+                  <ShieldCheck className="w-10 h-10 text-primary transition-transform group-hover:scale-110" />
                   <CardTitle>Safety & Security First</CardTitle>
                 </CardHeader>
                 <CardContent>
@@ -80,7 +80,7 @@ export default function Home() {
               </Card>
               <Card className="hover:shadow-xl transition-shadow duration-300 border-2 border-transparent hover:border-accent group">
                 <CardHeader className="flex flex-row items-center gap-4">
-                  <Users className="w-10 h-10 text-accent transition-transform group-hover:scale-110" />
+                  <Users className="w-10 h-10 text-primary transition-transform group-hover:scale-110" />
                   <CardTitle>Vibrant Community</CardTitle>
                 </CardHeader>
                 <CardContent>
@@ -220,7 +220,7 @@ export default function Home() {
                     </div>
                   </div>
                   <div className="flex mb-2">
-                    {[...Array(5)].map((_, i) => <Star key={i} className="w-5 h-5 fill-yellow-400 text-yellow-400" />)}
+                    {[...Array(5)].map((_, i) => <Star key={i} className="w-5 h-5 fill-current text-foreground" />)}
                   </div>
                   <blockquote className="text-muted-foreground italic text-base border-l-4 border-primary pl-4">
                     "Living at HostelPro has been a fantastic experience. It's clean, safe, and the community is amazing. The staff is always helpful and responsive to any issues."
@@ -240,7 +240,7 @@ export default function Home() {
                     </div>
                   </div>
                   <div className="flex mb-2">
-                    {[...Array(5)].map((_, i) => <Star key={i} className="w-5 h-5 fill-yellow-400 text-yellow-400" />)}
+                    {[...Array(5)].map((_, i) => <Star key={i} className="w-5 h-5 fill-current text-foreground" />)}
                   </div>
                   <blockquote className="text-muted-foreground italic text-base border-l-4 border-primary pl-4">
                     "Great facilities, especially the high-speed Wi-Fi and dedicated study areas. It's the perfect environment for focusing on my studies without any distractions."
@@ -260,8 +260,8 @@ export default function Home() {
                     </div>
                   </div>
                   <div className="flex mb-2">
-                    {[...Array(4)].map((_, i) => <Star key={i} className="w-5 h-5 fill-yellow-400 text-yellow-400" />)}
-                    <Star className="w-5 h-5 text-gray-300" />
+                    {[...Array(4)].map((_, i) => <Star key={i} className="w-5 h-5 fill-current text-foreground" />)}
+                    <Star className="w-5 h-5 text-muted" />
                   </div>
                   <blockquote className="text-muted-foreground italic text-base border-l-4 border-primary pl-4">
                     "I've made so many friends here. The common rooms and community events are great for socializing. It truly feels like a second home, not just a hostel."
