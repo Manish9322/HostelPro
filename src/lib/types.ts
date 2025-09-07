@@ -67,3 +67,22 @@ export type Room = {
   condition: 'Excellent' | 'Good' | 'Fair' | 'Poor';
   utilities: string[];
 };
+
+export type FeePayment = {
+    id: string;
+    studentName: string;
+    studentId: string;
+    month: string;
+    amount: number;
+    dueDate: Date;
+    status: 'Paid' | 'Pending' | 'Overdue';
+};
+
+export type InventoryItem = {
+    id: string;
+    name: string;
+    category: 'Furniture' | 'Appliance' | 'Gym Equipment' | 'Safety' | 'Other';
+    location: string;
+    condition: 'New' | 'Good' | 'Used' | 'Damaged';
+    status: 'In Stock' | 'In Use' | 'Under Repair';
+};

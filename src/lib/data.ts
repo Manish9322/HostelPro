@@ -1,5 +1,5 @@
 
-import type { Student, Complaint, Application, Notice, BoardMember, Room } from './types';
+import type { Student, Complaint, Application, Notice, BoardMember, Room, FeePayment, InventoryItem } from './types';
 
 export const mockStudents: Student[] = [
   { id: '1', name: 'Alice Johnson', studentId: 'STU001', roomNumber: 'A-101', course: 'Computer Science', year: 3, email: 'alice@example.com', phone: '123-456-7890', avatar: 'https://placehold.co/40x40.png' },
@@ -80,4 +80,21 @@ export const mockRooms: Room[] = [
   { id: 'r5', roomNumber: 'B-205', capacity: 2, occupancy: 1, status: 'Occupied', condition: 'Fair', utilities: ['Wi-Fi', 'Common Bathroom'] },
   { id: 'r6', roomNumber: 'C-301', capacity: 2, occupancy: 2, status: 'Occupied', condition: 'Excellent', utilities: ['Wi-Fi', 'AC', 'Common Bathroom'] },
   { id: 'r7', roomNumber: 'C-302', capacity: 2, occupancy: 0, status: 'Under Maintenance', condition: 'Poor', utilities: ['Wi-Fi', 'AC', 'Common Bathroom'] },
+];
+
+export const mockFeePayments: FeePayment[] = [
+  { id: 'fee1', studentName: 'Alice Johnson', studentId: 'STU001', month: 'May 2024', amount: 500, dueDate: new Date('2024-05-05'), status: 'Paid' },
+  { id: 'fee2', studentName: 'Bob Williams', studentId: 'STU002', month: 'May 2024', amount: 450, dueDate: new Date('2024-05-05'), status: 'Paid' },
+  { id: 'fee3', studentName: 'Charlie Brown', studentId: 'STU003', month: 'May 2024', amount: 450, dueDate: new Date('2024-05-05'), status: 'Overdue' },
+  { id: 'fee4', studentName: 'Diana Prince', studentId: 'STU004', month: 'May 2024', amount: 450, dueDate: new Date('2024-05-05'), status: 'Paid' },
+  { id: 'fee5', studentName: 'Ethan Hunt', studentId: 'STU005', month: 'May 2024', amount: 450, dueDate: new Date('2024-05-05'), status: 'Pending' },
+];
+
+export const mockInventory: InventoryItem[] = [
+  { id: 'inv1', name: 'Desk Chair', category: 'Furniture', location: 'A-101', condition: 'Good', status: 'In Use' },
+  { id: 'inv2', name: 'Microwave', category: 'Appliance', location: 'Common Kitchen', condition: 'New', status: 'In Stock' },
+  { id: 'inv3', name: 'Bed Frame', category: 'Furniture', location: 'C-302', condition: 'Damaged', status: 'Under Repair' },
+  { id: 'inv4', name: 'Treadmill', category: 'Gym Equipment', location: 'Gymnasium', condition: 'Good', status: 'In Use' },
+  { id: 'inv5', name: 'Fire Extinguisher', category: 'Safety', location: 'Hallway B', condition: 'Good', status: 'In Use' },
+  { id: 'inv6', name: 'Mattress', category: 'Furniture', location: 'Storage', condition: 'New', status: 'In Stock' },
 ];
