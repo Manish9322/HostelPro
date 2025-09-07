@@ -1,4 +1,5 @@
 
+
 export type Student = {
   id: string;
   name: string;
@@ -85,4 +86,10 @@ export type InventoryItem = {
     location: string;
     condition: 'New' | 'Good' | 'Used' | 'Damaged';
     status: 'In Stock' | 'In Use' | 'Under Repair';
+};
+
+export type ReportData = {
+    title: string;
+    headers: string[];
+    rows: (string | number)[][];
 };
