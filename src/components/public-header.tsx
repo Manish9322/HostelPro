@@ -57,7 +57,10 @@ export default function PublicHeader() {
           <div className="w-full flex-1 md:w-auto md:flex-none">
             {/* Can add search bar here if needed */}
           </div>
-          <nav className="flex items-center">
+          <nav className="flex items-center gap-2">
+             <Button asChild variant="secondary">
+              <Link href="/student/login">Student Login</Link>
+            </Button>
             <Button asChild>
               <Link href="/admin/dashboard">Admin Login</Link>
             </Button>
