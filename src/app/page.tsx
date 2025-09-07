@@ -28,7 +28,7 @@ export default function Home() {
       <PublicHeader />
       <main className="flex-1">
         {/* Hero Section */}
-        <section className="w-full py-16 md:py-24 lg:py-32 bg-secondary/50">
+        <section className="w-full py-16 md:py-24 lg:py-28 bg-secondary/50">
             <div className="container mx-auto px-4 md:px-6">
                 <div className="flex flex-col items-center space-y-8 text-center">
                     <div className="space-y-6">
@@ -403,3 +403,5 @@ export default function Home() {
     </div>
   );
 }
+
+    
