@@ -12,8 +12,10 @@ import {
   SidebarMenuItem,
   SidebarMenuButton,
   SidebarFooter,
+  SidebarTrigger,
+  useSidebar,
 } from '@/components/ui/sidebar';
-import { LayoutDashboard, Users, MessageSquareWarning, LogOut, University, Bell, Bed, UsersRound, ClipboardList } from 'lucide-react';
+import { LayoutDashboard, Users, MessageSquareWarning, LogOut, University, Bell, Bed, UsersRound, ClipboardList, PanelLeft } from 'lucide-react';
 
 const menuItems = [
   { href: '/admin/dashboard', label: 'Dashboard', icon: LayoutDashboard },
@@ -27,6 +29,7 @@ const menuItems = [
 
 export default function AdminSidebar() {
   const pathname = usePathname();
+  const { toggleSidebar } = useSidebar();
 
   return (
     <Sidebar collapsible="icon" variant="inset">
@@ -57,6 +60,12 @@ export default function AdminSidebar() {
       <SidebarFooter>
         <SidebarMenu>
           <SidebarMenuItem>
+            <SidebarMenuButton onClick={() => toggleSidebar()} tooltip="Collapse Sidebar">
+              <PanelLeft />
+              <span>Collapse</span>
+            </SidebarMenuButton>
+          </SidebarMenuItem>
+          <SidebarMenuItem>
             <SidebarMenuButton asChild tooltip="Logout">
               <Link href="/">
                 <LogOut />
@@ -69,4 +78,5 @@ export default function AdminSidebar() {
     </Sidebar>
   );
 }
+
 

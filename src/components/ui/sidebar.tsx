@@ -286,40 +286,6 @@ const SidebarTrigger = React.forwardRef<
 })
 SidebarTrigger.displayName = "SidebarTrigger"
 
-const SidebarRail = React.forwardRef<
-  React.ElementRef<typeof Button>,
-  React.ComponentProps<typeof Button>
->(({ className, ...props }, ref) => {
-  const { toggleSidebar } = useSidebar()
-
-  return (
-    <Button
-      ref={ref}
-      data-sidebar="rail"
-      aria-label="Toggle Sidebar"
-      title="Toggle Sidebar"
-      variant="ghost"
-      size="icon"
-      onClick={toggleSidebar}
-      className={cn(
-        "absolute z-20 hidden h-8 w-8 -translate-x-1/2 rounded-full border bg-background text-foreground shadow-md transition-all ease-linear hover:bg-secondary sm:flex",
-        "peer-data-[side=left]:left-[var(--sidebar-width)] peer-data-[state=collapsed]:peer-data-[side=left]:left-[var(--sidebar-width-icon)]",
-        "peer-data-[side=right]:right-[var(--sidebar-width)] peer-data-[state=collapsed]:peer-data-[side=right]:right-[var(--sidebar-width-icon)]",
-        "top-14 -translate-y-1/2",
-        "peer-data-[variant=floating]:peer-data-[side=left]:left-[calc(var(--sidebar-width)_+_0.5rem)] peer-data-[variant=floating]:peer-data-[state=collapsed]:peer-data-[side=left]:left-[calc(var(--sidebar-width-icon)_+_0.5rem)]",
-        "peer-data-[variant=inset]:peer-data-[side=left]:left-[calc(var(--sidebar-width)_-_0.5rem)] peer-data-[variant=inset]:peer-data-[state=collapsed]:peer-data-[side=left]:left-[calc(var(--sidebar-width-icon)_+_0.5rem)]",
-        "peer-data-[collapsible=offcanvas]:hidden",
-        className
-      )}
-      {...props}
-    >
-      <ChevronLeft className="h-4 w-4 transition-transform peer-data-[state=collapsed]:rotate-180 peer-data-[side=right]:rotate-180 peer-data-[side=right]:peer-data-[state=collapsed]:rotate-0" />
-      <span className="sr-only">Toggle Sidebar</span>
-    </Button>
-  )
-})
-SidebarRail.displayName = "SidebarRail"
-
 const SidebarInset = React.forwardRef<
   HTMLDivElement,
   React.ComponentProps<"main">
@@ -379,7 +345,7 @@ const SidebarFooter = React.forwardRef<
     <div
       ref={ref}
       data-sidebar="footer"
-      className={cn("flex flex-col gap-2 p-2", className)}
+      className={cn("mt-auto flex flex-col gap-2 p-2", className)}
       {...props}
     />
   )
@@ -762,7 +728,6 @@ export {
   SidebarMenuSubButton,
   SidebarMenuSubItem,
   SidebarProvider,
-  SidebarRail,
   SidebarSeparator,
   SidebarTrigger,
   useSidebar,
