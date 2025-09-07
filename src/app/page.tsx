@@ -63,7 +63,7 @@ export default function Home() {
                               <AvatarFallback>S3</AvatarFallback>
                           </Avatar>
                       </div>
-                      <p className="text-sm text-muted-foreground font-medium">Join our thriving community of students from around the world!</p>
+                      <p className="text-sm text-muted-foreground font-medium">Our residents come from diverse backgrounds, creating a vibrant and inclusive community.</p>
                       
                       <div className="grid grid-cols-2 sm:grid-cols-5 gap-8 text-center mt-8">
                         <div className="flex flex-col items-center gap-2">
