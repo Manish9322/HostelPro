@@ -41,10 +41,10 @@ export default function StudentSidebar() {
             <SidebarMenuItem key={item.href}>
               <SidebarMenuButton
                 asChild
-                isActive={pathname.startsWith(item.href)}
+                isActive={pathname === item.href || (item.href !== '/student/dashboard' && pathname.startsWith(item.href))}
                 tooltip={item.label}
               >
-                <Link href="#">
+                <Link href={item.href}>
                   <item.icon />
                   <span>{item.label}</span>
                 </Link>
