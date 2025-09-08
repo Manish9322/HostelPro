@@ -32,7 +32,7 @@ import { KeyRound, SlidersHorizontal, Users, Sparkles, UserCheck, UserX, AlertTr
 import { Progress } from "@/components/ui/progress";
 import { Separator } from "@/components/ui/separator";
 import { useToast } from "@/hooks/use-toast";
-import type { Application, Room, Student } from "@/lib/types";
+import type { Room, Student } from "@/lib/types";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Badge } from "@/components/ui/badge";
 
@@ -47,11 +47,18 @@ export default function RoomAllocationPage() {
   const [availableRooms, setAvailableRooms] = useState<Room[]>([]);
   const [rooms, setRooms] = useState<Room[]>([]);
   const [students, setStudents] = useState<Student[]>([]);
+  
+  const [selectedStudentId, setSelectedStudentId] = useState("");
+  const [selectedRoomId, setSelectedRoomId] = useState("");
+  const [allocationResult, setAllocationResult] = useState<{allocated: number, waiting: number} | null>(null);
 
   const fetchData = async () => {
     try {
       setLoading(true);
       setError(null);
+      setAllocationResult(null);
+      setProgress(0);
+
       const [studentsRes, roomsRes] = await Promise.all([
         fetch('/api/students'),
         fetch('/api/rooms'),
@@ -63,7 +70,7 @@ export default function RoomAllocationPage() {
 
       const studentsData: Student[] = await studentsRes.json();
       const roomsData: Room[] = await roomsRes.json();
-
+      
       setStudents(studentsData);
       setRooms(roomsData);
 
@@ -82,31 +89,84 @@ export default function RoomAllocationPage() {
   }, []);
 
 
-  const handleRunAllocation = () => {
+  const handleRunAllocation = async () => {
     setIsAllocating(true);
     setProgress(0);
+    setAllocationResult(null);
 
     const interval = setInterval(() => {
-      setProgress(prev => {
-        if (prev >= 100) {
-          clearInterval(interval);
-          setIsAllocating(false);
-          toast({
-            title: "Allocation Complete!",
-            description: "3 students have been assigned rooms. 2 students are on the waiting list.",
-          })
-          return 100;
-        }
-        return prev + 10;
-      });
+      setProgress(prev => Math.min(prev + 10, 90));
     }, 200);
+
+    try {
+        const response = await fetch('/api/rooms', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ action: 'run-allocation' }),
+        });
+
+        if (!response.ok) {
+            throw new Error('Allocation process failed.');
+        }
+        
+        const result = await response.json();
+        
+        clearInterval(interval);
+        setProgress(100);
+        
+        toast({
+            title: "Allocation Complete!",
+            description: `${result.allocatedCount} students assigned. ${result.waitingListCount} on waiting list.`,
+        });
+        setAllocationResult({allocated: result.allocatedCount, waiting: result.waitingListCount});
+        
+        fetchData(); // Refresh all data
+
+    } catch (err) {
+        clearInterval(interval);
+        toast({ title: "Error", description: (err as Error).message, variant: "destructive" });
+    } finally {
+        setIsAllocating(false);
+    }
   };
   
-  const handleManualAssign = () => {
-      toast({
-          title: "Feature Coming Soon",
-          description: "Manual assignment is currently under development."
-      })
+  const handleManualAssign = async () => {
+      if (!selectedStudentId || !selectedRoomId) {
+          toast({ title: "Warning", description: "Please select both a student and a room.", variant: "destructive"});
+          return;
+      }
+      
+      try {
+          const studentRes = await fetch(`/api/students?id=${selectedStudentId}`, {
+              method: 'PUT',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ roomNumber: rooms.find(r => r._id === selectedRoomId)?.roomNumber }),
+          });
+
+          if (!studentRes.ok) throw new Error("Failed to update student's room.");
+
+          const roomToUpdate = rooms.find(r => r._id === selectedRoomId);
+          if (roomToUpdate) {
+            const newOccupancy = roomToUpdate.occupancy + 1;
+            const newStatus = newOccupancy >= roomToUpdate.capacity ? 'Occupied' : 'Available';
+            
+            const roomRes = await fetch(`/api/rooms?id=${selectedRoomId}`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ occupancy: newOccupancy, status: newStatus }),
+            });
+            if (!roomRes.ok) throw new Error("Failed to update room status.");
+          }
+
+
+          toast({ title: "Success", description: "Student has been manually assigned."});
+          setSelectedStudentId("");
+          setSelectedRoomId("");
+          fetchData();
+
+      } catch(err) {
+          toast({ title: "Error", description: (err as Error).message, variant: "destructive" });
+      }
   }
 
   const roomStatusVariant = (status: string) => {
@@ -171,16 +231,16 @@ export default function RoomAllocationPage() {
               </div>
             )}
             
-            {!isAllocating && progress === 100 && (
+            {allocationResult && (
                 <div className="p-4 bg-secondary rounded-lg text-center">
                     <h3 className="font-semibold text-lg text-primary">Allocation Complete!</h3>
-                    <p className="text-muted-foreground">3 students have been assigned rooms. 2 students are on the waiting list.</p>
+                    <p className="text-muted-foreground">{allocationResult.allocated} students assigned. {allocationResult.waiting} on waiting list.</p>
                 </div>
             )}
 
           </CardContent>
           <CardFooter>
-            <Button onClick={handleRunAllocation} disabled={isAllocating || loading || !!error} className="w-full" size="lg">
+            <Button onClick={handleRunAllocation} disabled={isAllocating || loading || !!error || unallocatedStudents.length === 0} className="w-full" size="lg">
               <Sparkles className="mr-2 h-4 w-4" />
               {isAllocating ? 'Allocating Rooms...' : 'Run Automated Allocation'}
             </Button>
@@ -243,7 +303,7 @@ export default function RoomAllocationPage() {
           <CardContent className="space-y-6">
              <div className="space-y-2">
                 <Label htmlFor="allocation-priority">Prioritize Based On</Label>
-                <Select defaultValue="application-date">
+                <Select defaultValue="application-date" disabled>
                     <SelectTrigger id="allocation-priority">
                         <SelectValue placeholder="Select priority" />
                     </SelectTrigger>
@@ -257,13 +317,14 @@ export default function RoomAllocationPage() {
              <div className="space-y-2">
                 <Label>Matching Logic</Label>
                 <div className="flex items-center space-x-2">
-                    <Checkbox id="match-gender" defaultChecked />
+                    <Checkbox id="match-gender" defaultChecked disabled/>
                     <Label htmlFor="match-gender" className="font-normal">Match gender</Label>
                 </div>
                 <div className="flex items-center space-x-2">
-                    <Checkbox id="match-preferences" />
+                    <Checkbox id="match-preferences" disabled/>
                     <Label htmlFor="match-preferences" className="font-normal">Consider roommate preferences</Label>
                 </div>
+                <p className="text-xs text-muted-foreground mt-2">Advanced criteria coming soon.</p>
              </div>
           </CardContent>
         </Card>
@@ -275,20 +336,20 @@ export default function RoomAllocationPage() {
           <CardContent className="space-y-4">
               <div className="space-y-2">
                 <Label htmlFor="select-student">Select Student</Label>
-                 <Select disabled={loading || !!error}>
+                 <Select value={selectedStudentId} onValueChange={setSelectedStudentId} disabled={loading || !!error || unallocatedStudents.length === 0}>
                     <SelectTrigger id="select-student">
                         <SelectValue placeholder="Choose an applicant" />
                     </SelectTrigger>
                     <SelectContent>
-                        {unallocatedStudents.map(app => (
-                            <SelectItem key={app._id} value={app._id}>{app.name} ({app.studentId})</SelectItem>
+                        {unallocatedStudents.map(student => (
+                            <SelectItem key={student._id} value={student._id}>{student.name} ({student.studentId})</SelectItem>
                         ))}
                     </SelectContent>
                 </Select>
               </div>
               <div className="space-y-2">
                 <Label htmlFor="select-room">Select Available Room</Label>
-                 <Select disabled={loading || !!error}>
+                 <Select value={selectedRoomId} onValueChange={setSelectedRoomId} disabled={loading || !!error || availableRooms.length === 0}>
                     <SelectTrigger id="select-room">
                         <SelectValue placeholder="Choose a room" />
                     </SelectTrigger>
@@ -299,7 +360,7 @@ export default function RoomAllocationPage() {
                     </SelectContent>
                 </Select>
               </div>
-               <Button variant="outline" className="w-full" onClick={handleManualAssign} disabled={loading || !!error}>Assign Room Manually</Button>
+               <Button variant="outline" className="w-full" onClick={handleManualAssign} disabled={loading || !!error || !selectedStudentId || !selectedRoomId}>Assign Room Manually</Button>
           </CardContent>
         </Card>
       </div>
