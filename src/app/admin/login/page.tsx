@@ -15,12 +15,12 @@ import { Label } from "@/components/ui/label";
 import { ArrowLeft, University } from "lucide-react";
 import { useRouter } from "next/navigation";
 
-export default function StudentLoginPage() {
+export default function AdminLoginPage() {
   const router = useRouter();
 
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
-    router.push("/student/dashboard");
+    router.push("/admin/dashboard");
   };
 
   return (
@@ -31,50 +31,37 @@ export default function StudentLoginPage() {
             <University className="h-8 w-8 text-primary" />
             <h1 className="text-2xl font-bold font-headline">HostelPro</h1>
           </div>
-          <CardTitle className="text-2xl">Student Portal Login</CardTitle>
+          <CardTitle className="text-2xl">Admin Portal Login</CardTitle>
           <CardDescription>
-            Enter your credentials to access your dashboard.
+            Enter your credentials to access the admin dashboard.
           </CardDescription>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleLogin} className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="studentId">Student ID</Label>
+              <Label htmlFor="email">Email</Label>
               <Input
-                id="studentId"
-                placeholder="e.g., STU001"
+                id="email"
+                type="email"
+                placeholder="admin@hostelpro.com"
                 required
-                defaultValue="STU001"
+                defaultValue="admin@hostelpro.com"
               />
             </div>
             <div className="space-y-2">
-              <div className="flex items-center">
-                <Label htmlFor="password">Password</Label>
-                <Link
-                  href="#"
-                  className="ml-auto inline-block text-sm underline"
-                >
-                  Forgot your password?
-                </Link>
-              </div>
+               <Label htmlFor="password">Password</Label>
               <Input id="password" type="password" required defaultValue="password"/>
             </div>
             <Button type="submit" className="w-full">
               Sign In
             </Button>
-            <Button variant="outline" className="w-full" asChild>
+             <Button variant="outline" className="w-full" asChild>
                 <Link href="/">
                     <ArrowLeft className="mr-2 h-4 w-4" />
                     Back to Home
                 </Link>
             </Button>
           </form>
-          <div className="mt-4 text-center text-sm">
-            Not a resident yet?{" "}
-            <Link href="/apply" className="underline">
-              Apply Now
-            </Link>
-          </div>
         </CardContent>
       </Card>
     </div>

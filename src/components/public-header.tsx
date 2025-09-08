@@ -66,7 +66,7 @@ export default function PublicHeader() {
               </Link>
             </Button>
              <Button asChild variant="ghost" size="icon">
-              <Link href="/admin/dashboard">
+              <Link href="/admin/login">
                  <Shield className="h-5 w-5" />
                  <span className="sr-only">Admin Login</span>
               </Link>
