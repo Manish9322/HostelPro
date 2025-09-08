@@ -28,7 +28,10 @@ import { Calendar } from "@/components/ui/calendar";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import PublicFooter from "@/components/public-footer";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+
+const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
+const ACCEPTED_IMAGE_TYPES = ["image/jpeg", "image/jpg", "image/png", "image/webp"];
+const ACCEPTED_DOCUMENT_TYPES = ["application/pdf", "image/jpeg", "image/jpg", "image/png"];
 
 const applicationSchema = z.object({
   name: z.string().min(2, "Name must be at least 2 characters."),
@@ -43,10 +46,22 @@ const applicationSchema = z.object({
   roomPreference: z.string({ required_error: "Please select a room preference." }),
   guardianName: z.string().min(2, "Guardian's name is required."),
   guardianPhone: z.string().min(10, "Guardian's phone number is required."),
-  // Roommate preferences
-  sleepSchedule: z.enum(["early-bird", "night-owl"]).optional(),
-  studyHabits: z.enum(["in-room", "library", "flexible"]).optional(),
-  socialHabits: z.enum(["introvert", "extrovert", "ambivert"]).optional(),
+  profilePhoto: z
+    .any()
+    .refine((files) => files?.length == 1, "Profile photo is required.")
+    .refine((files) => files?.[0]?.size <= MAX_FILE_SIZE, `Max file size is 5MB.`)
+    .refine(
+      (files) => ACCEPTED_IMAGE_TYPES.includes(files?.[0]?.type),
+      ".jpg, .jpeg, and .png files are accepted."
+    ),
+  studentIdCard: z
+    .any()
+    .refine((files) => files?.length == 1, "Student ID card is required.")
+    .refine((files) => files?.[0]?.size <= MAX_FILE_SIZE, `Max file size is 5MB.`)
+    .refine(
+      (files) => ACCEPTED_DOCUMENT_TYPES.includes(files?.[0]?.type),
+      ".jpg, .jpeg, .png, and .pdf files are accepted."
+    ),
 });
 
 type ApplicationFormValues = z.infer<typeof applicationSchema>;
@@ -70,6 +85,10 @@ export default function ApplyPage() {
       roomPreference: undefined,
     },
   });
+
+  const photoRef = form.register("profilePhoto");
+  const idCardRef = form.register("studentIdCard");
+
 
   function onSubmit(data: ApplicationFormValues) {
     console.log(data);
@@ -301,102 +320,45 @@ export default function ApplyPage() {
 
                       <Separator />
 
-                      {/* Roommate Preferences */}
+                      {/* Document Upload */}
                       <div>
-                        <h3 className="text-lg font-medium mb-4 text-primary">Roommate Preferences (Optional)</h3>
-                        <p className="text-sm text-muted-foreground mb-6">Help us find your ideal roommate! This section is optional but highly recommended if you've selected a shared room.</p>
-                        <div className="space-y-8">
-                          <FormField
-                            control={form.control}
-                            name="sleepSchedule"
-                            render={({ field }) => (
-                              <FormItem className="space-y-3">
-                                <FormLabel>What's your typical sleep schedule?</FormLabel>
-                                <FormControl>
-                                  <RadioGroup
-                                    onValueChange={field.onChange}
-                                    defaultValue={field.value}
-                                    className="flex flex-col md:flex-row gap-4"
-                                  >
-                                    <FormItem className="flex items-center space-x-3 space-y-0">
-                                      <FormControl><RadioGroupItem value="early-bird" /></FormControl>
-                                      <FormLabel className="font-normal">Early Bird (asleep by 11 PM)</FormLabel>
+                        <h3 className="text-lg font-medium mb-4 text-primary">Document Upload</h3>
+                        <p className="text-sm text-muted-foreground mb-6">Please upload a recent passport-sized photograph and a clear copy of your student ID card. Max file size: 5MB.</p>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <FormField
+                                control={form.control}
+                                name="profilePhoto"
+                                render={({ field }) => (
+                                    <FormItem>
+                                    <FormLabel>Profile Photo</FormLabel>
+                                    <FormControl>
+                                        <Input type="file" accept="image/png, image/jpeg" {...photoRef} />
+                                    </FormControl>
+                                    <FormMessage />
                                     </FormItem>
-                                    <FormItem className="flex items-center space-x-3 space-y-0">
-                                      <FormControl><RadioGroupItem value="night-owl" /></FormControl>
-                                      <FormLabel className="font-normal">Night Owl (up past midnight)</FormLabel>
+                                )}
+                            />
+                             <FormField
+                                control={form.control}
+                                name="studentIdCard"
+                                render={({ field }) => (
+                                    <FormItem>
+                                    <FormLabel>Student ID Card (Image or PDF)</FormLabel>
+                                    <FormControl>
+                                        <Input type="file" accept="image/png, image/jpeg, application/pdf" {...idCardRef} />
+                                    </FormControl>
+                                    <FormMessage />
                                     </FormItem>
-                                  </RadioGroup>
-                                </FormControl>
-                                <FormMessage />
-                              </FormItem>
-                            )}
-                          />
-                          <FormField
-                            control={form.control}
-                            name="studyHabits"
-                            render={({ field }) => (
-                              <FormItem className="space-y-3">
-                                <FormLabel>Where do you prefer to study?</FormLabel>
-                                <FormControl>
-                                  <RadioGroup
-                                    onValueChange={field.onChange}
-                                    defaultValue={field.value}
-                                    className="flex flex-col md:flex-row gap-4"
-                                  >
-                                    <FormItem className="flex items-center space-x-3 space-y-0">
-                                      <FormControl><RadioGroupItem value="in-room" /></FormControl>
-                                      <FormLabel className="font-normal">Mostly in my room</FormLabel>
-                                    </FormItem>
-                                    <FormItem className="flex items-center space-x-3 space-y-0">
-                                      <FormControl><RadioGroupItem value="library" /></FormControl>
-                                      <FormLabel className="font-normal">Library or study halls</FormLabel>
-                                    </FormItem>
-                                     <FormItem className="flex items-center space-x-3 space-y-0">
-                                      <FormControl><RadioGroupItem value="flexible" /></FormControl>
-                                      <FormLabel className="font-normal">I'm flexible</FormLabel>
-                                    </FormItem>
-                                  </RadioGroup>
-                                </FormControl>
-                                <FormMessage />
-                              </FormItem>
-                            )}
-                          />
-                           <FormField
-                            control={form.control}
-                            name="socialHabits"
-                            render={({ field }) => (
-                              <FormItem className="space-y-3">
-                                <FormLabel>How would you describe your social style?</FormLabel>
-                                <FormControl>
-                                  <RadioGroup
-                                    onValueChange={field.onChange}
-                                    defaultValue={field.value}
-                                    className="flex flex-col md:flex-row gap-4"
-                                  >
-                                    <FormItem className="flex items-center space-x-3 space-y-0">
-                                      <FormControl><RadioGroupItem value="introvert" /></FormControl>
-                                      <FormLabel className="font-normal">I prefer quiet and alone time</FormLabel>
-                                    </FormItem>
-                                    <FormItem className="flex items-center space-x-3 space-y-0">
-                                      <FormControl><RadioGroupItem value="extrovert" /></FormControl>
-                                      <FormLabel className="font-normal">I enjoy socializing and having friends over</FormLabel>
-                                    </FormItem>
-                                    <FormItem className="flex items-center space-x-3 space-y-0">
-                                      <FormControl><RadioGroupItem value="ambivert" /></FormControl>
-                                      <FormLabel className="font-normal">A mix of both</FormLabel>
-                                    </FormItem>
-                                  </RadioGroup>
-                                </FormControl>
-                                <FormMessage />
-                              </FormItem>
-                            )}
-                          />
+                                )}
+                            />
                         </div>
                       </div>
 
 
-                      <Button type="submit" className="w-full bg-accent hover:bg-accent/90 text-accent-foreground" size="lg">Submit Application</Button>
+                      <Button type="submit" className="w-full bg-accent hover:bg-accent/90 text-accent-foreground" size="lg">
+                        <UploadCloud className="mr-2 h-4 w-4" />
+                        Submit Application
+                      </Button>
                     </form>
                   </Form>
                 </CardContent>
@@ -405,20 +367,6 @@ export default function ApplyPage() {
             <div className="lg:col-span-1">
               <div className="sticky top-20 space-y-8">
                  <Card>
-                  <CardHeader>
-                    <CardTitle className="flex items-center gap-2">
-                       <Handshake className="w-6 h-6 text-primary" />
-                      Find a Great Roommate
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent className="space-y-4">
-                    <p className="text-sm text-muted-foreground">
-                      Living with someone new is a big part of the hostel experience. By answering a few simple questions, you help us match you with someone who has a similar lifestyle, making your stay more enjoyable from day one.
-                    </p>
-                  </CardContent>
-                </Card>
-
-                <Card>
                   <CardHeader>
                     <CardTitle>Why Stay With Us?</CardTitle>
                   </CardHeader>
@@ -478,3 +426,5 @@ export default function ApplyPage() {
     </div>
   );
 }
+
+    
