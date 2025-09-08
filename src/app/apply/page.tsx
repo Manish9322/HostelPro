@@ -41,7 +41,7 @@ const applicationSchema = z.object({
   course: z.string().min(2, "Course name is required."),
   year: z.coerce.number().min(1).max(5, "Year must be between 1 and 5."),
   roomPreference: z.string({ required_error: "Please select a room preference." }),
-  guardianName: z_string().min(2, "Guardian's name is required."),
+  guardianName: z.string().min(2, "Guardian's name is required."),
   guardianPhone: z.string().min(10, "Guardian's phone number is required."),
   // Roommate preferences
   sleepSchedule: z.enum(["early-bird", "night-owl"]).optional(),
@@ -478,5 +478,3 @@ export default function ApplyPage() {
     </div>
   );
 }
-
-    
