@@ -14,7 +14,7 @@ import {
   SidebarFooter,
   useSidebar,
 } from '@/components/ui/sidebar';
-import { LayoutDashboard, Users, MessageSquareWarning, LogOut, University, Bell, Bed, UsersRound, ClipboardList, PanelLeft, CircleDollarSign, Box, KeyRound, BarChart } from 'lucide-react';
+import { LayoutDashboard, Users, MessageSquareWarning, LogOut, University, Bell, Bed, UsersRound, ClipboardList, PanelLeft, CircleDollarSign, Box, KeyRound, BarChart, SlidersHorizontal } from 'lucide-react';
 import { useState } from 'react';
 import { LogoutConfirmationDialog } from './modals/logout-confirmation-modal';
 
@@ -30,6 +30,7 @@ const menuItems = [
   { href: '/admin/notices', label: 'Notices', icon: Bell },
   { href: '/admin/board-members', label: 'Board Members', icon: UsersRound },
   { href: '/admin/reports', label: 'Reports', icon: BarChart },
+  { href: '/admin/settings', label: 'Settings', icon: SlidersHorizontal },
 ];
 
 export default function AdminSidebar() {
