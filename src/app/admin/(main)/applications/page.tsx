@@ -27,11 +27,12 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { MoreHorizontal } from "lucide-react";
+import { MoreHorizontal, AlertTriangle, FileWarning, RefreshCw } from "lucide-react";
 import { format } from 'date-fns';
 import { Application } from "@/lib/types";
 import { ViewApplicationModal } from "@/components/modals/view-application-modal";
 import { useToast } from "@/hooks/use-toast";
+import { Skeleton } from "@/components/ui/skeleton";
 
 const statusVariant = (status: string) => {
   switch (status) {
@@ -51,6 +52,7 @@ const ITEMS_PER_PAGE = 7;
 export default function ApplicationsPage() {
   const [applications, setApplications] = useState<Application[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [currentPage, setCurrentPage] = useState(1);
   const [selectedApplication, setSelectedApplication] = useState<Application | null>(null);
   const { toast } = useToast();
@@ -58,16 +60,14 @@ export default function ApplicationsPage() {
   const fetchApplications = async () => {
     try {
       setLoading(true);
+      setError(null);
       const response = await fetch('/api/applications');
       if (!response.ok) throw new Error("Failed to fetch applications");
       const data = await response.json();
       setApplications(data);
     } catch (error) {
-      toast({
-        title: "Error",
-        description: "Failed to load applications.",
-        variant: "destructive",
-      });
+       setError("Failed to load applications. Please try again.");
+       console.error(error);
     } finally {
       setLoading(false);
     }
@@ -123,20 +123,6 @@ export default function ApplicationsPage() {
         });
     }
   };
-  
-  if (loading) {
-    return (
-        <Card>
-            <CardHeader>
-                <CardTitle>Applications</CardTitle>
-                <CardDescription>Loading application data...</CardDescription>
-            </CardHeader>
-            <CardContent>
-                <p>Please wait while we fetch the application records.</p>
-            </CardContent>
-        </Card>
-    );
-  }
 
   return (
     <>
@@ -159,45 +145,81 @@ export default function ApplicationsPage() {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {currentApplications.map((app) => (
-              <TableRow key={app._id}>
-                <TableCell className="font-medium">{app.name}</TableCell>
-                <TableCell>{app.course}</TableCell>
-                <TableCell>{format(new Date(app.submittedAt), 'PPP')}</TableCell>
-                <TableCell>
-                  <Badge variant={statusVariant(app.status)}>{app.status}</Badge>
-                </TableCell>
-                <TableCell className="text-right">
-                  <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                      <Button aria-haspopup="true" size="icon" variant="ghost">
-                        <MoreHorizontal className="h-4 w-4" />
-                        <span className="sr-only">Toggle menu</span>
-                      </Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end">
-                      <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                      <DropdownMenuItem onClick={() => handleViewApplication(app)}>View Details</DropdownMenuItem>
-                      <DropdownMenuItem onClick={() => handleUpdateStatus(app._id, 'Approved')} disabled={app.status === 'Approved'}>Approve</DropdownMenuItem>
-                      <DropdownMenuItem onClick={() => handleUpdateStatus(app._id, 'Rejected')} disabled={app.status === 'Rejected'}>Reject</DropdownMenuItem>
-                    </DropdownMenuContent>
-                  </DropdownMenu>
+            {loading ? (
+              Array.from({ length: ITEMS_PER_PAGE }).map((_, i) => (
+                <TableRow key={i}>
+                  <TableCell><Skeleton className="h-4 w-32" /></TableCell>
+                  <TableCell><Skeleton className="h-4 w-24" /></TableCell>
+                  <TableCell><Skeleton className="h-4 w-24" /></TableCell>
+                  <TableCell><Skeleton className="h-6 w-20 rounded-full" /></TableCell>
+                  <TableCell className="text-right"><Skeleton className="h-8 w-8 ml-auto" /></TableCell>
+                </TableRow>
+              ))
+            ) : error ? (
+              <TableRow>
+                <TableCell colSpan={5} className="text-center py-16">
+                  <div className="flex flex-col items-center gap-4">
+                    <AlertTriangle className="h-12 w-12 text-destructive" />
+                    <h3 className="text-xl font-semibold">Error Loading Applications</h3>
+                    <p className="text-muted-foreground">{error}</p>
+                    <Button onClick={fetchApplications} variant="outline">
+                      <RefreshCw className="mr-2 h-4 w-4" />
+                      Try Again
+                    </Button>
+                  </div>
                 </TableCell>
               </TableRow>
-            ))}
+            ) : currentApplications.length > 0 ? (
+              currentApplications.map((app) => (
+                <TableRow key={app._id}>
+                  <TableCell className="font-medium">{app.name}</TableCell>
+                  <TableCell>{app.course}</TableCell>
+                  <TableCell>{format(new Date(app.submittedAt), 'PPP')}</TableCell>
+                  <TableCell>
+                    <Badge variant={statusVariant(app.status)}>{app.status}</Badge>
+                  </TableCell>
+                  <TableCell className="text-right">
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <Button aria-haspopup="true" size="icon" variant="ghost">
+                          <MoreHorizontal className="h-4 w-4" />
+                          <span className="sr-only">Toggle menu</span>
+                        </Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="end">
+                        <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                        <DropdownMenuItem onClick={() => handleViewApplication(app)}>View Details</DropdownMenuItem>
+                        <DropdownMenuItem onClick={() => handleUpdateStatus(app._id, 'Approved')} disabled={app.status === 'Approved'}>Approve</DropdownMenuItem>
+                        <DropdownMenuItem onClick={() => handleUpdateStatus(app._id, 'Rejected')} disabled={app.status === 'Rejected'}>Reject</DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+                  </TableCell>
+                </TableRow>
+              ))
+            ) : (
+                <TableRow>
+                  <TableCell colSpan={5} className="text-center py-16">
+                     <div className="flex flex-col items-center gap-4">
+                        <FileWarning className="h-12 w-12 text-muted-foreground" />
+                        <h3 className="text-xl font-semibold">No Applications Found</h3>
+                        <p className="text-muted-foreground">There are currently no applications to display.</p>
+                    </div>
+                  </TableCell>
+                </TableRow>
+            )}
           </TableBody>
         </Table>
       </CardContent>
        <CardFooter>
         <div className="text-xs text-muted-foreground">
-          Showing <strong>{startIndex + 1}-{Math.min(endIndex, applications.length)}</strong> of <strong>{applications.length}</strong> applications
+          Showing <strong>{applications.length > 0 ? startIndex + 1 : 0}-{Math.min(endIndex, applications.length)}</strong> of <strong>{applications.length}</strong> applications
         </div>
         <div className="ml-auto flex items-center gap-2">
           <Button
             size="sm"
             variant="outline"
             onClick={() => handlePageChange(currentPage - 1)}
-            disabled={currentPage === 1}
+            disabled={currentPage === 1 || applications.length === 0}
           >
             Previous
           </Button>
@@ -205,7 +227,7 @@ export default function ApplicationsPage() {
             size="sm"
             variant="outline"
             onClick={() => handlePageChange(currentPage + 1)}
-            disabled={currentPage === totalPages}
+            disabled={currentPage === totalPages || applications.length === 0}
           >
             Next
           </Button>
@@ -223,4 +245,3 @@ export default function ApplicationsPage() {
     </>
   );
 }
-

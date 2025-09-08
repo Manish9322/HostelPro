@@ -27,12 +27,13 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
-import { MoreHorizontal, PlusCircle } from "lucide-react";
+import { MoreHorizontal, PlusCircle, AlertTriangle, FileWarning, RefreshCw } from "lucide-react";
 import { format } from 'date-fns';
 import { BoardMemberModal } from "@/components/modals/board-member-modal";
 import { DeleteConfirmationDialog } from "@/components/modals/delete-confirmation-modal";
 import { useToast } from "@/hooks/use-toast";
 import { BoardMember } from "@/lib/types";
+import { Skeleton } from "@/components/ui/skeleton";
 
 
 const ITEMS_PER_PAGE = 5;
@@ -40,6 +41,7 @@ const ITEMS_PER_PAGE = 5;
 export default function BoardMembersPage() {
   const [members, setMembers] = useState<BoardMember[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [currentPage, setCurrentPage] = useState(1);
   const [isModalOpen, setModalOpen] = useState(false);
   const [isDeleteModalOpen, setDeleteModalOpen] = useState(false);
@@ -49,12 +51,14 @@ export default function BoardMembersPage() {
   const fetchMembers = async () => {
     try {
       setLoading(true);
+      setError(null);
       const response = await fetch('/api/board-members');
       if (!response.ok) throw new Error("Failed to fetch board members");
       const data = await response.json();
       setMembers(data);
     } catch (error) {
-      toast({ title: "Error", description: "Failed to load board members.", variant: "destructive" });
+      setError("Failed to load board members. Please try again.");
+      console.error(error);
     } finally {
       setLoading(false);
     }
@@ -119,17 +123,6 @@ export default function BoardMembersPage() {
     }
   };
   
-  if (loading) {
-    return (
-        <Card>
-            <CardHeader>
-                <CardTitle>Board Members</CardTitle>
-                <CardDescription>Loading board member data...</CardDescription>
-            </CardHeader>
-            <CardContent><p>Please wait while we fetch the records.</p></CardContent>
-        </Card>
-    );
-  }
 
   return (
     <>
@@ -160,55 +153,92 @@ export default function BoardMembersPage() {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {currentMembers.map((member) => (
-                <TableRow key={member._id}>
-                  <TableCell className="font-medium">
-                    <div className="flex items-center gap-3">
-                      <Avatar className="h-9 w-9">
-                        <AvatarImage src={member.avatar} data-ai-hint="person avatar" alt={member.name} />
-                        <AvatarFallback>{member.name.split(' ').map(n => n[0]).join('')}</AvatarFallback>
-                      </Avatar>
-                      <div>
-                        <p className="font-medium">{member.name}</p>
-                      </div>
-                    </div>
-                  </TableCell>
-                  <TableCell>{member.position}</TableCell>
-                  <TableCell>
-                    <div className="text-sm">{member.email}</div>
-                    <div className="text-xs text-muted-foreground">{member.phone}</div>
-                  </TableCell>
-                  <TableCell>{format(new Date(member.joinedAt), 'PPP')}</TableCell>
-                  <TableCell className="text-right">
-                    <DropdownMenu>
-                      <DropdownMenuTrigger asChild>
-                        <Button aria-haspopup="true" size="icon" variant="ghost">
-                          <MoreHorizontal className="h-4 w-4" />
-                          <span className="sr-only">Toggle menu</span>
+              {loading ? (
+                Array.from({ length: ITEMS_PER_PAGE }).map((_, i) => (
+                  <TableRow key={i}>
+                    <TableCell className="flex items-center gap-3"><Skeleton className="h-9 w-9 rounded-full" /><Skeleton className="h-4 w-32" /></TableCell>
+                    <TableCell><Skeleton className="h-4 w-24" /></TableCell>
+                    <TableCell><Skeleton className="h-4 w-40" /></TableCell>
+                    <TableCell><Skeleton className="h-4 w-24" /></TableCell>
+                    <TableCell className="text-right"><Skeleton className="h-8 w-8 ml-auto" /></TableCell>
+                  </TableRow>
+                ))
+              ) : error ? (
+                 <TableRow>
+                    <TableCell colSpan={5} className="text-center py-16">
+                    <div className="flex flex-col items-center gap-4">
+                        <AlertTriangle className="h-12 w-12 text-destructive" />
+                        <h3 className="text-xl font-semibold">Error Loading Members</h3>
+                        <p className="text-muted-foreground">{error}</p>
+                        <Button onClick={fetchMembers} variant="outline">
+                          <RefreshCw className="mr-2 h-4 w-4" />
+                          Try Again
                         </Button>
-                      </DropdownMenuTrigger>
-                      <DropdownMenuContent align="end">
-                        <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                        <DropdownMenuItem onClick={() => handleOpenModal(member)}>Edit</DropdownMenuItem>
-                        <DropdownMenuItem onClick={() => handleOpenDeleteModal(member)}>Delete</DropdownMenuItem>
-                      </DropdownMenuContent>
-                    </DropdownMenu>
-                  </TableCell>
+                    </div>
+                    </TableCell>
                 </TableRow>
-              ))}
+              ) : currentMembers.length > 0 ? (
+                currentMembers.map((member) => (
+                  <TableRow key={member._id}>
+                    <TableCell className="font-medium">
+                      <div className="flex items-center gap-3">
+                        <Avatar className="h-9 w-9">
+                          <AvatarImage src={member.avatar} data-ai-hint="person avatar" alt={member.name} />
+                          <AvatarFallback>{member.name.split(' ').map(n => n[0]).join('')}</AvatarFallback>
+                        </Avatar>
+                        <div>
+                          <p className="font-medium">{member.name}</p>
+                        </div>
+                      </div>
+                    </TableCell>
+                    <TableCell>{member.position}</TableCell>
+                    <TableCell>
+                      <div className="text-sm">{member.email}</div>
+                      <div className="text-xs text-muted-foreground">{member.phone}</div>
+                    </TableCell>
+                    <TableCell>{format(new Date(member.joinedAt), 'PPP')}</TableCell>
+                    <TableCell className="text-right">
+                      <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                          <Button aria-haspopup="true" size="icon" variant="ghost">
+                            <MoreHorizontal className="h-4 w-4" />
+                            <span className="sr-only">Toggle menu</span>
+                          </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end">
+                          <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                          <DropdownMenuItem onClick={() => handleOpenModal(member)}>Edit</DropdownMenuItem>
+                          <DropdownMenuItem onClick={() => handleOpenDeleteModal(member)}>Delete</DropdownMenuItem>
+                        </DropdownMenuContent>
+                      </DropdownMenu>
+                    </TableCell>
+                  </TableRow>
+                ))
+              ) : (
+                <TableRow>
+                    <TableCell colSpan={5} className="text-center py-16">
+                        <div className="flex flex-col items-center gap-4">
+                            <FileWarning className="h-12 w-12 text-muted-foreground" />
+                            <h3 className="text-xl font-semibold">No Board Members Found</h3>
+                            <p className="text-muted-foreground">Add a new board member to get started.</p>
+                            <Button onClick={() => handleOpenModal()}>Add New Member</Button>
+                        </div>
+                    </TableCell>
+                </TableRow>
+              )}
             </TableBody>
           </Table>
         </CardContent>
         <CardFooter>
           <div className="text-xs text-muted-foreground">
-            Showing <strong>{startIndex + 1}-{Math.min(endIndex, members.length)}</strong> of <strong>{members.length}</strong> members
+            Showing <strong>{members.length > 0 ? startIndex + 1 : 0}-{Math.min(endIndex, members.length)}</strong> of <strong>{members.length}</strong> members
           </div>
           <div className="ml-auto flex items-center gap-2">
             <Button
               size="sm"
               variant="outline"
               onClick={() => handlePageChange(currentPage - 1)}
-              disabled={currentPage === 1}
+              disabled={currentPage === 1 || members.length === 0}
             >
               Previous
             </Button>
@@ -216,7 +246,7 @@ export default function BoardMembersPage() {
               size="sm"
               variant="outline"
               onClick={() => handlePageChange(currentPage + 1)}
-              disabled={currentPage === totalPages}
+              disabled={currentPage === totalPages || members.length === 0}
             >
               Next
             </Button>
@@ -239,4 +269,3 @@ export default function BoardMembersPage() {
     </>
   );
 }
-

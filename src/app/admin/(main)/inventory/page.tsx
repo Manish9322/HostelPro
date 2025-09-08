@@ -27,12 +27,13 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { MoreHorizontal, PlusCircle, Box, Search, CheckCircle, AlertTriangle } from "lucide-react";
+import { MoreHorizontal, PlusCircle, Box, Search, CheckCircle, AlertTriangle, FileWarning, RefreshCw } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { InventoryItemModal } from "@/components/modals/inventory-item-modal";
 import { DeleteConfirmationDialog } from "@/components/modals/delete-confirmation-modal";
 import { useToast } from "@/hooks/use-toast";
 import { InventoryItem } from "@/lib/types";
+import { Skeleton } from "@/components/ui/skeleton";
 
 const conditionVariant = (condition: string) => {
   switch (condition) {
@@ -66,6 +67,7 @@ const ITEMS_PER_PAGE = 7;
 export default function InventoryPage() {
   const [inventory, setInventory] = useState<InventoryItem[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [currentPage, setCurrentPage] = useState(1);
   const [isModalOpen, setModalOpen] = useState(false);
   const [isDeleteModalOpen, setDeleteModalOpen] = useState(false);
@@ -75,12 +77,14 @@ export default function InventoryPage() {
   const fetchInventory = async () => {
     try {
       setLoading(true);
+      setError(null);
       const response = await fetch('/api/inventory');
       if (!response.ok) throw new Error("Failed to fetch inventory");
       const data = await response.json();
       setInventory(data);
     } catch (error) {
-      toast({ title: "Error", description: "Failed to load inventory.", variant: "destructive" });
+      setError("Failed to load inventory. Please try again.");
+      console.error(error);
     } finally {
       setLoading(false);
     }
@@ -149,17 +153,6 @@ export default function InventoryPage() {
     }
   };
   
-  if (loading) {
-    return (
-        <Card>
-            <CardHeader>
-                <CardTitle>Inventory & Asset Management</CardTitle>
-                <CardDescription>Loading inventory data...</CardDescription>
-            </CardHeader>
-            <CardContent><p>Please wait while we fetch the records.</p></CardContent>
-        </Card>
-    );
-  }
 
   return (
     <>
@@ -230,47 +223,85 @@ export default function InventoryPage() {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {currentItems.map((item) => (
-                  <TableRow key={item._id}>
-                    <TableCell className="font-medium">{item.name}</TableCell>
-                    <TableCell>{item.category}</TableCell>
-                    <TableCell>{item.location}</TableCell>
-                     <TableCell>
-                      <Badge variant={conditionVariant(item.condition)}>{item.condition}</Badge>
-                    </TableCell>
-                    <TableCell>
-                      <Badge variant={statusVariant(item.status)}>{item.status}</Badge>
-                    </TableCell>
-                    <TableCell className="text-right">
-                      <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                          <Button aria-haspopup="true" size="icon" variant="ghost">
-                            <MoreHorizontal className="h-4 w-4" />
-                            <span className="sr-only">Toggle menu</span>
-                          </Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end">
-                          <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                          <DropdownMenuItem onClick={() => handleOpenModal(item)}>Edit</DropdownMenuItem>
-                          <DropdownMenuItem onClick={() => handleOpenDeleteModal(item)}>Delete</DropdownMenuItem>
-                        </DropdownMenuContent>
-                      </DropdownMenu>
-                    </TableCell>
-                  </TableRow>
-                ))}
+                {loading ? (
+                    Array.from({ length: ITEMS_PER_PAGE }).map((_, i) => (
+                        <TableRow key={i}>
+                            <TableCell><Skeleton className="h-4 w-32" /></TableCell>
+                            <TableCell><Skeleton className="h-4 w-24" /></TableCell>
+                            <TableCell><Skeleton className="h-4 w-24" /></TableCell>
+                            <TableCell><Skeleton className="h-6 w-20 rounded-full" /></TableCell>
+                            <TableCell><Skeleton className="h-6 w-20 rounded-full" /></TableCell>
+                            <TableCell className="text-right"><Skeleton className="h-8 w-8 ml-auto" /></TableCell>
+                        </TableRow>
+                    ))
+                ) : error ? (
+                     <TableRow>
+                        <TableCell colSpan={6} className="text-center py-16">
+                        <div className="flex flex-col items-center gap-4">
+                            <AlertTriangle className="h-12 w-12 text-destructive" />
+                            <h3 className="text-xl font-semibold">Error Loading Inventory</h3>
+                            <p className="text-muted-foreground">{error}</p>
+                            <Button onClick={fetchInventory} variant="outline">
+                            <RefreshCw className="mr-2 h-4 w-4" />
+                            Try Again
+                            </Button>
+                        </div>
+                        </TableCell>
+                    </TableRow>
+                ) : currentItems.length > 0 ? (
+                    currentItems.map((item) => (
+                    <TableRow key={item._id}>
+                        <TableCell className="font-medium">{item.name}</TableCell>
+                        <TableCell>{item.category}</TableCell>
+                        <TableCell>{item.location}</TableCell>
+                        <TableCell>
+                        <Badge variant={conditionVariant(item.condition)}>{item.condition}</Badge>
+                        </TableCell>
+                        <TableCell>
+                        <Badge variant={statusVariant(item.status)}>{item.status}</Badge>
+                        </TableCell>
+                        <TableCell className="text-right">
+                        <DropdownMenu>
+                            <DropdownMenuTrigger asChild>
+                            <Button aria-haspopup="true" size="icon" variant="ghost">
+                                <MoreHorizontal className="h-4 w-4" />
+                                <span className="sr-only">Toggle menu</span>
+                            </Button>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent align="end">
+                            <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                            <DropdownMenuItem onClick={() => handleOpenModal(item)}>Edit</DropdownMenuItem>
+                            <DropdownMenuItem onClick={() => handleOpenDeleteModal(item)}>Delete</DropdownMenuItem>
+                            </DropdownMenuContent>
+                        </DropdownMenu>
+                        </TableCell>
+                    </TableRow>
+                    ))
+                ) : (
+                    <TableRow>
+                        <TableCell colSpan={6} className="text-center py-16">
+                            <div className="flex flex-col items-center gap-4">
+                                <FileWarning className="h-12 w-12 text-muted-foreground" />
+                                <h3 className="text-xl font-semibold">No Inventory Found</h3>
+                                <p className="text-muted-foreground">Add a new item to get started.</p>
+                                <Button onClick={() => handleOpenModal()}>Add New Item</Button>
+                            </div>
+                        </TableCell>
+                    </TableRow>
+                )}
               </TableBody>
             </Table>
           </CardContent>
           <CardFooter>
               <div className="text-xs text-muted-foreground">
-                  Showing <strong>{startIndex + 1}-{Math.min(endIndex, inventory.length)}</strong> of <strong>{inventory.length}</strong> items
+                  Showing <strong>{inventory.length > 0 ? startIndex + 1: 0}-{Math.min(endIndex, inventory.length)}</strong> of <strong>{inventory.length}</strong> items
               </div>
               <div className="ml-auto flex items-center gap-2">
                   <Button
                       size="sm"
                       variant="outline"
                       onClick={() => handlePageChange(currentPage - 1)}
-                      disabled={currentPage === 1}
+                      disabled={currentPage === 1 || inventory.length === 0}
                   >
                       Previous
                   </Button>
@@ -278,7 +309,7 @@ export default function InventoryPage() {
                       size="sm"
                       variant="outline"
                       onClick={() => handlePageChange(currentPage + 1)}
-                      disabled={currentPage === totalPages}
+                      disabled={currentPage === totalPages || inventory.length === 0}
                   >
                       Next
                   </Button>

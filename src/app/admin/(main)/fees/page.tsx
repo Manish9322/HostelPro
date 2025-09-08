@@ -27,13 +27,14 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { MoreHorizontal, PlusCircle, Search, FileText, CircleDollarSign, CheckCircle } from "lucide-react";
+import { MoreHorizontal, PlusCircle, Search, FileText, CircleDollarSign, CheckCircle, AlertTriangle, FileWarning, RefreshCw } from "lucide-react";
 import { format } from 'date-fns';
 import { Input } from "@/components/ui/input";
 import { FeePaymentModal } from "@/components/modals/fee-payment-modal";
 import { DeleteConfirmationDialog } from "@/components/modals/delete-confirmation-modal";
 import { useToast } from "@/hooks/use-toast";
 import { FeePayment } from "@/lib/types";
+import { Skeleton } from "@/components/ui/skeleton";
 
 const statusVariant = (status: string) => {
   switch (status) {
@@ -53,6 +54,7 @@ const ITEMS_PER_PAGE = 7;
 export default function FeesPage() {
   const [payments, setPayments] = useState<FeePayment[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [currentPage, setCurrentPage] = useState(1);
   const [isModalOpen, setModalOpen] = useState(false);
   const [isDeleteModalOpen, setDeleteModalOpen] = useState(false);
@@ -62,12 +64,14 @@ export default function FeesPage() {
   const fetchPayments = async () => {
     try {
       setLoading(true);
+      setError(null);
       const response = await fetch('/api/fees');
       if (!response.ok) throw new Error("Failed to fetch payments");
       const data = await response.json();
       setPayments(data);
     } catch (error) {
-      toast({ title: "Error", description: "Failed to load fee payments.", variant: "destructive" });
+      setError("Failed to load fee payments. Please try again.");
+      console.error(error);
     } finally {
       setLoading(false);
     }
@@ -135,18 +139,6 @@ export default function FeesPage() {
     }
   };
   
-   if (loading) {
-    return (
-        <Card>
-            <CardHeader>
-                <CardTitle>Fee Management</CardTitle>
-                <CardDescription>Loading payment data...</CardDescription>
-            </CardHeader>
-            <CardContent><p>Please wait while we fetch the records.</p></CardContent>
-        </Card>
-    );
-  }
-
   return (
     <>
       <div className="grid gap-8">
@@ -222,46 +214,85 @@ export default function FeesPage() {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {currentPayments.map((payment) => (
-                  <TableRow key={payment._id}>
-                    <TableCell className="font-medium">{payment.studentName}</TableCell>
-                    <TableCell>{payment.studentId}</TableCell>
-                    <TableCell>{payment.month}</TableCell>
-                    <TableCell>{format(new Date(payment.dueDate), 'PPP')}</TableCell>
-                    <TableCell>${payment.amount.toFixed(2)}</TableCell>
-                    <TableCell>
-                      <Badge variant={statusVariant(payment.status)}>{payment.status}</Badge>
-                    </TableCell>
-                    <TableCell className="text-right">
-                      <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                          <Button aria-haspopup="true" size="icon" variant="ghost">
-                            <MoreHorizontal className="h-4 w-4" />
-                            <span className="sr-only">Toggle menu</span>
-                          </Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end">
-                          <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                          <DropdownMenuItem onClick={() => handleOpenModal(payment)}>Edit</DropdownMenuItem>
-                          <DropdownMenuItem onClick={() => handleOpenDeleteModal(payment)}>Delete</DropdownMenuItem>
-                        </DropdownMenuContent>
-                      </DropdownMenu>
-                    </TableCell>
-                  </TableRow>
-                ))}
+                {loading ? (
+                  Array.from({ length: ITEMS_PER_PAGE }).map((_, i) => (
+                    <TableRow key={i}>
+                        <TableCell><Skeleton className="h-4 w-32" /></TableCell>
+                        <TableCell><Skeleton className="h-4 w-20" /></TableCell>
+                        <TableCell><Skeleton className="h-4 w-24" /></TableCell>
+                        <TableCell><Skeleton className="h-4 w-24" /></TableCell>
+                        <TableCell><Skeleton className="h-4 w-16" /></TableCell>
+                        <TableCell><Skeleton className="h-6 w-20 rounded-full" /></TableCell>
+                        <TableCell className="text-right"><Skeleton className="h-8 w-8 ml-auto" /></TableCell>
+                    </TableRow>
+                  ))
+                ) : error ? (
+                    <TableRow>
+                        <TableCell colSpan={7} className="text-center py-16">
+                        <div className="flex flex-col items-center gap-4">
+                            <AlertTriangle className="h-12 w-12 text-destructive" />
+                            <h3 className="text-xl font-semibold">Error Loading Payments</h3>
+                            <p className="text-muted-foreground">{error}</p>
+                            <Button onClick={fetchPayments} variant="outline">
+                            <RefreshCw className="mr-2 h-4 w-4" />
+                            Try Again
+                            </Button>
+                        </div>
+                        </TableCell>
+                    </TableRow>
+                ) : currentPayments.length > 0 ? (
+                  currentPayments.map((payment) => (
+                    <TableRow key={payment._id}>
+                      <TableCell className="font-medium">{payment.studentName}</TableCell>
+                      <TableCell>{payment.studentId}</TableCell>
+                      <TableCell>{payment.month}</TableCell>
+                      <TableCell>{format(new Date(payment.dueDate), 'PPP')}</TableCell>
+                      <TableCell>${payment.amount.toFixed(2)}</TableCell>
+                      <TableCell>
+                        <Badge variant={statusVariant(payment.status)}>{payment.status}</Badge>
+                      </TableCell>
+                      <TableCell className="text-right">
+                        <DropdownMenu>
+                          <DropdownMenuTrigger asChild>
+                            <Button aria-haspopup="true" size="icon" variant="ghost">
+                              <MoreHorizontal className="h-4 w-4" />
+                              <span className="sr-only">Toggle menu</span>
+                            </Button>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent align="end">
+                            <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                            <DropdownMenuItem onClick={() => handleOpenModal(payment)}>Edit</DropdownMenuItem>
+                            <DropdownMenuItem onClick={() => handleOpenDeleteModal(payment)}>Delete</DropdownMenuItem>
+                          </DropdownMenuContent>
+                        </DropdownMenu>
+                      </TableCell>
+                    </TableRow>
+                  ))
+                ) : (
+                    <TableRow>
+                        <TableCell colSpan={7} className="text-center py-16">
+                            <div className="flex flex-col items-center gap-4">
+                                <FileWarning className="h-12 w-12 text-muted-foreground" />
+                                <h3 className="text-xl font-semibold">No Payments Found</h3>
+                                <p className="text-muted-foreground">Log a new payment to get started.</p>
+                                <Button onClick={() => handleOpenModal()}>Log New Payment</Button>
+                            </div>
+                        </TableCell>
+                    </TableRow>
+                )}
               </TableBody>
             </Table>
           </CardContent>
            <CardFooter>
               <div className="text-xs text-muted-foreground">
-                  Showing <strong>{startIndex + 1}-{Math.min(endIndex, payments.length)}</strong> of <strong>{payments.length}</strong> payments
+                  Showing <strong>{payments.length > 0 ? startIndex + 1 : 0}-{Math.min(endIndex, payments.length)}</strong> of <strong>{payments.length}</strong> payments
               </div>
               <div className="ml-auto flex items-center gap-2">
                   <Button
                       size="sm"
                       variant="outline"
                       onClick={() => handlePageChange(currentPage - 1)}
-                      disabled={currentPage === 1}
+                      disabled={currentPage === 1 || payments.length === 0}
                   >
                       Previous
                   </Button>
@@ -269,7 +300,7 @@ export default function FeesPage() {
                       size="sm"
                       variant="outline"
                       onClick={() => handlePageChange(currentPage + 1)}
-                      disabled={currentPage === totalPages}
+                      disabled={currentPage === totalPages || payments.length === 0}
                   >
                       Next
                   </Button>

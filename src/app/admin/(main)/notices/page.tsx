@@ -26,18 +26,20 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
-import { MoreHorizontal, PlusCircle } from "lucide-react";
+import { MoreHorizontal, PlusCircle, AlertTriangle, FileWarning, RefreshCw } from "lucide-react";
 import { format } from 'date-fns';
 import { NoticeModal } from "@/components/modals/notice-modal";
 import { DeleteConfirmationDialog } from "@/components/modals/delete-confirmation-modal";
 import { useToast } from "@/hooks/use-toast";
 import { Notice } from "@/lib/types";
+import { Skeleton } from "@/components/ui/skeleton";
 
 const ITEMS_PER_PAGE = 7;
 
 export default function NoticesAdminPage() {
   const [notices, setNotices] = useState<Notice[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [currentPage, setCurrentPage] = useState(1);
   const [isModalOpen, setModalOpen] = useState(false);
   const [isDeleteModalOpen, setDeleteModalOpen] = useState(false);
@@ -47,12 +49,14 @@ export default function NoticesAdminPage() {
   const fetchNotices = async () => {
     try {
       setLoading(true);
+      setError(null);
       const response = await fetch('/api/notices');
       if (!response.ok) throw new Error("Failed to fetch notices");
       const data = await response.json();
       setNotices(data);
     } catch (error) {
-      toast({ title: "Error", description: "Failed to load notices.", variant: "destructive" });
+      setError("Failed to load notices. Please try again.");
+      console.error(error);
     } finally {
       setLoading(false);
     }
@@ -118,17 +122,6 @@ export default function NoticesAdminPage() {
     }
   };
 
-  if (loading) {
-    return (
-        <Card>
-            <CardHeader>
-                <CardTitle>Notice Management</CardTitle>
-                <CardDescription>Loading notices...</CardDescription>
-            </CardHeader>
-            <CardContent><p>Please wait while we fetch the records.</p></CardContent>
-        </Card>
-    );
-  }
 
   return (
     <>
@@ -158,41 +151,77 @@ export default function NoticesAdminPage() {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {currentNotices.map((notice) => (
-                <TableRow key={notice._id}>
-                  <TableCell className="font-medium">{notice.title}</TableCell>
-                  <TableCell>{notice.author}</TableCell>
-                  <TableCell>{format(new Date(notice.publishedAt), 'PPP')}</TableCell>
-                  <TableCell className="text-right">
-                    <DropdownMenu>
-                      <DropdownMenuTrigger asChild>
-                        <Button aria-haspopup="true" size="icon" variant="ghost">
-                          <MoreHorizontal className="h-4 w-4" />
-                          <span className="sr-only">Toggle menu</span>
-                        </Button>
-                      </DropdownMenuTrigger>
-                      <DropdownMenuContent align="end">
-                        <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                        <DropdownMenuItem onClick={() => handleOpenModal(notice)}>Edit</DropdownMenuItem>
-                        <DropdownMenuItem onClick={() => handleOpenDeleteModal(notice)}>Delete</DropdownMenuItem>
-                      </DropdownMenuContent>
-                    </DropdownMenu>
-                  </TableCell>
+              {loading ? (
+                  Array.from({ length: ITEMS_PER_PAGE }).map((_, i) => (
+                      <TableRow key={i}>
+                          <TableCell><Skeleton className="h-4 w-48" /></TableCell>
+                          <TableCell><Skeleton className="h-4 w-24" /></TableCell>
+                          <TableCell><Skeleton className="h-4 w-24" /></TableCell>
+                          <TableCell className="text-right"><Skeleton className="h-8 w-8 ml-auto" /></TableCell>
+                      </TableRow>
+                  ))
+              ) : error ? (
+                    <TableRow>
+                        <TableCell colSpan={4} className="text-center py-16">
+                        <div className="flex flex-col items-center gap-4">
+                            <AlertTriangle className="h-12 w-12 text-destructive" />
+                            <h3 className="text-xl font-semibold">Error Loading Notices</h3>
+                            <p className="text-muted-foreground">{error}</p>
+                            <Button onClick={fetchNotices} variant="outline">
+                            <RefreshCw className="mr-2 h-4 w-4" />
+                            Try Again
+                            </Button>
+                        </div>
+                        </TableCell>
+                    </TableRow>
+              ) : currentNotices.length > 0 ? (
+                currentNotices.map((notice) => (
+                  <TableRow key={notice._id}>
+                    <TableCell className="font-medium">{notice.title}</TableCell>
+                    <TableCell>{notice.author}</TableCell>
+                    <TableCell>{format(new Date(notice.publishedAt), 'PPP')}</TableCell>
+                    <TableCell className="text-right">
+                      <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                          <Button aria-haspopup="true" size="icon" variant="ghost">
+                            <MoreHorizontal className="h-4 w-4" />
+                            <span className="sr-only">Toggle menu</span>
+                          </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end">
+                          <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                          <DropdownMenuItem onClick={() => handleOpenModal(notice)}>Edit</DropdownMenuItem>
+                          <DropdownMenuItem onClick={() => handleOpenDeleteModal(notice)}>Delete</DropdownMenuItem>
+                        </DropdownMenuContent>
+                      </DropdownMenu>
+                    </TableCell>
+                  </TableRow>
+                ))
+              ) : (
+                <TableRow>
+                    <TableCell colSpan={4} className="text-center py-16">
+                        <div className="flex flex-col items-center gap-4">
+                            <FileWarning className="h-12 w-12 text-muted-foreground" />
+                            <h3 className="text-xl font-semibold">No Notices Found</h3>
+                            <p className="text-muted-foreground">Create a new notice to get started.</p>
+                            <Button onClick={() => handleOpenModal()}>Create New Notice</Button>
+                        </div>
+                    </TableCell>
                 </TableRow>
-              ))}
+              )}
             </TableBody>
           </Table>
         </CardContent>
         <CardFooter>
           <div className="text-xs text-muted-foreground">
-            Showing <strong>{startIndex + 1}-{Math.min(endIndex, notices.length)}</strong> of <strong>{notices.length}</strong> notices
+            Showing <strong>{notices.length > 0 ? startIndex + 1 : 0}-{Math.min(endIndex, notices.length)}</strong> of <strong>{notices.length}</strong> notices
           </div>
           <div className="ml-auto flex items-center gap-2">
             <Button
               size="sm"
               variant="outline"
               onClick={() => handlePageChange(currentPage - 1)}
-              disabled={currentPage === 1}
+              disabled={currentPage === 1 || notices.length === 0}
             >
               Previous
             </Button>
@@ -200,7 +229,7 @@ export default function NoticesAdminPage() {
               size="sm"
               variant="outline"
               onClick={() => handlePageChange(currentPage + 1)}
-              disabled={currentPage === totalPages}
+              disabled={currentPage === totalPages || notices.length === 0}
             >
               Next
             </Button>

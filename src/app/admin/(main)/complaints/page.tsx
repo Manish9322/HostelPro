@@ -15,6 +15,9 @@ import { format } from "date-fns";
 import { Button } from "@/components/ui/button";
 import { Complaint } from "@/lib/types";
 import { useToast } from "@/hooks/use-toast";
+import { Skeleton } from "@/components/ui/skeleton";
+import { AlertTriangle, FileWarning, RefreshCw } from "lucide-react";
+
 
 const urgencyVariant = (urgency: string) => {
   switch (urgency) {
@@ -45,22 +48,21 @@ const ITEMS_PER_PAGE = 4;
 export default function ComplaintsPage() {
   const [complaints, setComplaints] = useState<Complaint[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [currentPage, setCurrentPage] = useState(1);
   const { toast } = useToast();
 
   const fetchComplaints = async () => {
     try {
       setLoading(true);
+      setError(null);
       const response = await fetch('/api/complaints');
       if (!response.ok) throw new Error("Failed to fetch complaints");
       const data = await response.json();
       setComplaints(data);
     } catch (error) {
-      toast({
-        title: "Error",
-        description: "Failed to load complaints.",
-        variant: "destructive",
-      });
+      setError("Failed to load complaints. Please try again.");
+      console.error(error);
     } finally {
       setLoading(false);
     }
@@ -109,18 +111,6 @@ export default function ComplaintsPage() {
     }
   };
   
-  if (loading) {
-    return (
-        <Card>
-            <CardHeader>
-                <CardTitle>Complaint Inbox</CardTitle>
-                <CardDescription>Loading complaints...</CardDescription>
-            </CardHeader>
-            <CardContent><p>Please wait while we fetch the records.</p></CardContent>
-        </Card>
-    );
-  }
-
   return (
     <Card>
       <CardHeader>
@@ -130,53 +120,97 @@ export default function ComplaintsPage() {
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-6">
-        {currentComplaints.map((complaint) => (
-          <div key={complaint._id} className="border p-4 rounded-lg hover:bg-card/80 transition-colors">
-            <div className="flex flex-col sm:flex-row justify-between sm:items-center mb-2">
-              <div className="flex items-center gap-2 flex-wrap">
-                <Badge variant={urgencyVariant(complaint.urgency)}>Urgency: {complaint.urgency}</Badge>
-                <Badge variant="outline">Category: {complaint.category}</Badge>
-                <Badge variant={statusVariant(complaint.status)}>{complaint.status}</Badge>
+        {loading ? (
+          Array.from({ length: ITEMS_PER_PAGE }).map((_, i) => (
+            <div key={i} className="border p-4 rounded-lg">
+                <div className="flex justify-between mb-2">
+                  <div className="flex items-center gap-2">
+                    <Skeleton className="h-5 w-24 rounded-full" />
+                    <Skeleton className="h-5 w-28 rounded-full" />
+                    <Skeleton className="h-5 w-20 rounded-full" />
+                  </div>
+                  <Skeleton className="h-4 w-32" />
+                </div>
+                <div>
+                  <Skeleton className="h-5 w-1/2 mt-2" />
+                  <Skeleton className="h-4 w-full mt-2" />
+                  <Skeleton className="h-4 w-3/4 mt-1" />
+                </div>
+                <div className="flex justify-end gap-2 mt-4">
+                  <Skeleton className="h-9 w-36" />
+                  <Skeleton className="h-9 w-24" />
+                </div>
               </div>
-              <p className="text-sm text-muted-foreground mt-2 sm:mt-0">
-                {format(new Date(complaint.submittedAt), "PPP p")}
-              </p>
+          ))
+        ) : error ? (
+            <div className="text-center py-16">
+              <div className="flex flex-col items-center gap-4">
+                <AlertTriangle className="h-12 w-12 text-destructive" />
+                <h3 className="text-xl font-semibold">Error Loading Complaints</h3>
+                <p className="text-muted-foreground">{error}</p>
+                <Button onClick={fetchComplaints} variant="outline">
+                  <RefreshCw className="mr-2 h-4 w-4" />
+                  Try Again
+                </Button>
+              </div>
             </div>
-            <div>
-              <p className="font-semibold text-primary">{complaint.summary}</p>
-              <p className="text-muted-foreground mt-1 text-sm">{complaint.complaintText}</p>
+        ) : currentComplaints.length > 0 ? (
+          currentComplaints.map((complaint) => (
+            <div key={complaint._id} className="border p-4 rounded-lg hover:bg-card/80 transition-colors">
+              <div className="flex flex-col sm:flex-row justify-between sm:items-center mb-2">
+                <div className="flex items-center gap-2 flex-wrap">
+                  <Badge variant={urgencyVariant(complaint.urgency)}>Urgency: {complaint.urgency}</Badge>
+                  <Badge variant="outline">Category: {complaint.category}</Badge>
+                  <Badge variant={statusVariant(complaint.status)}>{complaint.status}</Badge>
+                </div>
+                <p className="text-sm text-muted-foreground mt-2 sm:mt-0">
+                  {format(new Date(complaint.submittedAt), "PPP p")}
+                </p>
+              </div>
+              <div>
+                <p className="font-semibold text-primary">{complaint.summary}</p>
+                <p className="text-muted-foreground mt-1 text-sm">{complaint.complaintText}</p>
+              </div>
+              <div className="flex justify-end gap-2 mt-4">
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  onClick={() => handleUpdateStatus(complaint._id, 'In Progress')}
+                  disabled={complaint.status === 'In Progress' || complaint.status === 'Resolved'}
+                >
+                  Mark as In Progress
+                </Button>
+                <Button 
+                  variant="outline" 
+                  size="sm"
+                  onClick={() => handleUpdateStatus(complaint._id, 'Resolved')}
+                  disabled={complaint.status === 'Resolved'}
+                >
+                  Resolve
+                </Button>
+              </div>
             </div>
-            <div className="flex justify-end gap-2 mt-4">
-              <Button 
-                variant="outline" 
-                size="sm" 
-                onClick={() => handleUpdateStatus(complaint._id, 'In Progress')}
-                disabled={complaint.status === 'In Progress' || complaint.status === 'Resolved'}
-              >
-                Mark as In Progress
-              </Button>
-              <Button 
-                variant="outline" 
-                size="sm"
-                onClick={() => handleUpdateStatus(complaint._id, 'Resolved')}
-                disabled={complaint.status === 'Resolved'}
-              >
-                Resolve
-              </Button>
+          ))
+        ) : (
+            <div className="text-center py-16">
+                <div className="flex flex-col items-center gap-4">
+                    <FileWarning className="h-12 w-12 text-muted-foreground" />
+                    <h3 className="text-xl font-semibold">No Complaints Found</h3>
+                    <p className="text-muted-foreground">There are currently no complaints to display.</p>
+                </div>
             </div>
-          </div>
-        ))}
+        )}
       </CardContent>
       <CardFooter>
         <div className="text-xs text-muted-foreground">
-          Showing <strong>{startIndex + 1}-{Math.min(endIndex, complaints.length)}</strong> of <strong>{complaints.length}</strong> complaints
+          Showing <strong>{complaints.length > 0 ? startIndex + 1 : 0}-{Math.min(endIndex, complaints.length)}</strong> of <strong>{complaints.length}</strong> complaints
         </div>
         <div className="ml-auto flex items-center gap-2">
           <Button
             size="sm"
             variant="outline"
             onClick={() => handlePageChange(currentPage - 1)}
-            disabled={currentPage === 1}
+            disabled={currentPage === 1 || complaints.length === 0}
           >
             Previous
           </Button>
@@ -184,7 +218,7 @@ export default function ComplaintsPage() {
             size="sm"
             variant="outline"
             onClick={() => handlePageChange(currentPage + 1)}
-            disabled={currentPage === totalPages}
+            disabled={currentPage === totalPages || complaints.length === 0}
           >
             Next
           </Button>
@@ -193,4 +227,3 @@ export default function ComplaintsPage() {
     </Card>
   );
 }
-

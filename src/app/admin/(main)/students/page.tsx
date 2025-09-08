@@ -26,15 +26,17 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
-import { MoreHorizontal, PlusCircle } from "lucide-react";
+import { MoreHorizontal, PlusCircle, AlertTriangle, FileWarning, RefreshCw } from "lucide-react";
 import { StudentModal } from "@/components/modals/student-modal";
 import { DeleteConfirmationDialog } from "@/components/modals/delete-confirmation-modal";
 import { Student } from "@/lib/types";
 import { useToast } from "@/hooks/use-toast";
+import { Skeleton } from "@/components/ui/skeleton";
 
 export default function StudentsPage() {
   const [students, setStudents] = useState<Student[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [isModalOpen, setModalOpen] = useState(false);
   const [isDeleteModalOpen, setDeleteModalOpen] = useState(false);
   const [selectedStudent, setSelectedStudent] = useState<Student | null>(null);
@@ -43,6 +45,7 @@ export default function StudentsPage() {
   const fetchStudents = async () => {
     try {
       setLoading(true);
+      setError(null);
       const response = await fetch('/api/students');
       if (!response.ok) {
         throw new Error('Failed to fetch students');
@@ -51,11 +54,7 @@ export default function StudentsPage() {
       setStudents(data);
     } catch (error) {
       console.error(error);
-      toast({
-        title: "Error",
-        description: "Failed to load students.",
-        variant: "destructive",
-      });
+      setError("Failed to load students. Please try again.");
     } finally {
       setLoading(false);
     }
@@ -138,20 +137,6 @@ export default function StudentsPage() {
     }
   };
 
-  if (loading) {
-    return (
-        <Card>
-            <CardHeader>
-                <CardTitle>Student Management</CardTitle>
-                <CardDescription>Loading student data...</CardDescription>
-            </CardHeader>
-            <CardContent>
-                <p>Please wait while we fetch the student records.</p>
-            </CardContent>
-        </Card>
-    );
-  }
-
   return (
     <>
       <Card>
@@ -181,29 +166,66 @@ export default function StudentsPage() {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {students.map((student) => (
-                <TableRow key={student.id}>
-                  <TableCell className="font-medium">{student.name}</TableCell>
-                  <TableCell>{student.studentId}</TableCell>
-                  <TableCell>{student.roomNumber}</TableCell>
-                  <TableCell>{student.course}</TableCell>
-                  <TableCell className="text-right">
-                    <DropdownMenu>
-                      <DropdownMenuTrigger asChild>
-                        <Button aria-haspopup="true" size="icon" variant="ghost">
-                          <MoreHorizontal className="h-4 w-4" />
-                          <span className="sr-only">Toggle menu</span>
-                        </Button>
-                      </DropdownMenuTrigger>
-                      <DropdownMenuContent align="end">
-                        <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                        <DropdownMenuItem onClick={() => handleOpenModal(student)}>Edit</DropdownMenuItem>
-                        <DropdownMenuItem onClick={() => handleOpenDeleteModal(student)}>Delete</DropdownMenuItem>
-                      </DropdownMenuContent>
-                    </DropdownMenu>
+              {loading ? (
+                Array.from({ length: 5 }).map((_, i) => (
+                  <TableRow key={i}>
+                    <TableCell><Skeleton className="h-4 w-32" /></TableCell>
+                    <TableCell><Skeleton className="h-4 w-24" /></TableCell>
+                    <TableCell><Skeleton className="h-4 w-16" /></TableCell>
+                    <TableCell><Skeleton className="h-4 w-40" /></TableCell>
+                    <TableCell className="text-right"><Skeleton className="h-8 w-8 ml-auto" /></TableCell>
+                  </TableRow>
+                ))
+              ) : error ? (
+                <TableRow>
+                  <TableCell colSpan={5} className="text-center py-16">
+                    <div className="flex flex-col items-center gap-4">
+                      <AlertTriangle className="h-12 w-12 text-destructive" />
+                      <h3 className="text-xl font-semibold">Error Loading Students</h3>
+                      <p className="text-muted-foreground">{error}</p>
+                      <Button onClick={fetchStudents} variant="outline">
+                        <RefreshCw className="mr-2 h-4 w-4" />
+                        Try Again
+                      </Button>
+                    </div>
                   </TableCell>
                 </TableRow>
-              ))}
+              ) : students.length > 0 ? (
+                students.map((student) => (
+                  <TableRow key={student._id}>
+                    <TableCell className="font-medium">{student.name}</TableCell>
+                    <TableCell>{student.studentId}</TableCell>
+                    <TableCell>{student.roomNumber}</TableCell>
+                    <TableCell>{student.course}</TableCell>
+                    <TableCell className="text-right">
+                      <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                          <Button aria-haspopup="true" size="icon" variant="ghost">
+                            <MoreHorizontal className="h-4 w-4" />
+                            <span className="sr-only">Toggle menu</span>
+                          </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end">
+                          <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                          <DropdownMenuItem onClick={() => handleOpenModal(student)}>Edit</DropdownMenuItem>
+                          <DropdownMenuItem onClick={() => handleOpenDeleteModal(student)}>Delete</DropdownMenuItem>
+                        </DropdownMenuContent>
+                      </DropdownMenu>
+                    </TableCell>
+                  </TableRow>
+                ))
+              ) : (
+                <TableRow>
+                  <TableCell colSpan={5} className="text-center py-16">
+                    <div className="flex flex-col items-center gap-4">
+                        <FileWarning className="h-12 w-12 text-muted-foreground" />
+                        <h3 className="text-xl font-semibold">No Students Found</h3>
+                        <p className="text-muted-foreground">Add a new student to get started.</p>
+                        <Button onClick={() => handleOpenModal()}>Add New Student</Button>
+                    </div>
+                  </TableCell>
+                </TableRow>
+              )}
             </TableBody>
           </Table>
         </CardContent>

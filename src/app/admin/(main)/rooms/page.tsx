@@ -27,12 +27,13 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { MoreHorizontal, PlusCircle } from "lucide-react";
+import { MoreHorizontal, PlusCircle, AlertTriangle, FileWarning, RefreshCw } from "lucide-react";
 import { RoomModal } from "@/components/modals/room-modal";
 import { ManageOccupantsModal } from "@/components/modals/manage-occupants-modal";
 import { DeleteConfirmationDialog } from "@/components/modals/delete-confirmation-modal";
 import { useToast } from "@/hooks/use-toast";
 import { Room } from "@/lib/types";
+import { Skeleton } from "@/components/ui/skeleton";
 
 const roomStatusVariant = (status: string) => {
   switch (status) {
@@ -67,6 +68,7 @@ const ITEMS_PER_PAGE = 7;
 export default function RoomsPage() {
     const [rooms, setRooms] = useState<Room[]>([]);
     const [loading, setLoading] = useState(true);
+    const [error, setError] = useState<string | null>(null);
     const [currentPage, setCurrentPage] = useState(1);
     const [isRoomModalOpen, setRoomModalOpen] = useState(false);
     const [isOccupantModalOpen, setOccupantModalOpen] = useState(false);
@@ -77,12 +79,14 @@ export default function RoomsPage() {
     const fetchRooms = async () => {
         try {
             setLoading(true);
+            setError(null);
             const response = await fetch('/api/rooms');
             if (!response.ok) throw new Error("Failed to fetch rooms");
             const data = await response.json();
             setRooms(data);
         } catch (error) {
-            toast({ title: "Error", description: "Failed to load rooms.", variant: "destructive" });
+            setError("Failed to load rooms. Please try again.");
+            console.error(error);
         } finally {
             setLoading(false);
         }
@@ -152,18 +156,6 @@ export default function RoomsPage() {
         }
     };
     
-    if (loading) {
-        return (
-            <Card>
-                <CardHeader>
-                    <CardTitle>Room Management</CardTitle>
-                    <CardDescription>Loading room data...</CardDescription>
-                </CardHeader>
-                <CardContent><p>Please wait while we fetch the records.</p></CardContent>
-            </Card>
-        );
-    }
-
   return (
     <>
       <Card>
@@ -194,52 +186,90 @@ export default function RoomsPage() {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {currentRooms.map((room) => (
-                <TableRow key={room._id}>
-                  <TableCell className="font-medium">{room.roomNumber}</TableCell>
-                  <TableCell>{`${room.occupancy}/${room.capacity}`}</TableCell>
-                  <TableCell>
-                    <Badge variant={roomStatusVariant(room.status)}>{room.status}</Badge>
-                  </TableCell>
-                  <TableCell>
-                    <Badge variant={roomConditionVariant(room.condition)}>{room.condition}</Badge>
-                  </TableCell>
-                  <TableCell>
-                    <div className="flex flex-wrap gap-1">
-                      {room.utilities.map(util => <Badge key={util} variant="outline" className="text-xs">{util}</Badge>)}
-                    </div>
-                  </TableCell>
-                  <TableCell className="text-right">
-                    <DropdownMenu>
-                      <DropdownMenuTrigger asChild>
-                        <Button aria-haspopup="true" size="icon" variant="ghost">
-                          <MoreHorizontal className="h-4 w-4" />
-                          <span className="sr-only">Toggle menu</span>
-                        </Button>
-                      </DropdownMenuTrigger>
-                      <DropdownMenuContent align="end">
-                        <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                        <DropdownMenuItem onClick={() => handleOpenRoomModal(room)}>Edit</DropdownMenuItem>
-                        <DropdownMenuItem onClick={() => handleOpenOccupantModal(room)}>Manage Occupants</DropdownMenuItem>
-                        <DropdownMenuItem onClick={() => handleOpenDeleteModal(room)}>Delete</DropdownMenuItem>
-                      </DropdownMenuContent>
-                    </DropdownMenu>
-                  </TableCell>
+              {loading ? (
+                  Array.from({ length: ITEMS_PER_PAGE }).map((_, i) => (
+                      <TableRow key={i}>
+                          <TableCell><Skeleton className="h-4 w-16" /></TableCell>
+                          <TableCell><Skeleton className="h-4 w-12" /></TableCell>
+                          <TableCell><Skeleton className="h-6 w-24 rounded-full" /></TableCell>
+                          <TableCell><Skeleton className="h-6 w-20 rounded-full" /></TableCell>
+                          <TableCell><Skeleton className="h-4 w-40" /></TableCell>
+                          <TableCell className="text-right"><Skeleton className="h-8 w-8 ml-auto" /></TableCell>
+                      </TableRow>
+                  ))
+              ) : error ? (
+                    <TableRow>
+                        <TableCell colSpan={6} className="text-center py-16">
+                        <div className="flex flex-col items-center gap-4">
+                            <AlertTriangle className="h-12 w-12 text-destructive" />
+                            <h3 className="text-xl font-semibold">Error Loading Rooms</h3>
+                            <p className="text-muted-foreground">{error}</p>
+                            <Button onClick={fetchRooms} variant="outline">
+                            <RefreshCw className="mr-2 h-4 w-4" />
+                            Try Again
+                            </Button>
+                        </div>
+                        </TableCell>
+                    </TableRow>
+              ) : currentRooms.length > 0 ? (
+                currentRooms.map((room) => (
+                  <TableRow key={room._id}>
+                    <TableCell className="font-medium">{room.roomNumber}</TableCell>
+                    <TableCell>{`${room.occupancy}/${room.capacity}`}</TableCell>
+                    <TableCell>
+                      <Badge variant={roomStatusVariant(room.status)}>{room.status}</Badge>
+                    </TableCell>
+                    <TableCell>
+                      <Badge variant={roomConditionVariant(room.condition)}>{room.condition}</Badge>
+                    </TableCell>
+                    <TableCell>
+                      <div className="flex flex-wrap gap-1">
+                        {room.utilities.map(util => <Badge key={util} variant="outline" className="text-xs">{util}</Badge>)}
+                      </div>
+                    </TableCell>
+                    <TableCell className="text-right">
+                      <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                          <Button aria-haspopup="true" size="icon" variant="ghost">
+                            <MoreHorizontal className="h-4 w-4" />
+                            <span className="sr-only">Toggle menu</span>
+                          </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end">
+                          <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                          <DropdownMenuItem onClick={() => handleOpenRoomModal(room)}>Edit</DropdownMenuItem>
+                          <DropdownMenuItem onClick={() => handleOpenOccupantModal(room)}>Manage Occupants</DropdownMenuItem>
+                          <DropdownMenuItem onClick={() => handleOpenDeleteModal(room)}>Delete</DropdownMenuItem>
+                        </DropdownMenuContent>
+                      </DropdownMenu>
+                    </TableCell>
+                  </TableRow>
+                ))
+              ) : (
+                <TableRow>
+                    <TableCell colSpan={6} className="text-center py-16">
+                        <div className="flex flex-col items-center gap-4">
+                            <FileWarning className="h-12 w-12 text-muted-foreground" />
+                            <h3 className="text-xl font-semibold">No Rooms Found</h3>
+                            <p className="text-muted-foreground">Add a new room to get started.</p>
+                            <Button onClick={() => handleOpenRoomModal()}>Add New Room</Button>
+                        </div>
+                    </TableCell>
                 </TableRow>
-              ))}
+              )}
             </TableBody>
           </Table>
         </CardContent>
          <CardFooter>
           <div className="text-xs text-muted-foreground">
-            Showing <strong>{startIndex + 1}-{Math.min(endIndex, rooms.length)}</strong> of <strong>{rooms.length}</strong> rooms
+            Showing <strong>{rooms.length > 0 ? startIndex + 1: 0}-{Math.min(endIndex, rooms.length)}</strong> of <strong>{rooms.length}</strong> rooms
           </div>
           <div className="ml-auto flex items-center gap-2">
             <Button
               size="sm"
               variant="outline"
               onClick={() => handlePageChange(currentPage - 1)}
-              disabled={currentPage === 1}
+              disabled={currentPage === 1 || rooms.length === 0}
             >
               Previous
             </Button>
@@ -247,7 +277,7 @@ export default function RoomsPage() {
               size="sm"
               variant="outline"
               onClick={() => handlePageChange(currentPage + 1)}
-              disabled={currentPage === totalPages}
+              disabled={currentPage === totalPages || rooms.length === 0}
             >
               Next
             </Button>
