@@ -14,6 +14,13 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Student } from "@/lib/types";
 import { FormEvent } from "react";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 interface StudentModalProps {
   isOpen: boolean;
@@ -62,7 +69,18 @@ export function StudentModal({ isOpen, onClose, student, onSubmit }: StudentModa
             </div>
             <div className="grid grid-cols-4 items-center gap-4">
               <Label htmlFor="year" className="text-right">Year</Label>
-              <Input id="year" name="year" type="number" defaultValue={student?.year || ''} className="col-span-3" />
+               <Select name="year" defaultValue={student?.year?.toString() || '1'}>
+                <SelectTrigger className="col-span-3">
+                  <SelectValue placeholder="Select year of study" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="1">1</SelectItem>
+                  <SelectItem value="2">2</SelectItem>
+                  <SelectItem value="3">3</SelectItem>
+                  <SelectItem value="4">4</SelectItem>
+                  <SelectItem value="5">5</SelectItem>
+                </SelectContent>
+              </Select>
             </div>
             <div className="grid grid-cols-4 items-center gap-4">
               <Label htmlFor="email" className="text-right">Email</Label>
