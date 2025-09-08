@@ -100,6 +100,7 @@ export default function ApplicationsPage() {
                       <DropdownMenuLabel>Actions</DropdownMenuLabel>
                       <DropdownMenuItem>Approve</DropdownMenuItem>
                       <DropdownMenuItem>Reject</DropdownMenuItem>
+                      <DropdownMenuItem>Edit</DropdownMenuItem>
                     </DropdownMenuContent>
                   </DropdownMenu>
                 </TableCell>

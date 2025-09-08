@@ -81,6 +81,10 @@ export default function ComplaintsPage() {
               <p className="font-semibold text-primary">{complaint.summary}</p>
               <p className="text-muted-foreground mt-1 text-sm">{complaint.complaintText}</p>
             </div>
+            <div className="flex justify-end gap-2 mt-4">
+              <Button variant="outline" size="sm">Mark as In Progress</Button>
+              <Button variant="outline" size="sm">Resolve</Button>
+            </div>
           </div>
         ))}
       </CardContent>
