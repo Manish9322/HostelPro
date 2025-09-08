@@ -11,7 +11,7 @@ import { submitComplaint, type ComplaintState } from "@/lib/actions";
 import { useEffect, useRef } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { Badge } from "@/components/ui/badge";
-import { GanttChartSquare, Sparkles, ShieldCheck, AlertTriangle, PhoneOutgoing, ListChecks, HelpCircle } from "lucide-react";
+import { GanttChartSquare, Sparkles, ShieldCheck, AlertTriangle, PhoneOutgoing, ListChecks, HelpCircle, HeartHandshake, Users, Wifi } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
@@ -71,6 +71,19 @@ export default function ComplaintPage() {
   return (
     <div className="flex flex-col min-h-screen bg-secondary/50">
       <PublicHeader />
+      {/* Hero Section */}
+      <section className="w-full py-16 bg-background border-b">
+          <div className="container mx-auto px-4 md:px-6">
+              <div className="text-center space-y-4">
+                  <h1 className="text-4xl md:text-5xl font-bold tracking-tighter font-headline">
+                      Voice Your Concerns
+                  </h1>
+                  <p className="max-w-2xl mx-auto text-lg text-muted-foreground">
+                      We value your feedback. Use this confidential form to report any issues. Our AI-powered system ensures it reaches the right team quickly.
+                  </p>
+              </div>
+          </div>
+      </section>
       <main className="flex-1 py-12 px-4">
         <div className="container mx-auto max-w-6xl">
            <div className="grid grid-cols-1 lg:grid-cols-3 gap-12">
@@ -251,6 +264,38 @@ export default function ComplaintPage() {
           </div>
         </div>
       </main>
+      
+      {/* New Section */}
+      <section className="w-full py-16 bg-secondary">
+        <div className="container mx-auto px-4 md:px-6">
+            <div className="text-center mb-12">
+                <div className="flex items-center justify-center gap-2 mb-4">
+                    <HeartHandshake className="w-6 h-6 text-primary" />
+                    <span className="text-sm font-medium text-primary tracking-widest uppercase">Our Commitment</span>
+                </div>
+                <h2 className="text-3xl md:text-4xl font-bold font-headline">More Than Just a Room</h2>
+                <p className="mt-2 text-muted-foreground max-w-2xl mx-auto">We're dedicated to providing an environment that supports your success and well-being.</p>
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-8 text-center">
+              <div className="flex flex-col items-center gap-4 p-6 bg-card rounded-lg shadow-sm">
+                <ShieldCheck className="w-12 h-12 text-primary" />
+                <h3 className="text-xl font-semibold">Your Safety, Our Priority</h3>
+                <p className="text-muted-foreground">With round-the-clock security personnel, CCTV surveillance, and secure access systems, we ensure you can focus on your studies with peace of mind.</p>
+              </div>
+              <div className="flex flex-col items-center gap-4 p-6 bg-card rounded-lg shadow-sm">
+                <Users className="w-12 h-12 text-primary" />
+                <h3 className="text-xl font-semibold">A Community to Belong To</h3>
+                <p className="text-muted-foreground">Join a diverse and vibrant community of students. Our common areas and regular events are perfect for making new friends and lifelong connections.</p>
+              </div>
+              <div className="flex flex-col items-center gap-4 p-6 bg-card rounded-lg shadow-sm">
+                <Wifi className="w-12 h-12 text-primary" />
+                <h3 className="text-xl font-semibold">Hassle-Free Living</h3>
+                <p className="text-muted-foreground">All-inclusive amenities like high-speed Wi-Fi, laundry services, and maintenance support mean you have more time to focus on what matters most.</p>
+              </div>
+            </div>
+        </div>
+      </section>
+
       <PublicFooter />
     </div>
   );
