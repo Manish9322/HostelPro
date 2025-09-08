@@ -17,7 +17,7 @@ import {
   TableCell,
   TableRow,
 } from "@/components/ui/table";
-import { PlusCircle, Trash2, AlertTriangle, RefreshCw } from "lucide-react";
+import { PlusCircle, Trash2, AlertTriangle, RefreshCw, Pen, ArrowUp, ArrowDown, X, Check } from "lucide-react";
 import { Separator } from "@/components/ui/separator";
 import { useToast } from "@/hooks/use-toast";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -50,6 +50,8 @@ const SettingsSection = ({
     loading: boolean
 }) => {
     const [newItem, setNewItem] = useState("");
+    const [editingIndex, setEditingIndex] = useState<number | null>(null);
+    const [editingValue, setEditingValue] = useState("");
 
     const handleAdd = () => {
         if (newItem.trim() && !items.includes(newItem.trim())) {
@@ -62,6 +64,34 @@ const SettingsSection = ({
     const handleDelete = (itemToDelete: string) => {
         const updatedItems = items.filter(item => item !== itemToDelete);
         onUpdate(categoryKey, updatedItems);
+    };
+
+    const handleMove = (index: number, direction: 'up' | 'down') => {
+        const newItems = [...items];
+        const item = newItems[index];
+        const swapIndex = direction === 'up' ? index - 1 : index + 1;
+        newItems.splice(index, 1);
+        newItems.splice(swapIndex, 0, item);
+        onUpdate(categoryKey, newItems);
+    };
+
+    const startEditing = (index: number, value: string) => {
+        setEditingIndex(index);
+        setEditingValue(value);
+    };
+
+    const cancelEditing = () => {
+        setEditingIndex(null);
+        setEditingValue("");
+    };
+
+    const saveEdit = (index: number) => {
+        if(editingValue.trim()){
+            const newItems = [...items];
+            newItems[index] = editingValue.trim();
+            onUpdate(categoryKey, newItems);
+            cancelEditing();
+        }
     };
 
     return (
@@ -88,16 +118,50 @@ const SettingsSection = ({
                     {loading ? Array.from({length: 3}).map((_, i) => (
                         <TableRow key={i}>
                             <TableCell><Skeleton className="h-5 w-3/4"/></TableCell>
-                            <TableCell className="text-right"><Skeleton className="h-8 w-8 ml-auto"/></TableCell>
+                            <TableCell className="text-right"><Skeleton className="h-8 w-24 ml-auto"/></TableCell>
                         </TableRow>
                     )) : items.length > 0 ? items.map((item, index) => (
                     <TableRow key={index}>
-                        <TableCell className="font-medium">{item}</TableCell>
+                        <TableCell className="font-medium align-middle">
+                          {editingIndex === index ? (
+                            <div className="flex gap-2 items-center">
+                              <Input 
+                                value={editingValue}
+                                onChange={(e) => setEditingValue(e.target.value)}
+                                className="h-8"
+                                autoFocus
+                              />
+                            </div>
+                          ) : (
+                            item
+                          )}
+                        </TableCell>
                         <TableCell className="text-right">
-                        <Button variant="ghost" size="icon" onClick={() => handleDelete(item)} disabled={loading}>
-                            <Trash2 className="h-4 w-4 text-destructive" />
-                            <span className="sr-only">Delete</span>
-                        </Button>
+                          {editingIndex === index ? (
+                            <div className="flex justify-end gap-1">
+                               <Button variant="ghost" size="icon" onClick={() => saveEdit(index)} disabled={loading}>
+                                  <Check className="h-4 w-4 text-green-600" />
+                               </Button>
+                               <Button variant="ghost" size="icon" onClick={cancelEditing} disabled={loading}>
+                                  <X className="h-4 w-4 text-destructive" />
+                               </Button>
+                            </div>
+                          ) : (
+                            <div className="flex justify-end gap-1">
+                              <Button variant="ghost" size="icon" onClick={() => handleMove(index, 'up')} disabled={index === 0 || loading}>
+                                <ArrowUp className="h-4 w-4" />
+                              </Button>
+                              <Button variant="ghost" size="icon" onClick={() => handleMove(index, 'down')} disabled={index === items.length - 1 || loading}>
+                                <ArrowDown className="h-4 w-4" />
+                              </Button>
+                              <Button variant="ghost" size="icon" onClick={() => startEditing(index, item)} disabled={loading}>
+                                <Pen className="h-4 w-4" />
+                              </Button>
+                              <Button variant="ghost" size="icon" onClick={() => handleDelete(item)} disabled={loading}>
+                                <Trash2 className="h-4 w-4 text-destructive" />
+                              </Button>
+                            </div>
+                          )}
                         </TableCell>
                     </TableRow>
                     )) : (
