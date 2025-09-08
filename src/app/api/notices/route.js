@@ -1,3 +1,4 @@
+
 import _db from "@/utils/db";
 import NoticeModel from "@/models/notice.model";
 import { NextResponse } from "next/server";
