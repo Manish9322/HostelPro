@@ -9,6 +9,7 @@ import { Badge } from "@/components/ui/badge";
 import { mockRooms, mockStudents } from "@/lib/data";
 import { Bed, Users, Wifi, Wind, Bath, Thermometer, Wrench, ShieldCheck } from "lucide-react";
 import { Separator } from "@/components/ui/separator";
+import { Button } from "@/components/ui/button";
 
 const roomStatusVariant = (status: string) => {
   switch (status) {
