@@ -426,7 +426,7 @@ export default function ApplyPage() {
                                   <FormControl>
                                     <SelectTrigger>
                                       <SelectValue placeholder="Select your study habits" />
-                                    </Trigger>
+                                    </SelectTrigger>
                                   </FormControl>
                                   <SelectContent>
                                     <SelectItem value="in-room">I study in my room</SelectItem>
@@ -448,7 +448,7 @@ export default function ApplyPage() {
                                   <FormControl>
                                     <SelectTrigger>
                                       <SelectValue placeholder="Select your social habits" />
-                                    </Trigger>
+                                    </SelectTrigger>
                                   </FormControl>
                                   <SelectContent>
                                     <SelectItem value="introvert">I'm more introverted</SelectItem>
