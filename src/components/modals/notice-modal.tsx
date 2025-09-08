@@ -21,21 +21,31 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Checkbox } from "../ui/checkbox";
+import { Notice } from "@/lib/types";
 
 interface NoticeModalProps {
   isOpen: boolean;
   onClose: () => void;
-  notice: any;
+  notice: Notice | null;
+  onSubmit: (data: any) => void;
 }
 
-export function NoticeModal({ isOpen, onClose, notice }: NoticeModalProps) {
+export function NoticeModal({ isOpen, onClose, notice, onSubmit }: NoticeModalProps) {
   const isEditMode = !!notice;
   const title = isEditMode ? "Edit Notice" : "Create New Notice";
   const description = isEditMode ? "Update the details of the public notice." : "Enter the details for the new public notice.";
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    onClose();
+    const formData = new FormData(e.currentTarget as HTMLFormElement);
+    const data = {
+        title: formData.get('title'),
+        author: formData.get('author'),
+        content: formData.get('content'),
+        category: formData.get('category'),
+        featured: formData.get('featured') === 'on',
+    };
+    onSubmit(data);
   };
 
   return (
@@ -49,19 +59,19 @@ export function NoticeModal({ isOpen, onClose, notice }: NoticeModalProps) {
           <div className="grid gap-4 py-4">
             <div className="grid grid-cols-4 items-center gap-4">
               <Label htmlFor="title" className="text-right">Title</Label>
-              <Input id="title" defaultValue={notice?.title || ''} className="col-span-3" />
+              <Input id="title" name="title" defaultValue={notice?.title || ''} className="col-span-3" required />
             </div>
             <div className="grid grid-cols-4 items-center gap-4">
               <Label htmlFor="author" className="text-right">Author</Label>
-              <Input id="author" defaultValue={notice?.author || 'Admin'} className="col-span-3" />
+              <Input id="author" name="author" defaultValue={notice?.author || 'Admin'} className="col-span-3" required />
             </div>
             <div className="grid grid-cols-4 items-start gap-4">
               <Label htmlFor="content" className="text-right pt-2">Content</Label>
-              <Textarea id="content" defaultValue={notice?.content || ''} className="col-span-3 min-h-[150px]" />
+              <Textarea id="content" name="content" defaultValue={notice?.content || ''} className="col-span-3 min-h-[150px]" required />
             </div>
             <div className="grid grid-cols-4 items-center gap-4">
               <Label htmlFor="category" className="text-right">Category</Label>
-              <Select defaultValue={notice?.category || 'General'}>
+              <Select name="category" defaultValue={notice?.category || 'General'} required>
                 <SelectTrigger className="col-span-3">
                   <SelectValue placeholder="Select a category" />
                 </SelectTrigger>
@@ -76,7 +86,7 @@ export function NoticeModal({ isOpen, onClose, notice }: NoticeModalProps) {
              <div className="grid grid-cols-4 items-center gap-4">
                 <div />
                 <div className="col-span-3 flex items-center space-x-2">
-                    <Checkbox id="featured" defaultChecked={notice?.featured || false} />
+                    <Checkbox id="featured" name="featured" defaultChecked={notice?.featured || false} />
                     <Label htmlFor="featured" className="font-normal">Mark as featured notice</Label>
                 </div>
             </div>

@@ -18,6 +18,7 @@ interface ViewApplicationModalProps {
   isOpen: boolean;
   onClose: () => void;
   application: Application | null;
+  onUpdateStatus: (id: string, status: "Approved" | "Rejected") => void;
 }
 
 const InfoField = ({ label, value }: { label: string, value: any }) => (
@@ -45,7 +46,7 @@ const roommatePrefLabels = {
 }
 
 
-export function ViewApplicationModal({ isOpen, onClose, application }: ViewApplicationModalProps) {
+export function ViewApplicationModal({ isOpen, onClose, application, onUpdateStatus }: ViewApplicationModalProps) {
   if (!application) return null;
 
   return (
@@ -79,7 +80,7 @@ export function ViewApplicationModal({ isOpen, onClose, application }: ViewAppli
             <h4 className="font-semibold mb-2 text-primary">Application Status</h4>
              <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
                 <InfoField label="Status" value={application.status} />
-                <InfoField label="Submitted On" value={format(application.submittedAt, 'PPP p')} />
+                <InfoField label="Submitted On" value={format(new Date(application.submittedAt), 'PPP p')} />
             </div>
           </div>
           
@@ -90,9 +91,9 @@ export function ViewApplicationModal({ isOpen, onClose, application }: ViewAppli
               <div>
                 <h4 className="font-semibold mb-2 text-primary">Roommate Preferences</h4>
                 <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-                  <InfoField label="Sleep Schedule" value={roommatePrefLabels.sleepSchedule[application.roommatePreferences.sleepSchedule!]} />
-                  <InfoField label="Study Habits" value={roommatePrefLabels.studyHabits[application.roommatePreferences.studyHabits!]} />
-                  <InfoField label="Social Habits" value={roommatePrefLabels.socialHabits[application.roommatePreferences.socialHabits!]} />
+                  <InfoField label="Sleep Schedule" value={application.roommatePreferences.sleepSchedule ? roommatePrefLabels.sleepSchedule[application.roommatePreferences.sleepSchedule] : 'N/A'} />
+                  <InfoField label="Study Habits" value={application.roommatePreferences.studyHabits ? roommatePrefLabels.studyHabits[application.roommatePreferences.studyHabits] : 'N/A'} />
+                  <InfoField label="Social Habits" value={application.roommatePreferences.socialHabits ? roommatePrefLabels.socialHabits[application.roommatePreferences.socialHabits] : 'N/A'} />
                 </div>
               </div>
             </>
@@ -102,8 +103,8 @@ export function ViewApplicationModal({ isOpen, onClose, application }: ViewAppli
 
         <DialogFooter className="sm:justify-between">
             <div className="flex gap-2">
-                <Button>Approve</Button>
-                <Button variant="destructive">Reject</Button>
+                <Button onClick={() => onUpdateStatus(application._id, 'Approved')} disabled={application.status === 'Approved'}>Approve</Button>
+                <Button variant="destructive" onClick={() => onUpdateStatus(application._id, 'Rejected')} disabled={application.status === 'Rejected'}>Reject</Button>
             </div>
             <Button variant="outline" onClick={onClose}>Close</Button>
         </DialogFooter>

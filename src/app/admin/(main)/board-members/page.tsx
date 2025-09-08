@@ -1,7 +1,7 @@
 
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   Card,
   CardContent,
@@ -28,23 +28,46 @@ import {
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { MoreHorizontal, PlusCircle } from "lucide-react";
-import { mockBoardMembers } from "@/lib/data";
 import { format } from 'date-fns';
 import { BoardMemberModal } from "@/components/modals/board-member-modal";
 import { DeleteConfirmationDialog } from "@/components/modals/delete-confirmation-modal";
+import { useToast } from "@/hooks/use-toast";
+import { BoardMember } from "@/lib/types";
+
 
 const ITEMS_PER_PAGE = 5;
 
 export default function BoardMembersPage() {
+  const [members, setMembers] = useState<BoardMember[]>([]);
+  const [loading, setLoading] = useState(true);
   const [currentPage, setCurrentPage] = useState(1);
   const [isModalOpen, setModalOpen] = useState(false);
   const [isDeleteModalOpen, setDeleteModalOpen] = useState(false);
-  const [selectedMember, setSelectedMember] = useState(null);
+  const [selectedMember, setSelectedMember] = useState<BoardMember | null>(null);
+  const { toast } = useToast();
 
-  const totalPages = Math.ceil(mockBoardMembers.length / ITEMS_PER_PAGE);
+  const fetchMembers = async () => {
+    try {
+      setLoading(true);
+      const response = await fetch('/api/board-members');
+      if (!response.ok) throw new Error("Failed to fetch board members");
+      const data = await response.json();
+      setMembers(data);
+    } catch (error) {
+      toast({ title: "Error", description: "Failed to load board members.", variant: "destructive" });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchMembers();
+  }, []);
+
+  const totalPages = Math.ceil(members.length / ITEMS_PER_PAGE);
   const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
   const endIndex = startIndex + ITEMS_PER_PAGE;
-  const currentMembers = mockBoardMembers.slice(startIndex, endIndex);
+  const currentMembers = members.slice(startIndex, endIndex);
 
   const handlePageChange = (page: number) => {
     if (page >= 1 && page <= totalPages) {
@@ -52,21 +75,61 @@ export default function BoardMembersPage() {
     }
   };
 
-  const handleOpenModal = (member = null) => {
+  const handleOpenModal = (member: BoardMember | null = null) => {
     setSelectedMember(member);
     setModalOpen(true);
   };
 
-  const handleOpenDeleteModal = (member: any) => {
+  const handleOpenDeleteModal = (member: BoardMember) => {
     setSelectedMember(member);
     setDeleteModalOpen(true);
   };
 
-  const handleDelete = () => {
-    // Logic to delete the member
-    console.log("Deleting member:", selectedMember);
-    setDeleteModalOpen(false);
+  const handleFormSubmit = async (memberData: Omit<BoardMember, '_id' | 'id' | 'avatar'>) => {
+    const method = selectedMember ? 'PUT' : 'POST';
+    const url = selectedMember ? `/api/board-members?id=${selectedMember._id}` : '/api/board-members';
+    
+    try {
+        const response = await fetch(url, {
+            method,
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(memberData),
+        });
+        if (!response.ok) throw new Error(`Failed to ${selectedMember ? 'update' : 'create'} board member`);
+        
+        toast({ title: "Success", description: `Board member ${selectedMember ? 'updated' : 'created'} successfully.` });
+        fetchMembers();
+        setModalOpen(false);
+    } catch (error) {
+        toast({ title: "Error", description: `Failed to ${selectedMember ? 'update' : 'create'} board member.`, variant: "destructive" });
+    }
   };
+
+  const handleDelete = async () => {
+    if (!selectedMember) return;
+    try {
+        const response = await fetch(`/api/board-members?id=${selectedMember._id}`, { method: 'DELETE' });
+        if (!response.ok) throw new Error('Failed to delete board member');
+        
+        toast({ title: "Success", description: "Board member deleted successfully." });
+        fetchMembers();
+        setDeleteModalOpen(false);
+    } catch (error) {
+        toast({ title: "Error", description: "Failed to delete board member.", variant: "destructive" });
+    }
+  };
+  
+  if (loading) {
+    return (
+        <Card>
+            <CardHeader>
+                <CardTitle>Board Members</CardTitle>
+                <CardDescription>Loading board member data...</CardDescription>
+            </CardHeader>
+            <CardContent><p>Please wait while we fetch the records.</p></CardContent>
+        </Card>
+    );
+  }
 
   return (
     <>
@@ -98,7 +161,7 @@ export default function BoardMembersPage() {
             </TableHeader>
             <TableBody>
               {currentMembers.map((member) => (
-                <TableRow key={member.id}>
+                <TableRow key={member._id}>
                   <TableCell className="font-medium">
                     <div className="flex items-center gap-3">
                       <Avatar className="h-9 w-9">
@@ -138,7 +201,7 @@ export default function BoardMembersPage() {
         </CardContent>
         <CardFooter>
           <div className="text-xs text-muted-foreground">
-            Showing <strong>{startIndex + 1}-{Math.min(endIndex, mockBoardMembers.length)}</strong> of <strong>{mockBoardMembers.length}</strong> members
+            Showing <strong>{startIndex + 1}-{Math.min(endIndex, members.length)}</strong> of <strong>{members.length}</strong> members
           </div>
           <div className="ml-auto flex items-center gap-2">
             <Button
@@ -165,6 +228,7 @@ export default function BoardMembersPage() {
         isOpen={isModalOpen}
         onClose={() => setModalOpen(false)}
         member={selectedMember}
+        onSubmit={handleFormSubmit}
       />
       <DeleteConfirmationDialog
         isOpen={isDeleteModalOpen}
@@ -175,3 +239,4 @@ export default function BoardMembersPage() {
     </>
   );
 }
+

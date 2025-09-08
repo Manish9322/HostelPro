@@ -1,7 +1,7 @@
 
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   Card,
   CardContent,
@@ -28,10 +28,10 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { MoreHorizontal } from "lucide-react";
-import { mockApplications } from "@/lib/data";
 import { format } from 'date-fns';
 import { Application } from "@/lib/types";
 import { ViewApplicationModal } from "@/components/modals/view-application-modal";
+import { useToast } from "@/hooks/use-toast";
 
 const statusVariant = (status: string) => {
   switch (status) {
@@ -49,13 +49,38 @@ const statusVariant = (status: string) => {
 const ITEMS_PER_PAGE = 7;
 
 export default function ApplicationsPage() {
+  const [applications, setApplications] = useState<Application[]>([]);
+  const [loading, setLoading] = useState(true);
   const [currentPage, setCurrentPage] = useState(1);
   const [selectedApplication, setSelectedApplication] = useState<Application | null>(null);
+  const { toast } = useToast();
 
-  const totalPages = Math.ceil(mockApplications.length / ITEMS_PER_PAGE);
+  const fetchApplications = async () => {
+    try {
+      setLoading(true);
+      const response = await fetch('/api/applications');
+      if (!response.ok) throw new Error("Failed to fetch applications");
+      const data = await response.json();
+      setApplications(data);
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to load applications.",
+        variant: "destructive",
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchApplications();
+  }, []);
+
+  const totalPages = Math.ceil(applications.length / ITEMS_PER_PAGE);
   const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
   const endIndex = startIndex + ITEMS_PER_PAGE;
-  const currentApplications = mockApplications.slice(startIndex, endIndex);
+  const currentApplications = applications.slice(startIndex, endIndex);
 
   const handlePageChange = (page: number) => {
     if (page >= 1 && page <= totalPages) {
@@ -66,6 +91,52 @@ export default function ApplicationsPage() {
   const handleViewApplication = (application: Application) => {
     setSelectedApplication(application);
   };
+  
+  const handleUpdateStatus = async (id: string, status: 'Approved' | 'Rejected') => {
+    try {
+        const response = await fetch(`/api/applications?id=${id}`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ status }),
+        });
+
+        if (!response.ok) {
+            throw new Error(`Failed to update application status`);
+        }
+
+        toast({
+            title: "Success",
+            description: `Application has been ${status.toLowerCase()}.`,
+        });
+
+        fetchApplications();
+        if(selectedApplication && selectedApplication._id === id) {
+            setSelectedApplication(prev => prev ? { ...prev, status } : null);
+        }
+
+    } catch (error) {
+        console.error(error);
+        toast({
+            title: "Error",
+            description: "Failed to update application status.",
+            variant: "destructive",
+        });
+    }
+  };
+  
+  if (loading) {
+    return (
+        <Card>
+            <CardHeader>
+                <CardTitle>Applications</CardTitle>
+                <CardDescription>Loading application data...</CardDescription>
+            </CardHeader>
+            <CardContent>
+                <p>Please wait while we fetch the application records.</p>
+            </CardContent>
+        </Card>
+    );
+  }
 
   return (
     <>
@@ -89,7 +160,7 @@ export default function ApplicationsPage() {
           </TableHeader>
           <TableBody>
             {currentApplications.map((app) => (
-              <TableRow key={app.id}>
+              <TableRow key={app._id}>
                 <TableCell className="font-medium">{app.name}</TableCell>
                 <TableCell>{app.course}</TableCell>
                 <TableCell>{format(new Date(app.submittedAt), 'PPP')}</TableCell>
@@ -107,9 +178,8 @@ export default function ApplicationsPage() {
                     <DropdownMenuContent align="end">
                       <DropdownMenuLabel>Actions</DropdownMenuLabel>
                       <DropdownMenuItem onClick={() => handleViewApplication(app)}>View Details</DropdownMenuItem>
-                      <DropdownMenuItem>Approve</DropdownMenuItem>
-                      <DropdownMenuItem>Reject</DropdownMenuItem>
-                      <DropdownMenuItem>Edit</DropdownMenuItem>
+                      <DropdownMenuItem onClick={() => handleUpdateStatus(app._id, 'Approved')} disabled={app.status === 'Approved'}>Approve</DropdownMenuItem>
+                      <DropdownMenuItem onClick={() => handleUpdateStatus(app._id, 'Rejected')} disabled={app.status === 'Rejected'}>Reject</DropdownMenuItem>
                     </DropdownMenuContent>
                   </DropdownMenu>
                 </TableCell>
@@ -120,7 +190,7 @@ export default function ApplicationsPage() {
       </CardContent>
        <CardFooter>
         <div className="text-xs text-muted-foreground">
-          Showing <strong>{startIndex + 1}-{Math.min(endIndex, mockApplications.length)}</strong> of <strong>{mockApplications.length}</strong> applications
+          Showing <strong>{startIndex + 1}-{Math.min(endIndex, applications.length)}</strong> of <strong>{applications.length}</strong> applications
         </div>
         <div className="ml-auto flex items-center gap-2">
           <Button
@@ -147,8 +217,10 @@ export default function ApplicationsPage() {
           isOpen={!!selectedApplication}
           onClose={() => setSelectedApplication(null)}
           application={selectedApplication}
+          onUpdateStatus={handleUpdateStatus}
         />
     )}
     </>
   );
 }
+

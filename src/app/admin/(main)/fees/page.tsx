@@ -1,7 +1,7 @@
 
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   Card,
   CardContent,
@@ -28,11 +28,12 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { MoreHorizontal, PlusCircle, Search, FileText, CircleDollarSign, CheckCircle } from "lucide-react";
-import { mockFeePayments } from "@/lib/data";
 import { format } from 'date-fns';
 import { Input } from "@/components/ui/input";
 import { FeePaymentModal } from "@/components/modals/fee-payment-modal";
 import { DeleteConfirmationDialog } from "@/components/modals/delete-confirmation-modal";
+import { useToast } from "@/hooks/use-toast";
+import { FeePayment } from "@/lib/types";
 
 const statusVariant = (status: string) => {
   switch (status) {
@@ -50,17 +51,39 @@ const statusVariant = (status: string) => {
 const ITEMS_PER_PAGE = 7;
 
 export default function FeesPage() {
-  const totalRevenue = mockFeePayments.filter(p => p.status === 'Paid').reduce((sum, p) => sum + p.amount, 0);
-  const outstandingFees = mockFeePayments.filter(p => p.status === 'Overdue').reduce((sum, p) => sum + p.amount, 0);
-  
+  const [payments, setPayments] = useState<FeePayment[]>([]);
+  const [loading, setLoading] = useState(true);
   const [currentPage, setCurrentPage] = useState(1);
   const [isModalOpen, setModalOpen] = useState(false);
-  const [selectedPayment, setSelectedPayment] = useState(null);
+  const [isDeleteModalOpen, setDeleteModalOpen] = useState(false);
+  const [selectedPayment, setSelectedPayment] = useState<FeePayment | null>(null);
+  const { toast } = useToast();
 
-  const totalPages = Math.ceil(mockFeePayments.length / ITEMS_PER_PAGE);
+  const fetchPayments = async () => {
+    try {
+      setLoading(true);
+      const response = await fetch('/api/fees');
+      if (!response.ok) throw new Error("Failed to fetch payments");
+      const data = await response.json();
+      setPayments(data);
+    } catch (error) {
+      toast({ title: "Error", description: "Failed to load fee payments.", variant: "destructive" });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchPayments();
+  }, []);
+
+  const totalRevenue = payments.filter(p => p.status === 'Paid').reduce((sum, p) => sum + p.amount, 0);
+  const outstandingFees = payments.filter(p => p.status === 'Overdue').reduce((sum, p) => sum + p.amount, 0);
+  
+  const totalPages = Math.ceil(payments.length / ITEMS_PER_PAGE);
   const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
   const endIndex = startIndex + ITEMS_PER_PAGE;
-  const currentPayments = mockFeePayments.slice(startIndex, endIndex);
+  const currentPayments = payments.slice(startIndex, endIndex);
 
   const handlePageChange = (page: number) => {
     if (page >= 1 && page <= totalPages) {
@@ -68,11 +91,61 @@ export default function FeesPage() {
     }
   };
 
-  const handleOpenModal = (payment = null) => {
+  const handleOpenModal = (payment: FeePayment | null = null) => {
     setSelectedPayment(payment);
     setModalOpen(true);
   };
+  
+  const handleOpenDeleteModal = (payment: FeePayment) => {
+    setSelectedPayment(payment);
+    setDeleteModalOpen(true);
+  };
 
+  const handleFormSubmit = async (paymentData: Omit<FeePayment, '_id' | 'id'>) => {
+    const method = selectedPayment ? 'PUT' : 'POST';
+    const url = selectedPayment ? `/api/fees?id=${selectedPayment._id}` : '/api/fees';
+    
+    try {
+        const response = await fetch(url, {
+            method,
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(paymentData),
+        });
+        if (!response.ok) throw new Error(`Failed to ${selectedPayment ? 'update' : 'log'} payment`);
+        
+        toast({ title: "Success", description: `Payment ${selectedPayment ? 'updated' : 'logged'} successfully.` });
+        fetchPayments();
+        setModalOpen(false);
+    } catch (error) {
+        toast({ title: "Error", description: `Failed to ${selectedPayment ? 'update' : 'log'} payment.`, variant: "destructive" });
+    }
+  };
+
+  const handleDelete = async () => {
+    if (!selectedPayment) return;
+    try {
+        const response = await fetch(`/api/fees?id=${selectedPayment._id}`, { method: 'DELETE' });
+        if (!response.ok) throw new Error('Failed to delete payment');
+        
+        toast({ title: "Success", description: "Payment record deleted successfully." });
+        fetchPayments();
+        setDeleteModalOpen(false);
+    } catch (error) {
+        toast({ title: "Error", description: "Failed to delete payment record.", variant: "destructive" });
+    }
+  };
+  
+   if (loading) {
+    return (
+        <Card>
+            <CardHeader>
+                <CardTitle>Fee Management</CardTitle>
+                <CardDescription>Loading payment data...</CardDescription>
+            </CardHeader>
+            <CardContent><p>Please wait while we fetch the records.</p></CardContent>
+        </Card>
+    );
+  }
 
   return (
     <>
@@ -104,7 +177,12 @@ export default function FeesPage() {
               <CheckCircle className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">95%</div>
+              <div className="text-2xl font-bold">
+                {payments.length > 0 ? 
+                 `${Math.round(payments.filter(p => p.status === 'Paid').length / payments.length * 100)}%`
+                 : 'N/A'
+                }
+              </div>
               <p className="text-xs text-muted-foreground">of payments are on time</p>
             </CardContent>
           </Card>
@@ -145,7 +223,7 @@ export default function FeesPage() {
               </TableHeader>
               <TableBody>
                 {currentPayments.map((payment) => (
-                  <TableRow key={payment.id}>
+                  <TableRow key={payment._id}>
                     <TableCell className="font-medium">{payment.studentName}</TableCell>
                     <TableCell>{payment.studentId}</TableCell>
                     <TableCell>{payment.month}</TableCell>
@@ -164,9 +242,8 @@ export default function FeesPage() {
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end">
                           <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                          <DropdownMenuItem>Mark as Paid</DropdownMenuItem>
-                          <DropdownMenuItem>Send Reminder</DropdownMenuItem>
-                          <DropdownMenuItem>View Details</DropdownMenuItem>
+                          <DropdownMenuItem onClick={() => handleOpenModal(payment)}>Edit</DropdownMenuItem>
+                          <DropdownMenuItem onClick={() => handleOpenDeleteModal(payment)}>Delete</DropdownMenuItem>
                         </DropdownMenuContent>
                       </DropdownMenu>
                     </TableCell>
@@ -177,7 +254,7 @@ export default function FeesPage() {
           </CardContent>
            <CardFooter>
               <div className="text-xs text-muted-foreground">
-                  Showing <strong>{startIndex + 1}-{Math.min(endIndex, mockFeePayments.length)}</strong> of <strong>{mockFeePayments.length}</strong> payments
+                  Showing <strong>{startIndex + 1}-{Math.min(endIndex, payments.length)}</strong> of <strong>{payments.length}</strong> payments
               </div>
               <div className="ml-auto flex items-center gap-2">
                   <Button
@@ -205,6 +282,13 @@ export default function FeesPage() {
         isOpen={isModalOpen}
         onClose={() => setModalOpen(false)}
         payment={selectedPayment}
+        onSubmit={handleFormSubmit}
+      />
+      <DeleteConfirmationDialog
+        isOpen={isDeleteModalOpen}
+        onClose={() => setDeleteModalOpen(false)}
+        onConfirm={handleDelete}
+        itemName={`payment for ${selectedPayment?.studentName}`}
       />
     </>
   );

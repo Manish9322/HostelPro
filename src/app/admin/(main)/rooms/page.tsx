@@ -1,7 +1,7 @@
 
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   Card,
   CardContent,
@@ -28,10 +28,11 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { MoreHorizontal, PlusCircle } from "lucide-react";
-import { mockRooms } from "@/lib/data";
 import { RoomModal } from "@/components/modals/room-modal";
 import { ManageOccupantsModal } from "@/components/modals/manage-occupants-modal";
 import { DeleteConfirmationDialog } from "@/components/modals/delete-confirmation-modal";
+import { useToast } from "@/hooks/use-toast";
+import { Room } from "@/lib/types";
 
 const roomStatusVariant = (status: string) => {
   switch (status) {
@@ -64,16 +65,37 @@ const roomConditionVariant = (condition: string) => {
 const ITEMS_PER_PAGE = 7;
 
 export default function RoomsPage() {
+    const [rooms, setRooms] = useState<Room[]>([]);
+    const [loading, setLoading] = useState(true);
     const [currentPage, setCurrentPage] = useState(1);
     const [isRoomModalOpen, setRoomModalOpen] = useState(false);
     const [isOccupantModalOpen, setOccupantModalOpen] = useState(false);
     const [isDeleteModalOpen, setDeleteModalOpen] = useState(false);
-    const [selectedRoom, setSelectedRoom] = useState(null);
+    const [selectedRoom, setSelectedRoom] = useState<Room | null>(null);
+    const { toast } = useToast();
 
-    const totalPages = Math.ceil(mockRooms.length / ITEMS_PER_PAGE);
+    const fetchRooms = async () => {
+        try {
+            setLoading(true);
+            const response = await fetch('/api/rooms');
+            if (!response.ok) throw new Error("Failed to fetch rooms");
+            const data = await response.json();
+            setRooms(data);
+        } catch (error) {
+            toast({ title: "Error", description: "Failed to load rooms.", variant: "destructive" });
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    useEffect(() => {
+        fetchRooms();
+    }, []);
+
+    const totalPages = Math.ceil(rooms.length / ITEMS_PER_PAGE);
     const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
     const endIndex = startIndex + ITEMS_PER_PAGE;
-    const currentRooms = mockRooms.slice(startIndex, endIndex);
+    const currentRooms = rooms.slice(startIndex, endIndex);
 
     const handlePageChange = (page: number) => {
         if (page >= 1 && page <= totalPages) {
@@ -81,25 +103,66 @@ export default function RoomsPage() {
         }
     };
 
-    const handleOpenRoomModal = (room = null) => {
+    const handleOpenRoomModal = (room: Room | null = null) => {
         setSelectedRoom(room);
         setRoomModalOpen(true);
     };
 
-    const handleOpenOccupantModal = (room: any) => {
+    const handleOpenOccupantModal = (room: Room) => {
         setSelectedRoom(room);
         setOccupantModalOpen(true);
     };
 
-    const handleOpenDeleteModal = (room: any) => {
+    const handleOpenDeleteModal = (room: Room) => {
         setSelectedRoom(room);
         setDeleteModalOpen(true);
     };
 
-    const handleDelete = () => {
-        console.log("Deleting room:", selectedRoom);
-        setDeleteModalOpen(false);
+    const handleFormSubmit = async (roomData: any) => {
+        const method = selectedRoom ? 'PUT' : 'POST';
+        const url = selectedRoom ? `/api/rooms?id=${selectedRoom._id}` : '/api/rooms';
+        
+        try {
+            const response = await fetch(url, {
+                method,
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(roomData),
+            });
+            if (!response.ok) throw new Error(`Failed to ${selectedRoom ? 'update' : 'create'} room`);
+            
+            toast({ title: "Success", description: `Room ${selectedRoom ? 'updated' : 'created'} successfully.` });
+            fetchRooms();
+            setRoomModalOpen(false);
+        } catch (error) {
+            toast({ title: "Error", description: `Failed to ${selectedRoom ? 'update' : 'create'} room.`, variant: "destructive" });
+        }
     };
+
+    const handleDelete = async () => {
+        if (!selectedRoom) return;
+        try {
+            const response = await fetch(`/api/rooms?id=${selectedRoom._id}`, { method: 'DELETE' });
+            if (!response.ok) throw new Error('Failed to delete room');
+            
+            toast({ title: "Success", description: "Room deleted successfully." });
+            fetchRooms();
+            setDeleteModalOpen(false);
+        } catch (error) {
+            toast({ title: "Error", description: "Failed to delete room.", variant: "destructive" });
+        }
+    };
+    
+    if (loading) {
+        return (
+            <Card>
+                <CardHeader>
+                    <CardTitle>Room Management</CardTitle>
+                    <CardDescription>Loading room data...</CardDescription>
+                </CardHeader>
+                <CardContent><p>Please wait while we fetch the records.</p></CardContent>
+            </Card>
+        );
+    }
 
   return (
     <>
@@ -132,7 +195,7 @@ export default function RoomsPage() {
             </TableHeader>
             <TableBody>
               {currentRooms.map((room) => (
-                <TableRow key={room.id}>
+                <TableRow key={room._id}>
                   <TableCell className="font-medium">{room.roomNumber}</TableCell>
                   <TableCell>{`${room.occupancy}/${room.capacity}`}</TableCell>
                   <TableCell>
@@ -169,7 +232,7 @@ export default function RoomsPage() {
         </CardContent>
          <CardFooter>
           <div className="text-xs text-muted-foreground">
-            Showing <strong>{startIndex + 1}-{Math.min(endIndex, mockRooms.length)}</strong> of <strong>{mockRooms.length}</strong> rooms
+            Showing <strong>{startIndex + 1}-{Math.min(endIndex, rooms.length)}</strong> of <strong>{rooms.length}</strong> rooms
           </div>
           <div className="ml-auto flex items-center gap-2">
             <Button
@@ -196,6 +259,7 @@ export default function RoomsPage() {
         isOpen={isRoomModalOpen}
         onClose={() => setRoomModalOpen(false)}
         room={selectedRoom}
+        onSubmit={handleFormSubmit}
       />
       <ManageOccupantsModal
         isOpen={isOccupantModalOpen}

@@ -19,21 +19,25 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { InventoryItem } from "@/lib/types";
 
 interface InventoryItemModalProps {
   isOpen: boolean;
   onClose: () => void;
-  item: any;
+  item: InventoryItem | null;
+  onSubmit: (data: Omit<InventoryItem, '_id' | 'id'>) => void;
 }
 
-export function InventoryItemModal({ isOpen, onClose, item }: InventoryItemModalProps) {
+export function InventoryItemModal({ isOpen, onClose, item, onSubmit }: InventoryItemModalProps) {
   const isEditMode = !!item;
   const title = isEditMode ? "Edit Inventory Item" : "Add New Inventory Item";
   const description = isEditMode ? "Update the details of the inventory item." : "Enter the details for the new inventory item.";
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    onClose();
+    const formData = new FormData(e.currentTarget as HTMLFormElement);
+    const data = Object.fromEntries(formData.entries()) as Omit<InventoryItem, '_id' | 'id'>;
+    onSubmit(data);
   };
 
   return (
@@ -47,11 +51,11 @@ export function InventoryItemModal({ isOpen, onClose, item }: InventoryItemModal
           <div className="grid gap-4 py-4">
             <div className="grid grid-cols-4 items-center gap-4">
               <Label htmlFor="name" className="text-right">Item Name</Label>
-              <Input id="name" defaultValue={item?.name || ''} className="col-span-3" />
+              <Input id="name" name="name" defaultValue={item?.name || ''} className="col-span-3" required/>
             </div>
             <div className="grid grid-cols-4 items-center gap-4">
               <Label htmlFor="category" className="text-right">Category</Label>
-               <Select defaultValue={item?.category}>
+               <Select name="category" defaultValue={item?.category} required>
                 <SelectTrigger className="col-span-3">
                   <SelectValue placeholder="Select a category" />
                 </SelectTrigger>
@@ -66,11 +70,11 @@ export function InventoryItemModal({ isOpen, onClose, item }: InventoryItemModal
             </div>
             <div className="grid grid-cols-4 items-center gap-4">
               <Label htmlFor="location" className="text-right">Location</Label>
-              <Input id="location" defaultValue={item?.location || ''} className="col-span-3" />
+              <Input id="location" name="location" defaultValue={item?.location || ''} className="col-span-3" required/>
             </div>
             <div className="grid grid-cols-4 items-center gap-4">
               <Label htmlFor="condition" className="text-right">Condition</Label>
-              <Select defaultValue={item?.condition}>
+              <Select name="condition" defaultValue={item?.condition}>
                 <SelectTrigger className="col-span-3">
                   <SelectValue placeholder="Select condition" />
                 </SelectTrigger>
@@ -84,7 +88,7 @@ export function InventoryItemModal({ isOpen, onClose, item }: InventoryItemModal
             </div>
             <div className="grid grid-cols-4 items-center gap-4">
               <Label htmlFor="status" className="text-right">Status</Label>
-               <Select defaultValue={item?.status}>
+               <Select name="status" defaultValue={item?.status}>
                 <SelectTrigger className="col-span-3">
                   <SelectValue placeholder="Select status" />
                 </SelectTrigger>
