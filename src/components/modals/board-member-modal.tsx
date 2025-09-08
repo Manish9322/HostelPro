@@ -18,7 +18,7 @@ interface BoardMemberModalProps {
   isOpen: boolean;
   onClose: () => void;
   member: BoardMember | null;
-  onSubmit: (data: Omit<BoardMember, '_id' | 'id' | 'avatar' | 'joinedAt'>) => void;
+  onSubmit: (data: FormData) => void;
 }
 
 export function BoardMemberModal({ isOpen, onClose, member, onSubmit }: BoardMemberModalProps) {
@@ -29,8 +29,7 @@ export function BoardMemberModal({ isOpen, onClose, member, onSubmit }: BoardMem
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     const formData = new FormData(e.currentTarget as HTMLFormElement);
-    const data = Object.fromEntries(formData.entries()) as Omit<BoardMember, '_id' | 'id' | 'avatar' | 'joinedAt'>;
-    onSubmit(data);
+    onSubmit(formData);
   };
 
   return (
@@ -57,6 +56,12 @@ export function BoardMemberModal({ isOpen, onClose, member, onSubmit }: BoardMem
             <div className="grid grid-cols-4 items-center gap-4">
               <Label htmlFor="phone" className="text-right">Phone</Label>
               <Input id="phone" name="phone" type="tel" defaultValue={member?.phone || ''} className="col-span-3" required />
+            </div>
+            <div className="grid grid-cols-4 items-center gap-4">
+                <Label htmlFor="avatar" className="text-right">
+                    Avatar
+                </Label>
+                <Input id="avatar" name="avatar" type="file" className="col-span-3" accept="image/*"/>
             </div>
           </div>
           <DialogFooter>

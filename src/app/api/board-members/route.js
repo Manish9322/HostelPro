@@ -1,6 +1,8 @@
+
 import _db from "@/utils/db";
 import BoardMemberModel from "@/models/boardMember.model";
 import { NextResponse } from "next/server";
+import { saveImage } from "@/utils/file-manager";
 
 export async function GET() {
   await _db();
@@ -10,8 +12,25 @@ export async function GET() {
 
 export async function POST(request) {
   await _db();
-  const body = await request.json();
-  const newBoardMember = new BoardMemberModel(body);
+  const formData = await request.formData();
+  const name = formData.get('name');
+  const position = formData.get('position');
+  const email = formData.get('email');
+  const phone = formData.get('phone');
+  const avatarFile = formData.get('avatar');
+
+  const memberData = { name, position, email, phone };
+
+  if (avatarFile && avatarFile.size > 0) {
+      try {
+          const imagePath = await saveImage(avatarFile, 'avatars');
+          memberData.avatar = imagePath;
+      } catch (error) {
+          return NextResponse.json({ error: 'Failed to save image' }, { status: 500 });
+      }
+  }
+  
+  const newBoardMember = new BoardMemberModel(memberData);
   const savedBoardMember = await newBoardMember.save();
   return NextResponse.json(savedBoardMember, { status: 201 });
 }
@@ -20,10 +39,27 @@ export async function PUT(request) {
     await _db();
     const { searchParams } = new URL(request.url);
     const id = searchParams.get('id');
-    const body = await request.json();
+    const formData = await request.formData();
+    
+    const name = formData.get('name');
+    const position = formData.get('position');
+    const email = formData.get('email');
+    const phone = formData.get('phone');
+    const avatarFile = formData.get('avatar');
+
+    const updateData = { name, position, email, phone };
+
+    if (avatarFile && avatarFile.size > 0) {
+        try {
+            const imagePath = await saveImage(avatarFile, 'avatars');
+            updateData.avatar = imagePath;
+        } catch (error) {
+            return NextResponse.json({ error: 'Failed to save image' }, { status: 500 });
+        }
+    }
 
     try {
-        const updatedBoardMember = await BoardMemberModel.findByIdAndUpdate(id, body, { new: true });
+        const updatedBoardMember = await BoardMemberModel.findByIdAndUpdate(id, updateData, { new: true });
         if (!updatedBoardMember) {
             return NextResponse.json({ error: 'Board member not found' }, { status: 404 });
         }

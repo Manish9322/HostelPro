@@ -89,15 +89,14 @@ export default function BoardMembersPage() {
     setDeleteModalOpen(true);
   };
 
-  const handleFormSubmit = async (memberData: Omit<BoardMember, '_id' | 'id' | 'avatar'>) => {
+  const handleFormSubmit = async (formData: FormData) => {
     const method = selectedMember ? 'PUT' : 'POST';
     const url = selectedMember ? `/api/board-members?id=${selectedMember._id}` : '/api/board-members';
     
     try {
         const response = await fetch(url, {
             method,
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(memberData),
+            body: formData,
         });
         if (!response.ok) throw new Error(`Failed to ${selectedMember ? 'update' : 'create'} board member`);
         
