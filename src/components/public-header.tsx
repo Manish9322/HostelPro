@@ -29,7 +29,7 @@ export default function PublicHeader() {
           </Link>
           <nav className="flex items-center space-x-6">
             {navItems.map((item) => (
-              <NavLink key={item.href} href={item.href}>{item.label}</NavLink>
+              <NavLink key={item.label} href={item.href}>{item.label}</NavLink>
             ))}
           </nav>
         </div>
@@ -48,7 +48,7 @@ export default function PublicHeader() {
             </Link>
             <div className="flex flex-col space-y-4">
               {navItems.map((item) => (
-                <NavLink key={item.href} href={item.href}>{item.label}</NavLink>
+                <NavLink key={item.label} href={item.href}>{item.label}</NavLink>
               ))}
             </div>
           </SheetContent>
