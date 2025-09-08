@@ -41,7 +41,7 @@ const applicationSchema = z.object({
   course: z.string().min(2, "Course name is required."),
   year: z.coerce.number().min(1).max(5, "Year must be between 1 and 5."),
   roomPreference: z.string({ required_error: "Please select a room preference." }),
-  guardianName: z.string().min(2, "Guardian's name is required."),
+  guardianName: z_string().min(2, "Guardian's name is required."),
   guardianPhone: z.string().min(10, "Guardian's phone number is required."),
   // Roommate preferences
   sleepSchedule: z.enum(["early-bird", "night-owl"]).optional(),
@@ -97,7 +97,7 @@ export default function ApplyPage() {
                  <div className="mt-16 max-w-4xl mx-auto">
                     <div className="relative">
                       {/* Desktop connecting line */}
-                      <div className="hidden md:block absolute top-8 left-0 w-full h-0.5 border-t-2 border-dashed border-border" aria-hidden="true"></div>
+                      <div className="hidden md:block absolute top-8 left-1/2 -translate-x-1/2 w-2/3 h-0.5 border-t-2 border-dashed border-border" aria-hidden="true"></div>
                       
                       <div className="relative grid grid-cols-1 md:grid-cols-3 gap-y-12 md:gap-x-8">
                         {/* Step 1 */}
@@ -478,3 +478,5 @@ export default function ApplyPage() {
     </div>
   );
 }
+
+    
