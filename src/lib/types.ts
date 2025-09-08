@@ -1,6 +1,7 @@
 
 
 export type Student = {
+  _id: string;
   id: string;
   name: string;
   studentId: string;

@@ -12,21 +12,27 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Student } from "@/lib/types";
+import { FormEvent } from "react";
 
 interface StudentModalProps {
   isOpen: boolean;
   onClose: () => void;
-  student: any;
+  student: Student | null;
+  onSubmit: (studentData: Omit<Student, 'id' | 'avatar' | '_id'>) => void;
 }
 
-export function StudentModal({ isOpen, onClose, student }: StudentModalProps) {
+export function StudentModal({ isOpen, onClose, student, onSubmit }: StudentModalProps) {
   const isEditMode = !!student;
   const title = isEditMode ? "Edit Student Details" : "Add New Student";
   const description = isEditMode ? "Update the details of the student." : "Enter the details for the new student.";
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    onClose();
+    const formData = new FormData(e.currentTarget);
+    const studentData = Object.fromEntries(formData.entries()) as Omit<Student, 'id' | 'avatar' | '_id'>;
+    studentData.year = Number(studentData.year);
+    onSubmit(studentData);
   };
 
   return (
@@ -40,31 +46,31 @@ export function StudentModal({ isOpen, onClose, student }: StudentModalProps) {
           <div className="grid gap-4 py-4">
             <div className="grid grid-cols-4 items-center gap-4">
               <Label htmlFor="name" className="text-right">Name</Label>
-              <Input id="name" defaultValue={student?.name || ''} className="col-span-3" />
+              <Input id="name" name="name" defaultValue={student?.name || ''} className="col-span-3" />
             </div>
             <div className="grid grid-cols-4 items-center gap-4">
               <Label htmlFor="studentId" className="text-right">Student ID</Label>
-              <Input id="studentId" defaultValue={student?.studentId || ''} className="col-span-3" />
+              <Input id="studentId" name="studentId" defaultValue={student?.studentId || ''} className="col-span-3" />
             </div>
             <div className="grid grid-cols-4 items-center gap-4">
               <Label htmlFor="roomNumber" className="text-right">Room No.</Label>
-              <Input id="roomNumber" defaultValue={student?.roomNumber || ''} className="col-span-3" />
+              <Input id="roomNumber" name="roomNumber" defaultValue={student?.roomNumber || ''} className="col-span-3" />
             </div>
             <div className="grid grid-cols-4 items-center gap-4">
               <Label htmlFor="course" className="text-right">Course</Label>
-              <Input id="course" defaultValue={student?.course || ''} className="col-span-3" />
+              <Input id="course" name="course" defaultValue={student?.course || ''} className="col-span-3" />
             </div>
             <div className="grid grid-cols-4 items-center gap-4">
               <Label htmlFor="year" className="text-right">Year</Label>
-              <Input id="year" type="number" defaultValue={student?.year || ''} className="col-span-3" />
+              <Input id="year" name="year" type="number" defaultValue={student?.year || ''} className="col-span-3" />
             </div>
             <div className="grid grid-cols-4 items-center gap-4">
               <Label htmlFor="email" className="text-right">Email</Label>
-              <Input id="email" type="email" defaultValue={student?.email || ''} className="col-span-3" />
+              <Input id="email" name="email" type="email" defaultValue={student?.email || ''} className="col-span-3" />
             </div>
             <div className="grid grid-cols-4 items-center gap-4">
               <Label htmlFor="phone" className="text-right">Phone</Label>
-              <Input id="phone" type="tel" defaultValue={student?.phone || ''} className="col-span-3" />
+              <Input id="phone" name="phone" type="tel" defaultValue={student?.phone || ''} className="col-span-3" />
             </div>
           </div>
           <DialogFooter>

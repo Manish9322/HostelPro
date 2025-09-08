@@ -1,7 +1,7 @@
 
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   Card,
   CardContent,
@@ -27,29 +27,130 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
 import { MoreHorizontal, PlusCircle } from "lucide-react";
-import { mockStudents } from "@/lib/data";
 import { StudentModal } from "@/components/modals/student-modal";
 import { DeleteConfirmationDialog } from "@/components/modals/delete-confirmation-modal";
+import { Student } from "@/lib/types";
+import { useToast } from "@/hooks/use-toast";
 
 export default function StudentsPage() {
+  const [students, setStudents] = useState<Student[]>([]);
+  const [loading, setLoading] = useState(true);
   const [isModalOpen, setModalOpen] = useState(false);
   const [isDeleteModalOpen, setDeleteModalOpen] = useState(false);
-  const [selectedStudent, setSelectedStudent] = useState(null);
+  const [selectedStudent, setSelectedStudent] = useState<Student | null>(null);
+  const { toast } = useToast();
 
-  const handleOpenModal = (student = null) => {
+  const fetchStudents = async () => {
+    try {
+      setLoading(true);
+      const response = await fetch('/api/students');
+      if (!response.ok) {
+        throw new Error('Failed to fetch students');
+      }
+      const data = await response.json();
+      setStudents(data);
+    } catch (error) {
+      console.error(error);
+      toast({
+        title: "Error",
+        description: "Failed to load students.",
+        variant: "destructive",
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchStudents();
+  }, []);
+
+  const handleOpenModal = (student: Student | null = null) => {
     setSelectedStudent(student);
     setModalOpen(true);
   };
-
-  const handleOpenDeleteModal = (student: any) => {
+  
+  const handleOpenDeleteModal = (student: Student) => {
     setSelectedStudent(student);
     setDeleteModalOpen(true);
   };
 
-  const handleDelete = () => {
-    console.log("Deleting student:", selectedStudent);
-    setDeleteModalOpen(false);
+  const handleFormSubmit = async (studentData: Omit<Student, 'id' | 'avatar'>) => {
+    const method = selectedStudent ? 'PUT' : 'POST';
+    const url = selectedStudent ? `/api/students?id=${selectedStudent._id}` : '/api/students';
+
+    try {
+      const response = await fetch(url, {
+        method,
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(studentData),
+      });
+
+      if (!response.ok) {
+        throw new Error(`Failed to ${selectedStudent ? 'update' : 'create'} student`);
+      }
+
+      toast({
+        title: "Success",
+        description: `Student ${selectedStudent ? 'updated' : 'created'} successfully.`,
+      });
+
+      fetchStudents(); // Refresh data
+      setModalOpen(false);
+
+    } catch (error) {
+        console.error(error);
+        toast({
+            title: "Error",
+            description: `Failed to ${selectedStudent ? 'update' : 'create'} student.`,
+            variant: "destructive",
+        });
+    }
   };
+
+  const handleDelete = async () => {
+    if (!selectedStudent) return;
+
+    try {
+        const response = await fetch(`/api/students?id=${selectedStudent._id}`, {
+            method: 'DELETE',
+        });
+
+        if (!response.ok) {
+            throw new Error('Failed to delete student');
+        }
+
+        toast({
+            title: "Success",
+            description: "Student deleted successfully.",
+        });
+
+        fetchStudents(); // Refresh data
+        setDeleteModalOpen(false);
+
+    } catch (error) {
+        console.error(error);
+        toast({
+            title: "Error",
+            description: "Failed to delete student.",
+            variant: "destructive",
+        });
+    }
+  };
+
+  if (loading) {
+    return (
+        <Card>
+            <CardHeader>
+                <CardTitle>Student Management</CardTitle>
+                <CardDescription>Loading student data...</CardDescription>
+            </CardHeader>
+            <CardContent>
+                <p>Please wait while we fetch the student records.</p>
+            </CardContent>
+        </Card>
+    );
+  }
 
   return (
     <>
@@ -80,7 +181,7 @@ export default function StudentsPage() {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {mockStudents.map((student) => (
+              {students.map((student) => (
                 <TableRow key={student.id}>
                   <TableCell className="font-medium">{student.name}</TableCell>
                   <TableCell>{student.studentId}</TableCell>
@@ -108,7 +209,7 @@ export default function StudentsPage() {
         </CardContent>
         <CardFooter>
           <div className="text-xs text-muted-foreground">
-            Showing <strong>1-{mockStudents.length}</strong> of <strong>{mockStudents.length}</strong> students
+            Showing <strong>1-{students.length}</strong> of <strong>{students.length}</strong> students
           </div>
         </CardFooter>
       </Card>
@@ -117,6 +218,7 @@ export default function StudentsPage() {
         isOpen={isModalOpen}
         onClose={() => setModalOpen(false)}
         student={selectedStudent}
+        onSubmit={handleFormSubmit}
       />
       <DeleteConfirmationDialog
         isOpen={isDeleteModalOpen}
