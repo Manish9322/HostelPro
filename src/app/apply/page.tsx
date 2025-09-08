@@ -94,39 +94,41 @@ export default function ApplyPage() {
                         Applying for your new home is simple and straightforward. Our online form makes it easy to secure your spot at HostelPro.
                     </p>
                 </div>
-                <Card className="mt-12 max-w-4xl mx-auto bg-card/70">
-                  <CardHeader>
-                    <CardTitle className="text-center">Application in 3 Easy Steps</CardTitle>
-                  </CardHeader>
-                  <CardContent>
+                 <div className="mt-16 max-w-4xl mx-auto">
                     <div className="relative">
-                      <div className="absolute hidden md:block w-full h-0.5 bg-border top-1/2 left-0 -translate-y-1/2" aria-hidden="true"></div>
-                      <div className="grid grid-cols-1 md:grid-cols-3 gap-8 text-center relative">
-                        <div className="flex flex-col items-center gap-2 p-4 rounded-lg">
-                          <div className="flex items-center justify-center w-16 h-16 rounded-full bg-primary text-primary-foreground border-4 border-secondary mb-2 z-10">
-                            <span className="text-2xl font-bold">1</span>
+                      {/* Desktop connecting line */}
+                      <div className="hidden md:block absolute top-8 left-0 w-full h-0.5 border-t-2 border-dashed border-border" aria-hidden="true"></div>
+                      
+                      <div className="relative grid grid-cols-1 md:grid-cols-3 gap-y-12 md:gap-x-8">
+                        {/* Step 1 */}
+                        <div className="flex flex-col items-center text-center">
+                          <div className="flex items-center justify-center w-16 h-16 rounded-full bg-primary text-primary-foreground border-4 border-secondary/50 mb-4 z-10">
+                            <FileText className="w-8 h-8" />
                           </div>
-                          <h3 className="font-semibold">Fill the Form</h3>
-                          <p className="text-sm text-muted-foreground">Provide your personal, academic, and guardian details.</p>
+                          <h3 className="text-lg font-semibold">1. Fill the Form</h3>
+                          <p className="text-sm text-muted-foreground mt-1">Provide your personal, academic, and guardian details.</p>
                         </div>
-                        <div className="flex flex-col items-center gap-2 p-4 rounded-lg">
-                           <div className="flex items-center justify-center w-16 h-16 rounded-full bg-primary text-primary-foreground border-4 border-secondary mb-2 z-10">
-                             <span className="text-2xl font-bold">2</span>
+                        
+                        {/* Step 2 */}
+                        <div className="flex flex-col items-center text-center">
+                           <div className="flex items-center justify-center w-16 h-16 rounded-full bg-primary text-primary-foreground border-4 border-secondary/50 mb-4 z-10">
+                             <UploadCloud className="w-8 h-8" />
                           </div>
-                          <h3 className="font-semibold">Upload Documents</h3>
-                          <p className="text-sm text-muted-foreground">Attach necessary documents like your student ID and photo.</p>
+                          <h3 className="text-lg font-semibold">2. Upload Documents</h3>
+                          <p className="text-sm text-muted-foreground mt-1">Attach necessary documents like your student ID and photo.</p>
                         </div>
-                        <div className="flex flex-col items-center gap-2 p-4 rounded-lg">
-                           <div className="flex items-center justify-center w-16 h-16 rounded-full bg-primary text-primary-foreground border-4 border-secondary mb-2 z-10">
-                             <span className="text-2xl font-bold">3</span>
+
+                        {/* Step 3 */}
+                        <div className="flex flex-col items-center text-center">
+                           <div className="flex items-center justify-center w-16 h-16 rounded-full bg-primary text-primary-foreground border-4 border-secondary/50 mb-4 z-10">
+                             <MailCheck className="w-8 h-8" />
                           </div>
-                          <h3 className="font-semibold">Receive Confirmation</h3>
-                          <p className="text-sm text-muted-foreground">Get a confirmation email once your application is processed.</p>
+                          <h3 className="text-lg font-semibold">3. Receive Confirmation</h3>
+                          <p className="text-sm text-muted-foreground mt-1">Get an email once your application is processed successfully.</p>
                         </div>
                       </div>
                     </div>
-                  </CardContent>
-                </Card>
+                </div>
             </div>
         </section>
 
