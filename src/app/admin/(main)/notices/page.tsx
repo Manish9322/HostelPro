@@ -29,11 +29,16 @@ import { Button } from "@/components/ui/button";
 import { MoreHorizontal, PlusCircle } from "lucide-react";
 import { mockNotices } from "@/lib/data";
 import { format } from 'date-fns';
+import { NoticeModal } from "@/components/modals/notice-modal";
+import { DeleteConfirmationDialog } from "@/components/modals/delete-confirmation-modal";
 
 const ITEMS_PER_PAGE = 7;
 
 export default function NoticesAdminPage() {
   const [currentPage, setCurrentPage] = useState(1);
+  const [isModalOpen, setModalOpen] = useState(false);
+  const [isDeleteModalOpen, setDeleteModalOpen] = useState(false);
+  const [selectedNotice, setSelectedNotice] = useState(null);
 
   const totalPages = Math.ceil(mockNotices.length / ITEMS_PER_PAGE);
   const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
@@ -46,81 +51,111 @@ export default function NoticesAdminPage() {
     }
   };
 
+  const handleOpenModal = (notice = null) => {
+    setSelectedNotice(notice);
+    setModalOpen(true);
+  };
+
+  const handleOpenDeleteModal = (notice: any) => {
+    setSelectedNotice(notice);
+    setDeleteModalOpen(true);
+  };
+
+  const handleDelete = () => {
+    // Logic to delete the notice
+    console.log("Deleting notice:", selectedNotice);
+    setDeleteModalOpen(false);
+  };
+
+
   return (
-    <Card>
-      <CardHeader className="flex flex-row items-center justify-between">
-        <div>
-          <CardTitle>Notice Management</CardTitle>
-          <CardDescription>
-            Create, edit, and manage public notices.
-          </CardDescription>
-        </div>
-        <Button size="sm" className="gap-1">
-          <PlusCircle className="h-3.5 w-3.5" />
-          <span className="sr-only sm:not-sr-only sm:whitespace-nowrap">
-            New Notice
-          </span>
-        </Button>
-      </CardHeader>
-      <CardContent>
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead>Title</TableHead>
-              <TableHead>Author</TableHead>
-              <TableHead>Published Date</TableHead>
-              <TableHead className="text-right">Actions</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {currentNotices.map((notice) => (
-              <TableRow key={notice.id}>
-                <TableCell className="font-medium">{notice.title}</TableCell>
-                <TableCell>{notice.author}</TableCell>
-                <TableCell>{format(new Date(notice.publishedAt), 'PPP')}</TableCell>
-                <TableCell className="text-right">
-                  <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                      <Button aria-haspopup="true" size="icon" variant="ghost">
-                        <MoreHorizontal className="h-4 w-4" />
-                        <span className="sr-only">Toggle menu</span>
-                      </Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end">
-                      <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                      <DropdownMenuItem>Edit</DropdownMenuItem>
-                      <DropdownMenuItem>Delete</DropdownMenuItem>
-                    </DropdownMenuContent>
-                  </DropdownMenu>
-                </TableCell>
+    <>
+      <Card>
+        <CardHeader className="flex flex-row items-center justify-between">
+          <div>
+            <CardTitle>Notice Management</CardTitle>
+            <CardDescription>
+              Create, edit, and manage public notices.
+            </CardDescription>
+          </div>
+          <Button size="sm" className="gap-1" onClick={() => handleOpenModal()}>
+            <PlusCircle className="h-3.5 w-3.5" />
+            <span className="sr-only sm:not-sr-only sm:whitespace-nowrap">
+              New Notice
+            </span>
+          </Button>
+        </CardHeader>
+        <CardContent>
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>Title</TableHead>
+                <TableHead>Author</TableHead>
+                <TableHead>Published Date</TableHead>
+                <TableHead className="text-right">Actions</TableHead>
               </TableRow>
-            ))}
-          </TableBody>
-        </Table>
-      </CardContent>
-      <CardFooter>
-        <div className="text-xs text-muted-foreground">
-          Showing <strong>{startIndex + 1}-{Math.min(endIndex, mockNotices.length)}</strong> of <strong>{mockNotices.length}</strong> notices
-        </div>
-        <div className="ml-auto flex items-center gap-2">
-          <Button
-            size="sm"
-            variant="outline"
-            onClick={() => handlePageChange(currentPage - 1)}
-            disabled={currentPage === 1}
-          >
-            Previous
-          </Button>
-          <Button
-            size="sm"
-            variant="outline"
-            onClick={() => handlePageChange(currentPage + 1)}
-            disabled={currentPage === totalPages}
-          >
-            Next
-          </Button>
-        </div>
-      </CardFooter>
-    </Card>
+            </TableHeader>
+            <TableBody>
+              {currentNotices.map((notice) => (
+                <TableRow key={notice.id}>
+                  <TableCell className="font-medium">{notice.title}</TableCell>
+                  <TableCell>{notice.author}</TableCell>
+                  <TableCell>{format(new Date(notice.publishedAt), 'PPP')}</TableCell>
+                  <TableCell className="text-right">
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <Button aria-haspopup="true" size="icon" variant="ghost">
+                          <MoreHorizontal className="h-4 w-4" />
+                          <span className="sr-only">Toggle menu</span>
+                        </Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="end">
+                        <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                        <DropdownMenuItem onClick={() => handleOpenModal(notice)}>Edit</DropdownMenuItem>
+                        <DropdownMenuItem onClick={() => handleOpenDeleteModal(notice)}>Delete</DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </CardContent>
+        <CardFooter>
+          <div className="text-xs text-muted-foreground">
+            Showing <strong>{startIndex + 1}-{Math.min(endIndex, mockNotices.length)}</strong> of <strong>{mockNotices.length}</strong> notices
+          </div>
+          <div className="ml-auto flex items-center gap-2">
+            <Button
+              size="sm"
+              variant="outline"
+              onClick={() => handlePageChange(currentPage - 1)}
+              disabled={currentPage === 1}
+            >
+              Previous
+            </Button>
+            <Button
+              size="sm"
+              variant="outline"
+              onClick={() => handlePageChange(currentPage + 1)}
+              disabled={currentPage === totalPages}
+            >
+              Next
+            </Button>
+          </div>
+        </CardFooter>
+      </Card>
+      <NoticeModal
+        isOpen={isModalOpen}
+        onClose={() => setModalOpen(false)}
+        notice={selectedNotice}
+      />
+      <DeleteConfirmationDialog
+        isOpen={isDeleteModalOpen}
+        onClose={() => setDeleteModalOpen(false)}
+        onConfirm={handleDelete}
+        itemName={selectedNotice ? (selectedNotice as any).title : ''}
+      />
+    </>
   );
 }

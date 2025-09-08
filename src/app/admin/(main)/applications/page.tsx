@@ -30,6 +30,8 @@ import { Button } from "@/components/ui/button";
 import { MoreHorizontal } from "lucide-react";
 import { mockApplications } from "@/lib/data";
 import { format } from 'date-fns';
+import { Application } from "@/lib/types";
+import { ViewApplicationModal } from "@/components/modals/view-application-modal";
 
 const statusVariant = (status: string) => {
   switch (status) {
@@ -48,6 +50,7 @@ const ITEMS_PER_PAGE = 7;
 
 export default function ApplicationsPage() {
   const [currentPage, setCurrentPage] = useState(1);
+  const [selectedApplication, setSelectedApplication] = useState<Application | null>(null);
 
   const totalPages = Math.ceil(mockApplications.length / ITEMS_PER_PAGE);
   const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
@@ -59,8 +62,13 @@ export default function ApplicationsPage() {
       setCurrentPage(page);
     }
   };
+  
+  const handleViewApplication = (application: Application) => {
+    setSelectedApplication(application);
+  };
 
   return (
+    <>
     <Card>
       <CardHeader>
         <CardTitle>Applications</CardTitle>
@@ -98,6 +106,7 @@ export default function ApplicationsPage() {
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="end">
                       <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                      <DropdownMenuItem onClick={() => handleViewApplication(app)}>View Details</DropdownMenuItem>
                       <DropdownMenuItem>Approve</DropdownMenuItem>
                       <DropdownMenuItem>Reject</DropdownMenuItem>
                       <DropdownMenuItem>Edit</DropdownMenuItem>
@@ -133,5 +142,13 @@ export default function ApplicationsPage() {
         </div>
       </CardFooter>
     </Card>
+    {selectedApplication && (
+        <ViewApplicationModal
+          isOpen={!!selectedApplication}
+          onClose={() => setSelectedApplication(null)}
+          application={selectedApplication}
+        />
+    )}
+    </>
   );
 }
