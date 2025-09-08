@@ -24,7 +24,10 @@ export async function POST(request) {
     if (key.startsWith('roommatePreferences[')) {
       const prefKey = key.match(/\[(.*?)\]/)[1];
       roommatePreferences[prefKey] = value;
-    } else {
+    } else if (key === 'studentId' && value) {
+      // Do not process studentId from form if it exists
+    }
+    else {
       applicationData[key] = value;
     }
   }
