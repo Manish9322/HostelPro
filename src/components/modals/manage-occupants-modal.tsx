@@ -10,13 +10,13 @@ import {
   DialogFooter,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { mockStudents } from "@/lib/data";
 import { User, X } from "lucide-react";
 import { Separator } from "../ui/separator";
 import { useEffect, useState } from "react";
 import type { Student, Room } from "@/lib/types";
 import { useToast } from "@/hooks/use-toast";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../ui/select";
+import { Skeleton } from "../ui/skeleton";
 
 interface ManageOccupantsModalProps {
   isOpen: boolean;
@@ -27,45 +27,50 @@ interface ManageOccupantsModalProps {
 
 export function ManageOccupantsModal({ isOpen, onClose, room, onUpdate }: ManageOccupantsModalProps) {
   const [occupants, setOccupants] = useState<Student[]>([]);
-  const [studentId, setStudentId] = useState("");
+  const [unassignedStudents, setUnassignedStudents] = useState<Student[]>([]);
+  const [selectedStudentId, setSelectedStudentId] = useState("");
+  const [loading, setLoading] = useState(true);
   const { toast } = useToast();
 
   useEffect(() => {
-    const fetchOccupants = async () => {
+    const fetchData = async () => {
       if (room) {
-        // In a real app, you might fetch occupants by room ID.
-        // Here, we filter the mock data.
-        const allStudents: Student[] = await (await fetch('/api/students')).json();
-        const roomOccupants = allStudents.filter(s => s.roomNumber === room.roomNumber);
-        setOccupants(roomOccupants);
+        setLoading(true);
+        try {
+          const allStudentsRes = await fetch('/api/students');
+          if (!allStudentsRes.ok) throw new Error("Failed to fetch students");
+          const allStudents: Student[] = await allStudentsRes.json();
+
+          const roomOccupants = allStudents.filter(s => s.roomNumber === room.roomNumber);
+          const availableStudents = allStudents.filter(s => s.roomNumber === 'Unassigned');
+          
+          setOccupants(roomOccupants);
+          setUnassignedStudents(availableStudents);
+        } catch(err) {
+            toast({ title: "Error", description: "Could not load student data.", variant: "destructive" });
+        } finally {
+            setLoading(false);
+        }
       }
     };
     if (isOpen) {
-      fetchOccupants();
+      fetchData();
     }
-  }, [isOpen, room]);
+  }, [isOpen, room, toast]);
 
   if (!room) return null;
 
   const handleAddOccupant = async () => {
-    if (!studentId) return;
+    if (!selectedStudentId) return;
     
-    // Check capacity
     if (occupants.length >= room.capacity) {
       toast({ title: "Error", description: "Room is already at full capacity.", variant: "destructive" });
       return;
     }
     
-    // In a real app, you'd find the student in the DB
-    const allStudents: Student[] = await (await fetch('/api/students')).json();
-    const studentToAdd = allStudents.find(s => s.studentId.toLowerCase() === studentId.toLowerCase() && s.roomNumber === "Unassigned");
+    const studentToAdd = unassignedStudents.find(s => s._id === selectedStudentId);
+    if (!studentToAdd) return;
     
-    if (!studentToAdd) {
-      toast({ title: "Error", description: "Student not found or already assigned to a room.", variant: "destructive" });
-      return;
-    }
-    
-    // Update student's roomNumber
     const response = await fetch(`/api/students?id=${studentToAdd._id}`, {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
@@ -74,8 +79,9 @@ export function ManageOccupantsModal({ isOpen, onClose, room, onUpdate }: Manage
 
     if (response.ok) {
       setOccupants(prev => [...prev, studentToAdd]);
-      setStudentId("");
-      onUpdate(); // Re-fetch data on the parent page
+      setUnassignedStudents(prev => prev.filter(s => s._id !== selectedStudentId));
+      setSelectedStudentId("");
+      onUpdate();
       toast({ title: "Success", description: "Student added to the room." });
     } else {
       toast({ title: "Error", description: "Failed to add student.", variant: "destructive" });
@@ -83,7 +89,6 @@ export function ManageOccupantsModal({ isOpen, onClose, room, onUpdate }: Manage
   };
 
   const handleRemoveOccupant = async (studentToRemove: Student) => {
-     // Update student's roomNumber to "Unassigned"
     const response = await fetch(`/api/students?id=${studentToRemove._id}`, {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
@@ -92,6 +97,7 @@ export function ManageOccupantsModal({ isOpen, onClose, room, onUpdate }: Manage
 
     if (response.ok) {
       setOccupants(prev => prev.filter(s => s._id !== studentToRemove._id));
+      setUnassignedStudents(prev => [...prev, studentToRemove]);
       onUpdate();
       toast({ title: "Success", description: "Student removed from the room." });
     } else {
@@ -131,14 +137,28 @@ export function ManageOccupantsModal({ isOpen, onClose, room, onUpdate }: Manage
 
             <div>
                 <h4 className="text-sm font-semibold mb-2">Add New Occupant</h4>
+                 {loading ? (
+                    <div className="flex gap-2">
+                       <Skeleton className="h-10 flex-grow" />
+                       <Skeleton className="h-10 w-28" />
+                    </div>
+                ) : (
                 <div className="flex gap-2">
-                    <Input 
-                      placeholder="Enter Student ID to add" 
-                      value={studentId}
-                      onChange={e => setStudentId(e.target.value)}
-                    />
-                    <Button onClick={handleAddOccupant}>Add Student</Button>
+                    <Select value={selectedStudentId} onValueChange={setSelectedStudentId}>
+                        <SelectTrigger>
+                            <SelectValue placeholder="Select an unassigned student" />
+                        </SelectTrigger>
+                        <SelectContent>
+                            {unassignedStudents.map(student => (
+                                <SelectItem key={student._id} value={student._id}>
+                                    {student.name} ({student.studentId})
+                                </SelectItem>
+                            ))}
+                        </SelectContent>
+                    </Select>
+                    <Button onClick={handleAddOccupant} disabled={!selectedStudentId}>Add Student</Button>
                 </div>
+                )}
                  <p className="text-xs text-muted-foreground mt-2">Only students with 'Unassigned' room status can be added.</p>
             </div>
         </div>

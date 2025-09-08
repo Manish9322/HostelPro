@@ -72,6 +72,7 @@ type ApplicationFormValues = z.infer<typeof applicationSchema>;
 export default function ApplyPage() {
   const { toast } = useToast();
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [generatedStudentId, setGeneratedStudentId] = useState<string | null>(null);
 
   const form = useForm<ApplicationFormValues>({
     resolver: zodResolver(applicationSchema),
@@ -94,6 +95,7 @@ export default function ApplyPage() {
 
   async function onSubmit(data: ApplicationFormValues) {
     setIsSubmitting(true);
+    setGeneratedStudentId(null);
     const formData = new FormData();
     
     // Append all form data to FormData object
@@ -125,7 +127,7 @@ export default function ApplyPage() {
       }
       
       const result = await response.json();
-      console.log(result);
+      setGeneratedStudentId(result.studentId);
 
       toast({
         title: "Application Submitted!",
@@ -208,6 +210,15 @@ export default function ApplyPage() {
                 <CardContent>
                   <Form {...form}>
                     <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
+                        
+                       {generatedStudentId && (
+                            <div className="space-y-2">
+                                <Label htmlFor="generatedId">Your Generated Student ID</Label>
+                                <Input id="generatedId" value={generatedStudentId} readOnly className="font-mono text-lg bg-secondary" />
+                                <p className="text-sm text-muted-foreground">Please save this ID. You'll use it to check your application status and for future logins.</p>
+                            </div>
+                        )}
+
                       {/* Personal Details */}
                       <div>
                         <h3 className="text-lg font-medium mb-4 text-primary">Personal Information</h3>

@@ -51,7 +51,7 @@ export function ViewApplicationModal({ isOpen, onClose, application, onUpdateSta
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-3xl">
+      <DialogContent className="sm:max-w-4xl">
         <DialogHeader>
           <DialogTitle>Application Details</DialogTitle>
           <DialogDescription>

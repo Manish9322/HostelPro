@@ -24,6 +24,7 @@ import { Separator } from "../ui/separator";
 import { Room } from "@/lib/types";
 import { useEffect, useRef, useState } from "react";
 import { Skeleton } from "../ui/skeleton";
+import { v4 as uuidv4 } from 'uuid';
 
 interface RoomModalProps {
   isOpen: boolean;
@@ -38,11 +39,22 @@ export function RoomModal({ isOpen, onClose, room, onSubmit }: RoomModalProps) {
   const description = isEditMode ? "Update the details of the room." : "Enter the details for the new room.";
   const formRef = useRef<HTMLFormElement>(null);
   
+  const [roomNumber, setRoomNumber] = useState('');
   const [availableUtilities, setAvailableUtilities] = useState<string[]>([]);
   const [loadingUtilities, setLoadingUtilities] = useState(true);
 
   useEffect(() => {
     if (isOpen) {
+      if (!isEditMode) {
+         // Generate a new random room number for new rooms
+        const block = ['A', 'B', 'C'][Math.floor(Math.random() * 3)];
+        const floor = Math.floor(Math.random() * 3) + 1;
+        const num = Math.floor(Math.random() * 10) + 1;
+        setRoomNumber(`${block}-${floor}0${num}`);
+      } else if (room) {
+        setRoomNumber(room.roomNumber);
+      }
+
       const fetchSettings = async () => {
         try {
           setLoadingUtilities(true);
@@ -51,7 +63,6 @@ export function RoomModal({ isOpen, onClose, room, onSubmit }: RoomModalProps) {
           setAvailableUtilities(settings.roomUtilities || []);
         } catch (error) {
           console.error("Failed to fetch settings", error);
-          // Set fallback utilities in case of an error
           setAvailableUtilities(["AC", "Wi-Fi", "Attached Bathroom"]);
         } finally {
           setLoadingUtilities(false);
@@ -59,7 +70,7 @@ export function RoomModal({ isOpen, onClose, room, onSubmit }: RoomModalProps) {
       };
       fetchSettings();
     }
-  }, [isOpen]);
+  }, [isOpen, isEditMode, room]);
 
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -69,7 +80,7 @@ export function RoomModal({ isOpen, onClose, room, onSubmit }: RoomModalProps) {
     const utilities = availableUtilities.filter(util => formData.get(`util-${util}`) === 'on');
     
     const data = {
-        roomNumber: formData.get('roomNumber'),
+        roomNumber: roomNumber,
         capacity: Number(formData.get('capacity')),
         status: formData.get('status'),
         condition: formData.get('condition'),
@@ -92,7 +103,7 @@ export function RoomModal({ isOpen, onClose, room, onSubmit }: RoomModalProps) {
           <div className="grid gap-4 py-4">
             <div className="grid grid-cols-4 items-center gap-4">
               <Label htmlFor="roomNumber" className="text-right">Room No.</Label>
-              <Input id="roomNumber" name="roomNumber" defaultValue={room?.roomNumber || ''} className="col-span-3" required/>
+              <Input id="roomNumber" name="roomNumber" value={roomNumber} className="col-span-3" readOnly required/>
             </div>
             <div className="grid grid-cols-4 items-center gap-4">
               <Label htmlFor="capacity" className="text-right">Capacity</Label>
