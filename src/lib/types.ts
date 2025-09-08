@@ -103,5 +103,3 @@ export type ReportData = {
     headers: string[];
     rows: (string | number)[][];
 };
-
-    
