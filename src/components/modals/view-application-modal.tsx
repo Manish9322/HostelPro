@@ -51,7 +51,7 @@ export function ViewApplicationModal({ isOpen, onClose, application, onUpdateSta
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-2xl">
+      <DialogContent className="sm:max-w-3xl">
         <DialogHeader>
           <DialogTitle>Application Details</DialogTitle>
           <DialogDescription>
@@ -59,7 +59,7 @@ export function ViewApplicationModal({ isOpen, onClose, application, onUpdateSta
           </DialogDescription>
         </DialogHeader>
         
-        <div className="py-4 space-y-6">
+        <div className="py-4 space-y-6 max-h-[70vh] overflow-y-auto pr-4">
           {/* Personal & Academic Details */}
           <div>
             <h4 className="font-semibold mb-2 text-primary">Applicant Information</h4>
@@ -101,7 +101,7 @@ export function ViewApplicationModal({ isOpen, onClose, application, onUpdateSta
 
         </div>
 
-        <DialogFooter className="sm:justify-between">
+        <DialogFooter className="sm:justify-between pt-4 border-t">
             <div className="flex gap-2">
                 <Button onClick={() => onUpdateStatus(application._id, 'Approved')} disabled={application.status === 'Approved'}>Approve</Button>
                 <Button variant="destructive" onClick={() => onUpdateStatus(application._id, 'Rejected')} disabled={application.status === 'Rejected'}>Reject</Button>

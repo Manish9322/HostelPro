@@ -295,6 +295,7 @@ export default function RoomsPage() {
         isOpen={isOccupantModalOpen}
         onClose={() => setOccupantModalOpen(false)}
         room={selectedRoom}
+        onUpdate={fetchRooms}
       />
       <DeleteConfirmationDialog
         isOpen={isDeleteModalOpen}
