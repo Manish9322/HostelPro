@@ -14,6 +14,7 @@ export type Student = {
 };
 
 export type Complaint = {
+  _id: string;
   id: string;
   submittedAt: Date;
   complaintText: string;
@@ -24,6 +25,7 @@ export type Complaint = {
 };
 
 export type Application = {
+  _id: string;
   id: string;
   name: string;
   studentId: string;
@@ -33,6 +35,8 @@ export type Application = {
   phone: string;
   status: 'Pending' | 'Approved' | 'Rejected';
   submittedAt: Date;
+  profilePhoto?: string;
+  studentIdCard?: string;
   roommatePreferences?: {
     sleepSchedule?: 'early-bird' | 'night-owl';
     studyHabits?: 'in-room' | 'library' | 'flexible';
@@ -41,6 +45,7 @@ export type Application = {
 };
 
 export type Notice = {
+  _id: string;
   id: string;
   title: string;
   content: string;
@@ -51,6 +56,7 @@ export type Notice = {
 };
 
 export type BoardMember = {
+  _id: string;
   id: string;
   name: string;
   position: string;
@@ -61,6 +67,7 @@ export type BoardMember = {
 };
 
 export type Room = {
+  _id: string;
   id: string;
   roomNumber: string;
   capacity: number;
@@ -71,6 +78,7 @@ export type Room = {
 };
 
 export type FeePayment = {
+    _id: string;
     id: string;
     studentName: string;
     studentId: string;
@@ -81,6 +89,7 @@ export type FeePayment = {
 };
 
 export type InventoryItem = {
+    _id: string;
     id: string;
     name: string;
     category: 'Furniture' | 'Appliance' | 'Gym Equipment' | 'Safety' | 'Other';
@@ -94,3 +103,5 @@ export type ReportData = {
     headers: string[];
     rows: (string | number)[][];
 };
+
+    

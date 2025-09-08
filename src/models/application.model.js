@@ -1,12 +1,21 @@
+
 import mongoose from "mongoose";
 
 const applicationSchema = new mongoose.Schema({
   name: { type: String, required: true, trim: true },
   studentId: { type: String, required: true, unique: true, trim: true },
-  course: { type: String, required: true, trim: true },
-  year: { type: Number, required: true, min: 1, max: 5 },
   email: { type: String, required: true, unique: true, trim: true, lowercase: true },
   phone: { type: String, required: true, trim: true },
+  dob: { type: Date, required: true },
+  gender: { type: String, required: true },
+  address: { type: String, required: true, trim: true },
+  course: { type: String, required: true, trim: true },
+  year: { type: Number, required: true, min: 1, max: 5 },
+  roomPreference: { type: String, required: true },
+  guardianName: { type: String, required: true, trim: true },
+  guardianPhone: { type: String, required: true, trim: true },
+  profilePhoto: { type: String, required: true },
+  studentIdCard: { type: String, required: true },
   status: {
     type: String,
     enum: ['Pending', 'Approved', 'Rejected'],
@@ -24,3 +33,5 @@ const applicationSchema = new mongoose.Schema({
 const ApplicationModel = mongoose.models.Application || mongoose.model("Application", applicationSchema);
 
 export default ApplicationModel;
+
+    

@@ -6,7 +6,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { format } from "date-fns";
-import { CalendarIcon, ShieldCheck, Users, Wifi, Info, Handshake, FileText, UploadCloud, MailCheck, HeartHandshake } from "lucide-react";
+import { CalendarIcon, ShieldCheck, Users, Wifi, Info, FileText, UploadCloud, MailCheck, HeartHandshake } from "lucide-react";
 
 import { cn } from "@/lib/utils";
 import PublicHeader from "@/components/public-header";
@@ -28,6 +28,7 @@ import { Calendar } from "@/components/ui/calendar";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import PublicFooter from "@/components/public-footer";
+import { useState } from "react";
 
 const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
 const ACCEPTED_IMAGE_TYPES = ["image/jpeg", "image/jpg", "image/png", "image/webp"];
@@ -62,16 +63,16 @@ const applicationSchema = z.object({
       (files) => ACCEPTED_DOCUMENT_TYPES.includes(files?.[0]?.type),
       ".jpg, .jpeg, .png, and .pdf files are accepted."
     ),
-    // Roommate preferences
-    sleepSchedule: z.enum(["early-bird", "night-owl"]).optional(),
-    studyHabits: z.enum(["in-room", "library", "flexible"]).optional(),
-    socialHabits: z.enum(["introvert", "extrovert", "ambivert"]).optional(),
+  sleepSchedule: z.enum(["early-bird", "night-owl"]).optional(),
+  studyHabits: z.enum(["in-room", "library", "flexible"]).optional(),
+  socialHabits: z.enum(["introvert", "extrovert", "ambivert"]).optional(),
 });
 
 type ApplicationFormValues = z.infer<typeof applicationSchema>;
 
 export default function ApplyPage() {
   const { toast } = useToast();
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const form = useForm<ApplicationFormValues>({
     resolver: zodResolver(applicationSchema),
@@ -93,14 +94,55 @@ export default function ApplyPage() {
   const photoRef = form.register("profilePhoto");
   const idCardRef = form.register("studentIdCard");
 
-
-  function onSubmit(data: ApplicationFormValues) {
-    console.log(data);
-    toast({
-      title: "Application Submitted!",
-      description: "We have received your application and will review it shortly.",
+  async function onSubmit(data: ApplicationFormValues) {
+    setIsSubmitting(true);
+    const formData = new FormData();
+    
+    // Append all form data to FormData object
+    Object.entries(data).forEach(([key, value]) => {
+        if (key === 'profilePhoto' || key === 'studentIdCard') {
+            formData.append(key, value[0]);
+        } else if (key === 'dob' && value instanceof Date) {
+            formData.append(key, value.toISOString());
+        } else if (key === 'roommatePreferences' && typeof value === 'object' && value !== null) {
+            Object.entries(value).forEach(([prefKey, prefValue]) => {
+                if(prefValue) {
+                   formData.append(`roommatePreferences[${prefKey}]`, prefValue as string);
+                }
+            });
+        }
+         else if (value !== undefined && value !== null) {
+            formData.append(key, String(value));
+        }
     });
-    form.reset();
+
+    try {
+      const response = await fetch('/api/applications', {
+        method: 'POST',
+        body: formData,
+      });
+
+      if (!response.ok) {
+        throw new Error('Something went wrong. Please try again.');
+      }
+      
+      const result = await response.json();
+      console.log(result);
+
+      toast({
+        title: "Application Submitted!",
+        description: "We have received your application and will review it shortly.",
+      });
+      form.reset();
+    } catch (error) {
+      toast({
+        title: "Submission Failed",
+        description: (error as Error).message,
+        variant: "destructive",
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
   }
 
   return (
@@ -433,9 +475,9 @@ export default function ApplyPage() {
                         </div>
                       </div>
 
-                      <Button type="submit" className="w-full bg-accent hover:bg-accent/90 text-accent-foreground" size="lg">
+                      <Button type="submit" className="w-full bg-accent hover:bg-accent/90 text-accent-foreground" size="lg" disabled={isSubmitting}>
                         <UploadCloud className="mr-2 h-4 w-4" />
-                        Submit Application
+                        {isSubmitting ? 'Submitting...' : 'Submit Application'}
                       </Button>
                     </form>
                   </Form>
@@ -536,3 +578,5 @@ export default function ApplyPage() {
     </div>
   );
 }
+
+    
