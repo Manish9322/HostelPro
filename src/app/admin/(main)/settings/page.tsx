@@ -1,6 +1,7 @@
 
 "use client";
 
+import { useState, useEffect } from "react";
 import {
   Card,
   CardContent,
@@ -14,59 +15,179 @@ import {
   Table,
   TableBody,
   TableCell,
-  TableHead,
-  TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { PlusCircle, Trash2 } from "lucide-react";
+import { PlusCircle, Trash2, AlertTriangle, RefreshCw } from "lucide-react";
 import { Separator } from "@/components/ui/separator";
+import { useToast } from "@/hooks/use-toast";
+import { Skeleton } from "@/components/ui/skeleton";
 
-// Mock data - in a real app, this would come from a database
-const settingsData = {
-  roomConditions: ["Excellent", "Good", "Fair", "Poor"],
-  roomUtilities: ["AC", "Wi-Fi", "Attached Bathroom", "Common Bathroom"],
-  inventoryCategories: ["Furniture", "Appliance", "Gym Equipment", "Safety", "Other"],
-  inventoryConditions: ["New", "Good", "Used", "Damaged"],
-  inventoryStatus: ["In Stock", "In Use", "Under Repair"],
-  complaintCategories: ["Maintenance", "Noise", "Safety", "Harassment", "Other"],
-  noticeCategories: ["General", "Maintenance", "Event", "Urgent"],
+interface SettingsData {
+  _id: string;
+  roomConditions: string[];
+  roomUtilities: string[];
+  inventoryCategories: string[];
+  inventoryConditions: string[];
+  inventoryStatus: string[];
+  complaintCategories: string[];
+  noticeCategories: string[];
+  [key: string]: any; 
+}
+
+const SettingsSection = ({ 
+    title, 
+    description, 
+    items,
+    categoryKey,
+    onUpdate,
+    loading
+}: { 
+    title: string, 
+    description: string, 
+    items: string[],
+    categoryKey: keyof Omit<SettingsData, '_id'>,
+    onUpdate: (categoryKey: keyof Omit<SettingsData, '_id'>, newItems: string[]) => void,
+    loading: boolean
+}) => {
+    const [newItem, setNewItem] = useState("");
+
+    const handleAdd = () => {
+        if (newItem.trim() && !items.includes(newItem.trim())) {
+            const updatedItems = [...items, newItem.trim()];
+            onUpdate(categoryKey, updatedItems);
+            setNewItem("");
+        }
+    };
+
+    const handleDelete = (itemToDelete: string) => {
+        const updatedItems = items.filter(item => item !== itemToDelete);
+        onUpdate(categoryKey, updatedItems);
+    };
+
+    return (
+        <Card>
+            <CardHeader>
+            <CardTitle>{title}</CardTitle>
+            <CardDescription>{description}</CardDescription>
+            </CardHeader>
+            <CardContent>
+            <div className="flex gap-2 mb-4">
+                <Input 
+                    placeholder={`Add new ${title.slice(0, -1).toLowerCase()}...`}
+                    value={newItem}
+                    onChange={(e) => setNewItem(e.target.value)} 
+                    disabled={loading}
+                />
+                <Button size="icon" onClick={handleAdd} disabled={loading || !newItem.trim()}>
+                    <PlusCircle className="h-4 w-4" />
+                </Button>
+            </div>
+            <div className="rounded-md border">
+                <Table>
+                <TableBody>
+                    {loading ? Array.from({length: 3}).map((_, i) => (
+                        <TableRow key={i}>
+                            <TableCell><Skeleton className="h-5 w-3/4"/></TableCell>
+                            <TableCell className="text-right"><Skeleton className="h-8 w-8 ml-auto"/></TableCell>
+                        </TableRow>
+                    )) : items.length > 0 ? items.map((item, index) => (
+                    <TableRow key={index}>
+                        <TableCell className="font-medium">{item}</TableCell>
+                        <TableCell className="text-right">
+                        <Button variant="ghost" size="icon" onClick={() => handleDelete(item)} disabled={loading}>
+                            <Trash2 className="h-4 w-4 text-destructive" />
+                            <span className="sr-only">Delete</span>
+                        </Button>
+                        </TableCell>
+                    </TableRow>
+                    )) : (
+                        <TableRow>
+                            <TableCell className="text-center text-muted-foreground py-4">No items yet.</TableCell>
+                        </TableRow>
+                    )}
+                </TableBody>
+                </Table>
+            </div>
+            </CardContent>
+        </Card>
+    );
 };
 
-const SettingsSection = ({ title, description, items }: { title: string, description: string, items: string[] }) => (
-  <Card>
-    <CardHeader>
-      <CardTitle>{title}</CardTitle>
-      <CardDescription>{description}</CardDescription>
-    </CardHeader>
-    <CardContent>
-      <div className="flex gap-2 mb-4">
-        <Input placeholder={`Add new ${title.slice(0, -1).toLowerCase()}...`} />
-        <Button size="icon">
-          <PlusCircle className="h-4 w-4" />
-        </Button>
-      </div>
-      <div className="rounded-md border">
-        <Table>
-          <TableBody>
-            {items.map((item, index) => (
-              <TableRow key={index}>
-                <TableCell className="font-medium">{item}</TableCell>
-                <TableCell className="text-right">
-                  <Button variant="ghost" size="icon">
-                    <Trash2 className="h-4 w-4 text-destructive" />
-                    <span className="sr-only">Delete</span>
-                  </Button>
-                </TableCell>
-              </TableRow>
-            ))}
-          </TableBody>
-        </Table>
-      </div>
-    </CardContent>
-  </Card>
-);
-
 export default function SettingsPage() {
+    const [settings, setSettings] = useState<SettingsData | null>(null);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState<string | null>(null);
+    const { toast } = useToast();
+
+    const fetchSettings = async () => {
+        try {
+            setLoading(true);
+            setError(null);
+            const response = await fetch('/api/settings');
+            if (!response.ok) throw new Error("Failed to fetch settings");
+            const data = await response.json();
+            setSettings(data);
+        } catch (error) {
+            setError("Failed to load settings. Please try again.");
+            console.error(error);
+        } finally {
+            setLoading(false);
+        }
+    };
+    
+    useEffect(() => {
+        fetchSettings();
+    }, []);
+
+    const handleUpdateSettings = async (categoryKey: keyof Omit<SettingsData, '_id'>, newItems: string[]) => {
+        if (!settings) return;
+        
+        const originalItems = settings[categoryKey];
+        
+        // Optimistic UI update
+        setSettings(prev => prev ? { ...prev, [categoryKey]: newItems } : null);
+
+        try {
+            const response = await fetch('/api/settings', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ [categoryKey]: newItems }),
+            });
+            if (!response.ok) throw new Error("Failed to update settings");
+            toast({ title: "Success", description: "Settings updated successfully." });
+        } catch (error) {
+            toast({ title: "Error", description: "Failed to update settings.", variant: "destructive" });
+            // Revert on failure
+            setSettings(prev => prev ? { ...prev, [categoryKey]: originalItems } : null);
+        }
+    };
+
+
+  const settingSections = [
+    { key: 'roomConditions', title: 'Room Conditions', description: 'Manage the condition options for rooms (e.g., Excellent, Good).' },
+    { key: 'roomUtilities', title: 'Room Utilities', description: 'Manage the available utilities for rooms (e.g., AC, Wi-Fi).' },
+    { key: 'inventoryCategories', title: 'Inventory Categories', description: 'Manage categories for inventory items.' },
+    { key: 'inventoryConditions', title: 'Inventory Conditions', description: 'Manage condition options for inventory items.' },
+    { key: 'complaintCategories', title: 'Complaint Categories', description: 'Manage categories for student complaints.' },
+    { key: 'noticeCategories', title: 'Notice Categories', description: 'Manage categories for public notices.' },
+  ] as const;
+
+  if (error) {
+     return (
+        <div className="text-center py-16">
+            <div className="flex flex-col items-center gap-4">
+            <AlertTriangle className="h-12 w-12 text-destructive" />
+            <h3 className="text-xl font-semibold">Error Loading Settings</h3>
+            <p className="text-muted-foreground">{error}</p>
+            <Button onClick={fetchSettings} variant="outline">
+                <RefreshCw className="mr-2 h-4 w-4" />
+                Try Again
+            </Button>
+            </div>
+        </div>
+    );
+  }
+
   return (
     <div className="space-y-8">
       <div>
@@ -76,36 +197,17 @@ export default function SettingsPage() {
       <Separator />
 
       <div className="grid gap-8 grid-cols-1 xl:grid-cols-2">
-         <SettingsSection 
-            title="Room Conditions" 
-            description="Manage the condition options for rooms (e.g., Excellent, Good)."
-            items={settingsData.roomConditions}
-        />
-        <SettingsSection 
-            title="Room Utilities" 
-            description="Manage the available utilities for rooms (e.g., AC, Wi-Fi)."
-            items={settingsData.roomUtilities}
-        />
-        <SettingsSection 
-            title="Inventory Categories" 
-            description="Manage categories for inventory items."
-            items={settingsData.inventoryCategories}
-        />
-        <SettingsSection 
-            title="Inventory Conditions" 
-            description="Manage condition options for inventory items."
-            items={settingsData.inventoryConditions}
-        />
-         <SettingsSection 
-            title="Complaint Categories" 
-            description="Manage categories for student complaints."
-            items={settingsData.complaintCategories}
-        />
-         <SettingsSection 
-            title="Notice Categories" 
-            description="Manage categories for public notices."
-            items={settingsData.noticeCategories}
-        />
+         {settingSections.map(section => (
+            <SettingsSection 
+                key={section.key}
+                title={section.title} 
+                description={section.description}
+                items={settings ? settings[section.key] : []}
+                categoryKey={section.key}
+                onUpdate={handleUpdateSettings}
+                loading={loading}
+            />
+         ))}
       </div>
     </div>
   );
