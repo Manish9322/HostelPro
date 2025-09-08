@@ -1,7 +1,8 @@
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
-import { Menu, University } from 'lucide-react';
+import { Menu, University, User, Shield } from 'lucide-react';
+import { ThemeToggle } from '@/components/theme-toggle';
 
 const NavLink = ({ href, children }: { href: string; children: React.ReactNode }) => (
   <Link href={href} className="text-sm font-medium text-muted-foreground transition-colors hover:text-primary">
@@ -58,12 +59,19 @@ export default function PublicHeader() {
             {/* Can add search bar here if needed */}
           </div>
           <nav className="flex items-center gap-2">
-             <Button asChild variant="secondary">
-              <Link href="/student/login">Student Login</Link>
+             <Button asChild variant="ghost" size="icon">
+              <Link href="/student/login">
+                <User className="h-5 w-5" />
+                <span className="sr-only">Student Login</span>
+              </Link>
             </Button>
-            <Button asChild>
-              <Link href="/admin/dashboard">Admin Login</Link>
+             <Button asChild variant="ghost" size="icon">
+              <Link href="/admin/dashboard">
+                 <Shield className="h-5 w-5" />
+                 <span className="sr-only">Admin Login</span>
+              </Link>
             </Button>
+            <ThemeToggle />
           </nav>
         </div>
       </div>
