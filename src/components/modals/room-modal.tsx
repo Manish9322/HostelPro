@@ -22,7 +22,8 @@ import {
 } from "@/components/ui/select";
 import { Separator } from "../ui/separator";
 import { Room } from "@/lib/types";
-import { useRef } from "react";
+import { useEffect, useRef, useState } from "react";
+import { Skeleton } from "../ui/skeleton";
 
 interface RoomModalProps {
   isOpen: boolean;
@@ -36,16 +37,37 @@ export function RoomModal({ isOpen, onClose, room, onSubmit }: RoomModalProps) {
   const title = isEditMode ? `Edit Room ${room.roomNumber}` : "Add New Room";
   const description = isEditMode ? "Update the details of the room." : "Enter the details for the new room.";
   const formRef = useRef<HTMLFormElement>(null);
+  
+  const [availableUtilities, setAvailableUtilities] = useState<string[]>([]);
+  const [loadingUtilities, setLoadingUtilities] = useState(true);
+
+  useEffect(() => {
+    if (isOpen) {
+      const fetchSettings = async () => {
+        try {
+          setLoadingUtilities(true);
+          const response = await fetch('/api/settings');
+          const settings = await response.json();
+          setAvailableUtilities(settings.roomUtilities || []);
+        } catch (error) {
+          console.error("Failed to fetch settings", error);
+          // Set fallback utilities in case of an error
+          setAvailableUtilities(["AC", "Wi-Fi", "Attached Bathroom"]);
+        } finally {
+          setLoadingUtilities(false);
+        }
+      };
+      fetchSettings();
+    }
+  }, [isOpen]);
+
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!formRef.current) return;
     const formData = new FormData(formRef.current);
-    const utilities: string[] = [];
-    if(formData.get('util-ac') === 'on') utilities.push('AC');
-    if(formData.get('util-wifi') === 'on') utilities.push('Wi-Fi');
-    if(formData.get('util-bathroom') === 'on') utilities.push('Attached Bathroom');
-
+    const utilities = availableUtilities.filter(util => formData.get(`util-${util}`) === 'on');
+    
     const data = {
         roomNumber: formData.get('roomNumber'),
         capacity: Number(formData.get('capacity')),
@@ -109,18 +131,20 @@ export function RoomModal({ isOpen, onClose, room, onSubmit }: RoomModalProps) {
             <div className="grid grid-cols-4 items-start gap-4">
                 <Label className="text-right pt-2">Utilities</Label>
                 <div className="col-span-3 space-y-2">
-                    <div className="flex items-center space-x-2">
-                        <Checkbox id="util-ac" name="util-ac" defaultChecked={defaultUtilities.includes('AC')} />
-                        <Label htmlFor="util-ac" className="font-normal">Air Conditioning</Label>
-                    </div>
-                     <div className="flex items-center space-x-2">
-                        <Checkbox id="util-wifi" name="util-wifi" defaultChecked={defaultUtilities.includes('Wi-Fi')} />
-                        <Label htmlFor="util-wifi" className="font-normal">Wi-Fi</Label>
-                    </div>
-                     <div className="flex items-center space-x-2">
-                        <Checkbox id="util-bathroom" name="util-bathroom" defaultChecked={defaultUtilities.includes('Attached Bathroom')} />
-                        <Label htmlFor="util-bathroom" className="font-normal">Attached Bathroom</Label>
-                    </div>
+                    {loadingUtilities ? (
+                      <div className="space-y-3">
+                        <Skeleton className="h-5 w-32" />
+                        <Skeleton className="h-5 w-24" />
+                        <Skeleton className="h-5 w-40" />
+                      </div>
+                    ) : (
+                      availableUtilities.map(util => (
+                        <div key={util} className="flex items-center space-x-2">
+                            <Checkbox id={`util-${util}`} name={`util-${util}`} defaultChecked={defaultUtilities.includes(util)} />
+                            <Label htmlFor={`util-${util}`} className="font-normal">{util}</Label>
+                        </div>
+                      ))
+                    )}
                 </div>
             </div>
 
