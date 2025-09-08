@@ -36,7 +36,6 @@ const ACCEPTED_DOCUMENT_TYPES = ["application/pdf", "image/jpeg", "image/jpg", "
 
 const applicationSchema = z.object({
   name: z.string().min(2, "Name must be at least 2 characters."),
-  studentId: z.string().regex(/^STU\d{3,}$/, "Invalid Student ID format (e.g., STU001)."),
   email: z.string().email("Invalid email address."),
   phone: z.string().min(10, "Phone number must be at least 10 digits."),
   dob: z.date({ required_error: "Date of birth is required." }),
@@ -78,7 +77,6 @@ export default function ApplyPage() {
     resolver: zodResolver(applicationSchema),
     defaultValues: {
       name: "",
-      studentId: "",
       email: "",
       phone: "",
       gender: undefined,
@@ -131,7 +129,7 @@ export default function ApplyPage() {
 
       toast({
         title: "Application Submitted!",
-        description: "We have received your application and will review it shortly.",
+        description: `Your unique student ID is ${result.studentId}. We have received your application and will review it shortly.`,
       });
       form.reset();
     } catch (error) {
@@ -214,7 +212,6 @@ export default function ApplyPage() {
                       <div>
                         <h3 className="text-lg font-medium mb-4 text-primary">Personal Information</h3>
                         <div className="space-y-6">
-                          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                             <FormField control={form.control} name="name" render={({ field }) => (
                                 <FormItem>
                                   <FormLabel>Full Name</FormLabel>
@@ -223,15 +220,6 @@ export default function ApplyPage() {
                                 </FormItem>
                               )}
                             />
-                            <FormField control={form.control} name="studentId" render={({ field }) => (
-                                <FormItem>
-                                  <FormLabel>Student ID</FormLabel>
-                                  <FormControl><Input placeholder="STU123" {...field} /></FormControl>
-                                  <FormMessage />
-                                </FormItem>
-                              )}
-                            />
-                          </div>
                           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                             <FormField control={form.control} name="email" render={({ field }) => (
                                 <FormItem>
@@ -438,7 +426,7 @@ export default function ApplyPage() {
                                   <FormControl>
                                     <SelectTrigger>
                                       <SelectValue placeholder="Select your study habits" />
-                                    </SelectTrigger>
+                                    </Trigger>
                                   </FormControl>
                                   <SelectContent>
                                     <SelectItem value="in-room">I study in my room</SelectItem>
@@ -460,7 +448,7 @@ export default function ApplyPage() {
                                   <FormControl>
                                     <SelectTrigger>
                                       <SelectValue placeholder="Select your social habits" />
-                                    </SelectTrigger>
+                                    </Trigger>
                                   </FormControl>
                                   <SelectContent>
                                     <SelectItem value="introvert">I'm more introverted</SelectItem>
@@ -578,5 +566,3 @@ export default function ApplyPage() {
     </div>
   );
 }
-
-    

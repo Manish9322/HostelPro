@@ -74,7 +74,7 @@ export default function StudentsPage() {
     setDeleteModalOpen(true);
   };
 
-  const handleFormSubmit = async (studentData: Omit<Student, 'id' | 'avatar'>) => {
+  const handleFormSubmit = async (studentData: Omit<Student, 'id' | 'avatar' | '_id'>) => {
     const method = selectedStudent ? 'PUT' : 'POST';
     const url = selectedStudent ? `/api/students?id=${selectedStudent._id}` : '/api/students';
 
@@ -140,19 +140,11 @@ export default function StudentsPage() {
   return (
     <>
       <Card>
-        <CardHeader className="flex flex-row items-center justify-between">
-          <div>
-            <CardTitle>Student Management</CardTitle>
-            <CardDescription>
-              A list of all students currently residing in the hostel.
-            </CardDescription>
-          </div>
-           <Button size="sm" className="gap-1" onClick={() => handleOpenModal()}>
-              <PlusCircle className="h-3.5 w-3.5" />
-              <span className="sr-only sm:not-sr-only sm:whitespace-nowrap">
-                New Student
-              </span>
-          </Button>
+        <CardHeader>
+          <CardTitle>Student Management</CardTitle>
+          <CardDescription>
+            A list of all students currently residing in the hostel. New students are added automatically when their application is approved.
+          </CardDescription>
         </CardHeader>
         <CardContent>
           <Table>
@@ -220,8 +212,7 @@ export default function StudentsPage() {
                     <div className="flex flex-col items-center gap-4">
                         <FileWarning className="h-12 w-12 text-muted-foreground" />
                         <h3 className="text-xl font-semibold">No Students Found</h3>
-                        <p className="text-muted-foreground">Add a new student to get started.</p>
-                        <Button onClick={() => handleOpenModal()}>Add New Student</Button>
+                        <p className="text-muted-foreground">Approve an application to add a student.</p>
                     </div>
                   </TableCell>
                 </TableRow>

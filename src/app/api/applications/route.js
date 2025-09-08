@@ -1,8 +1,11 @@
 
 import _db from "@/utils/db";
 import ApplicationModel from "@/models/application.model";
+import StudentModel from "@/models/student.model";
 import { NextResponse } from "next/server";
 import { saveImage } from "@/utils/file-manager";
+import { v4 as uuidv4 } from 'uuid';
+
 
 export async function GET() {
   await _db();
@@ -25,6 +28,10 @@ export async function POST(request) {
       applicationData[key] = value;
     }
   }
+  
+  // Generate a unique student ID
+  applicationData.studentId = `STU-${uuidv4().split('-')[0].toUpperCase()}`;
+
 
   if (Object.keys(roommatePreferences).length > 0) {
     applicationData.roommatePreferences = roommatePreferences;
@@ -71,10 +78,27 @@ export async function PUT(request) {
         if (!updatedApplication) {
             return NextResponse.json({ error: 'Application not found' }, { status: 404 });
         }
+
+        // If the application is approved, create a new student record
+        if (body.status === 'Approved') {
+            const existingStudent = await StudentModel.findOne({ studentId: updatedApplication.studentId });
+            if (!existingStudent) {
+                const newStudent = new StudentModel({
+                    name: updatedApplication.name,
+                    studentId: updatedApplication.studentId,
+                    email: updatedApplication.email,
+                    phone: updatedApplication.phone,
+                    course: updatedApplication.course,
+                    year: updatedApplication.year,
+                    roomNumber: 'Unassigned',
+                    avatar: updatedApplication.profilePhoto
+                });
+                await newStudent.save();
+            }
+        }
+        
         return NextResponse.json(updatedApplication);
     } catch (error) {
         return NextResponse.json({ error: error.message }, { status: 400 });
     }
 }
-
-    

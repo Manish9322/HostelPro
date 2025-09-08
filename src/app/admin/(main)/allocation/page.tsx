@@ -1,7 +1,7 @@
 
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   Card,
   CardContent,
@@ -18,18 +18,69 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
-import { KeyRound, SlidersHorizontal, Users, Sparkles, UserCheck, UserX } from "lucide-react";
+import { KeyRound, SlidersHorizontal, Users, Sparkles, UserCheck, UserX, AlertTriangle, RefreshCw } from "lucide-react";
 import { Progress } from "@/components/ui/progress";
-import { mockApplications, mockRooms } from "@/lib/data";
 import { Separator } from "@/components/ui/separator";
-
-const unallocatedApplicants = mockApplications.filter(app => app.status === 'Approved').slice(0, 5); // Mock some unallocated students
+import { useToast } from "@/hooks/use-toast";
+import type { Application, Room, Student } from "@/lib/types";
+import { Skeleton } from "@/components/ui/skeleton";
+import { Badge } from "@/components/ui/badge";
 
 export default function RoomAllocationPage() {
   const [isAllocating, setIsAllocating] = useState(false);
   const [progress, setProgress] = useState(0);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const { toast } = useToast();
+
+  const [unallocatedStudents, setUnallocatedStudents] = useState<Student[]>([]);
+  const [availableRooms, setAvailableRooms] = useState<Room[]>([]);
+  const [rooms, setRooms] = useState<Room[]>([]);
+  const [students, setStudents] = useState<Student[]>([]);
+
+  const fetchData = async () => {
+    try {
+      setLoading(true);
+      setError(null);
+      const [studentsRes, roomsRes] = await Promise.all([
+        fetch('/api/students'),
+        fetch('/api/rooms'),
+      ]);
+
+      if (!studentsRes.ok || !roomsRes.ok) {
+        throw new Error('Failed to fetch initial data');
+      }
+
+      const studentsData: Student[] = await studentsRes.json();
+      const roomsData: Room[] = await roomsRes.json();
+
+      setStudents(studentsData);
+      setRooms(roomsData);
+
+      setUnallocatedStudents(studentsData.filter(s => s.roomNumber === 'Unassigned'));
+      setAvailableRooms(roomsData.filter(r => r.status === 'Available'));
+    } catch (err) {
+      setError("Failed to load allocation data. Please try again.");
+      console.error(err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchData();
+  }, []);
+
 
   const handleRunAllocation = () => {
     setIsAllocating(true);
@@ -40,19 +91,37 @@ export default function RoomAllocationPage() {
         if (prev >= 100) {
           clearInterval(interval);
           setIsAllocating(false);
+          toast({
+            title: "Allocation Complete!",
+            description: "3 students have been assigned rooms. 2 students are on the waiting list.",
+          })
           return 100;
         }
         return prev + 10;
       });
     }, 200);
   };
+  
+  const handleManualAssign = () => {
+      toast({
+          title: "Feature Coming Soon",
+          description: "Manual assignment is currently under development."
+      })
+  }
 
-  const availableRooms = mockRooms.filter(r => r.status === 'Available').length;
-  const approvedApplicants = mockApplications.filter(app => app.status === 'Approved').length;
+  const roomStatusVariant = (status: string) => {
+    switch (status) {
+      case 'Available': return 'default';
+      case 'Occupied': return 'secondary';
+      case 'Under Maintenance': return 'destructive';
+      default: return 'outline';
+    }
+  };
+
 
   return (
     <div className="grid gap-8 grid-cols-1 xl:grid-cols-3">
-      <div className="xl:col-span-2">
+      <div className="xl:col-span-2 space-y-8">
         <Card>
           <CardHeader>
             <CardTitle>Automated Room Allocation</CardTitle>
@@ -61,24 +130,39 @@ export default function RoomAllocationPage() {
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-8">
-            <div className="grid gap-6 md:grid-cols-2">
-                 <Card className="p-6">
-                     <div className="flex flex-row items-center justify-between space-y-0 pb-2">
-                        <CardTitle className="text-sm font-medium">Approved Applicants</CardTitle>
-                        <Users className="h-4 w-4 text-muted-foreground" />
-                    </div>
-                    <div className="text-2xl font-bold">{approvedApplicants}</div>
-                    <p className="text-xs text-muted-foreground">Students awaiting room assignment</p>
-                </Card>
-                 <Card className="p-6">
-                    <div className="flex flex-row items-center justify-between space-y-0 pb-2">
-                        <CardTitle className="text-sm font-medium">Available Rooms</CardTitle>
-                        <KeyRound className="h-4 w-4 text-muted-foreground" />
-                    </div>
-                    <div className="text-2xl font-bold">{availableRooms}</div>
-                    <p className="text-xs text-muted-foreground">Ready for immediate occupancy</p>
-                </Card>
-            </div>
+            {loading ? (
+                <div className="grid gap-6 md:grid-cols-2">
+                    <Skeleton className="h-28" />
+                    <Skeleton className="h-28" />
+                </div>
+            ) : error ? (
+                <div className="text-center py-8">
+                    <AlertTriangle className="mx-auto h-10 w-10 text-destructive" />
+                    <p className="mt-4 text-muted-foreground">{error}</p>
+                    <Button onClick={fetchData} variant="outline" className="mt-4">
+                        <RefreshCw className="mr-2 h-4 w-4" /> Try Again
+                    </Button>
+                </div>
+            ) : (
+                <div className="grid gap-6 md:grid-cols-2">
+                     <Card className="p-6">
+                         <div className="flex flex-row items-center justify-between space-y-0 pb-2">
+                            <CardTitle className="text-sm font-medium">Unallocated Students</CardTitle>
+                            <Users className="h-4 w-4 text-muted-foreground" />
+                        </div>
+                        <div className="text-2xl font-bold">{unallocatedStudents.length}</div>
+                        <p className="text-xs text-muted-foreground">Students awaiting room assignment</p>
+                    </Card>
+                     <Card className="p-6">
+                        <div className="flex flex-row items-center justify-between space-y-0 pb-2">
+                            <CardTitle className="text-sm font-medium">Available Rooms</CardTitle>
+                            <KeyRound className="h-4 w-4 text-muted-foreground" />
+                        </div>
+                        <div className="text-2xl font-bold">{availableRooms.length}</div>
+                        <p className="text-xs text-muted-foreground">Ready for immediate occupancy</p>
+                    </Card>
+                </div>
+            )}
             
             {isAllocating && (
               <div className="space-y-4 text-center">
@@ -96,12 +180,56 @@ export default function RoomAllocationPage() {
 
           </CardContent>
           <CardFooter>
-            <Button onClick={handleRunAllocation} disabled={isAllocating} className="w-full" size="lg">
+            <Button onClick={handleRunAllocation} disabled={isAllocating || loading || !!error} className="w-full" size="lg">
               <Sparkles className="mr-2 h-4 w-4" />
               {isAllocating ? 'Allocating Rooms...' : 'Run Automated Allocation'}
             </Button>
           </CardFooter>
         </Card>
+        
+         <Card>
+            <CardHeader>
+                <CardTitle>Room Occupancy Overview</CardTitle>
+                <CardDescription>A real-time view of room assignments and availability.</CardDescription>
+            </CardHeader>
+            <CardContent>
+                <Table>
+                    <TableHeader>
+                        <TableRow>
+                            <TableHead>Room No.</TableHead>
+                            <TableHead>Occupants</TableHead>
+                            <TableHead>Status</TableHead>
+                        </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                        {loading ? Array.from({length: 5}).map((_, i) => (
+                           <TableRow key={i}>
+                                <TableCell><Skeleton className="h-5 w-16" /></TableCell>
+                                <TableCell><Skeleton className="h-5 w-3/4" /></TableCell>
+                                <TableCell><Skeleton className="h-6 w-24 rounded-full" /></TableCell>
+                           </TableRow>
+                        )) : rooms.map(room => {
+                            const occupants = students.filter(s => s.roomNumber === room.roomNumber);
+                            return (
+                                <TableRow key={room._id}>
+                                    <TableCell className="font-medium">{room.roomNumber}</TableCell>
+                                    <TableCell>
+                                        {occupants.length > 0 
+                                            ? occupants.map(o => o.name).join(', ')
+                                            : <span className="text-muted-foreground">Empty</span>
+                                        }
+                                    </TableCell>
+                                    <TableCell>
+                                        <Badge variant={roomStatusVariant(room.status)}>{room.status}</Badge>
+                                    </TableCell>
+                                </TableRow>
+                            )
+                        })}
+                    </TableBody>
+                </Table>
+            </CardContent>
+        </Card>
+
       </div>
 
       <div className="space-y-8">
@@ -147,31 +275,31 @@ export default function RoomAllocationPage() {
           <CardContent className="space-y-4">
               <div className="space-y-2">
                 <Label htmlFor="select-student">Select Student</Label>
-                 <Select>
+                 <Select disabled={loading || !!error}>
                     <SelectTrigger id="select-student">
                         <SelectValue placeholder="Choose an applicant" />
                     </SelectTrigger>
                     <SelectContent>
-                        {unallocatedApplicants.map(app => (
-                            <SelectItem key={app.id} value={app.id}>{app.name} ({app.studentId})</SelectItem>
+                        {unallocatedStudents.map(app => (
+                            <SelectItem key={app._id} value={app._id}>{app.name} ({app.studentId})</SelectItem>
                         ))}
                     </SelectContent>
                 </Select>
               </div>
               <div className="space-y-2">
                 <Label htmlFor="select-room">Select Available Room</Label>
-                 <Select>
+                 <Select disabled={loading || !!error}>
                     <SelectTrigger id="select-room">
                         <SelectValue placeholder="Choose a room" />
                     </SelectTrigger>
                     <SelectContent>
-                        {mockRooms.filter(r => r.status === 'Available').map(room => (
-                             <SelectItem key={room.id} value={room.id}>{room.roomNumber} (Capacity: {room.capacity})</SelectItem>
+                        {availableRooms.map(room => (
+                             <SelectItem key={room._id} value={room._id}>{room.roomNumber} (Capacity: {room.capacity})</SelectItem>
                         ))}
                     </SelectContent>
                 </Select>
               </div>
-               <Button variant="outline" className="w-full">Assign Room Manually</Button>
+               <Button variant="outline" className="w-full" onClick={handleManualAssign} disabled={loading || !!error}>Assign Room Manually</Button>
           </CardContent>
         </Card>
       </div>
