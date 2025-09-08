@@ -62,6 +62,10 @@ const applicationSchema = z.object({
       (files) => ACCEPTED_DOCUMENT_TYPES.includes(files?.[0]?.type),
       ".jpg, .jpeg, .png, and .pdf files are accepted."
     ),
+    // Roommate preferences
+    sleepSchedule: z.enum(["early-bird", "night-owl"]).optional(),
+    studyHabits: z.enum(["in-room", "library", "flexible"]).optional(),
+    socialHabits: z.enum(["introvert", "extrovert", "ambivert"]).optional(),
 });
 
 type ApplicationFormValues = z.infer<typeof applicationSchema>;
@@ -121,7 +125,7 @@ export default function ApplyPage() {
                       <div className="relative grid grid-cols-1 md:grid-cols-3 gap-y-12 md:gap-x-8">
                         {/* Step 1 */}
                         <div className="flex flex-col items-center text-center">
-                          <div className="flex items-center justify-center w-16 h-16 rounded-full bg-primary text-primary-foreground border-4 border-secondary/50 mb-4 z-10">
+                          <div className="flex items-center justify-center w-16 h-16 rounded-full bg-primary text-primary-foreground border-4 border-background mb-4 z-10">
                             <FileText className="w-8 h-8" />
                           </div>
                           <h3 className="text-lg font-semibold">1. Fill the Form</h3>
@@ -130,7 +134,7 @@ export default function ApplyPage() {
                         
                         {/* Step 2 */}
                         <div className="flex flex-col items-center text-center">
-                           <div className="flex items-center justify-center w-16 h-16 rounded-full bg-primary text-primary-foreground border-4 border-secondary/50 mb-4 z-10">
+                           <div className="flex items-center justify-center w-16 h-16 rounded-full bg-primary text-primary-foreground border-4 border-background mb-4 z-10">
                              <UploadCloud className="w-8 h-8" />
                           </div>
                           <h3 className="text-lg font-semibold">2. Upload Documents</h3>
@@ -139,7 +143,7 @@ export default function ApplyPage() {
 
                         {/* Step 3 */}
                         <div className="flex flex-col items-center text-center">
-                           <div className="flex items-center justify-center w-16 h-16 rounded-full bg-primary text-primary-foreground border-4 border-secondary/50 mb-4 z-10">
+                           <div className="flex items-center justify-center w-16 h-16 rounded-full bg-primary text-primary-foreground border-4 border-background mb-4 z-10">
                              <MailCheck className="w-8 h-8" />
                           </div>
                           <h3 className="text-lg font-semibold">3. Receive Confirmation</h3>
@@ -354,6 +358,80 @@ export default function ApplyPage() {
                         </div>
                       </div>
 
+                      <Separator />
+
+                      {/* Roommate Preferences */}
+                      <div>
+                        <h3 className="text-lg font-medium mb-4 text-primary">Roommate Preferences (Optional)</h3>
+                        <p className="text-sm text-muted-foreground mb-6">Help us find your ideal roommate by sharing your lifestyle habits.</p>
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                          <FormField
+                            control={form.control}
+                            name="sleepSchedule"
+                            render={({ field }) => (
+                              <FormItem>
+                                <FormLabel>Sleep Schedule</FormLabel>
+                                <Select onValueChange={field.onChange} defaultValue={field.value}>
+                                  <FormControl>
+                                    <SelectTrigger>
+                                      <SelectValue placeholder="Select your sleep schedule" />
+                                    </SelectTrigger>
+                                  </FormControl>
+                                  <SelectContent>
+                                    <SelectItem value="early-bird">Early Bird</SelectItem>
+                                    <SelectItem value="night-owl">Night Owl</SelectItem>
+                                  </SelectContent>
+                                </Select>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+                          <FormField
+                            control={form.control}
+                            name="studyHabits"
+                            render={({ field }) => (
+                              <FormItem>
+                                <FormLabel>Study Habits</FormLabel>
+                                <Select onValueChange={field.onChange} defaultValue={field.value}>
+                                  <FormControl>
+                                    <SelectTrigger>
+                                      <SelectValue placeholder="Select your study habits" />
+                                    </SelectTrigger>
+                                  </FormControl>
+                                  <SelectContent>
+                                    <SelectItem value="in-room">I study in my room</SelectItem>
+                                    <SelectItem value="library">I prefer the library</SelectItem>
+                                    <SelectItem value="flexible">Flexible</SelectItem>
+                                  </SelectContent>
+                                </Select>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+                          <FormField
+                            control={form.control}
+                            name="socialHabits"
+                            render={({ field }) => (
+                              <FormItem>
+                                <FormLabel>Social Habits</FormLabel>
+                                <Select onValueChange={field.onChange} defaultValue={field.value}>
+                                  <FormControl>
+                                    <SelectTrigger>
+                                      <SelectValue placeholder="Select your social habits" />
+                                    </SelectTrigger>
+                                  </FormControl>
+                                  <SelectContent>
+                                    <SelectItem value="introvert">I'm more introverted</SelectItem>
+                                    <SelectItem value="extrovert">I'm more extroverted</SelectItem>
+                                    <SelectItem value="ambivert">I'm a bit of both</SelectItem>
+                                  </SelectContent>
+                                </Select>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+                        </div>
+                      </div>
 
                       <Button type="submit" className="w-full bg-accent hover:bg-accent/90 text-accent-foreground" size="lg">
                         <UploadCloud className="mr-2 h-4 w-4" />
@@ -426,5 +504,3 @@ export default function ApplyPage() {
     </div>
   );
 }
-
-    
