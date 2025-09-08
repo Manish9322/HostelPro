@@ -94,35 +94,38 @@ export default function ApplyPage() {
                         Applying for your new home is simple and straightforward. Our online form makes it easy to secure your spot at HostelPro.
                     </p>
                 </div>
-                <Card className="mt-12 max-w-4xl mx-auto">
-                    <CardHeader>
-                        <CardTitle className="text-center">Application in 3 Easy Steps</CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 text-center">
-                            <div className="flex flex-col items-center gap-2">
-                                <div className="flex items-center justify-center w-16 h-16 rounded-full bg-primary/10 text-primary mb-2">
-                                    <FileText className="w-8 h-8" />
-                                </div>
-                                <h3 className="font-semibold">1. Fill the Form</h3>
-                                <p className="text-sm text-muted-foreground">Provide your personal, academic, and guardian details.</p>
-                            </div>
-                            <div className="flex flex-col items-center gap-2">
-                                <div className="flex items-center justify-center w-16 h-16 rounded-full bg-primary/10 text-primary mb-2">
-                                    <UploadCloud className="w-8 h-8" />
-                                </div>
-                                <h3 className="font-semibold">2. Upload Documents</h3>
-                                <p className="text-sm text-muted-foreground">Attach necessary documents like your student ID and photo.</p>
-                            </div>
-                            <div className="flex flex-col items-center gap-2">
-                                <div className="flex items-center justify-center w-16 h-16 rounded-full bg-primary/10 text-primary mb-2">
-                                    <MailCheck className="w-8 h-8" />
-                                </div>
-                                <h3 className="font-semibold">3. Receive Confirmation</h3>
-                                <p className="text-sm text-muted-foreground">Get a confirmation email once your application is processed.</p>
-                            </div>
+                <Card className="mt-12 max-w-4xl mx-auto bg-card/70">
+                  <CardHeader>
+                    <CardTitle className="text-center">Application in 3 Easy Steps</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="relative">
+                      <div className="absolute hidden md:block w-full h-0.5 bg-border top-1/2 left-0 -translate-y-1/2" aria-hidden="true"></div>
+                      <div className="grid grid-cols-1 md:grid-cols-3 gap-8 text-center relative">
+                        <div className="flex flex-col items-center gap-2 p-4 rounded-lg">
+                          <div className="flex items-center justify-center w-16 h-16 rounded-full bg-primary text-primary-foreground border-4 border-secondary mb-2 z-10">
+                            <span className="text-2xl font-bold">1</span>
+                          </div>
+                          <h3 className="font-semibold">Fill the Form</h3>
+                          <p className="text-sm text-muted-foreground">Provide your personal, academic, and guardian details.</p>
                         </div>
-                    </CardContent>
+                        <div className="flex flex-col items-center gap-2 p-4 rounded-lg">
+                           <div className="flex items-center justify-center w-16 h-16 rounded-full bg-primary text-primary-foreground border-4 border-secondary mb-2 z-10">
+                             <span className="text-2xl font-bold">2</span>
+                          </div>
+                          <h3 className="font-semibold">Upload Documents</h3>
+                          <p className="text-sm text-muted-foreground">Attach necessary documents like your student ID and photo.</p>
+                        </div>
+                        <div className="flex flex-col items-center gap-2 p-4 rounded-lg">
+                           <div className="flex items-center justify-center w-16 h-16 rounded-full bg-primary text-primary-foreground border-4 border-secondary mb-2 z-10">
+                             <span className="text-2xl font-bold">3</span>
+                          </div>
+                          <h3 className="font-semibold">Receive Confirmation</h3>
+                          <p className="text-sm text-muted-foreground">Get a confirmation email once your application is processed.</p>
+                        </div>
+                      </div>
+                    </div>
+                  </CardContent>
                 </Card>
             </div>
         </section>
