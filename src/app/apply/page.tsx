@@ -6,7 +6,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { format } from "date-fns";
-import { CalendarIcon, ShieldCheck, Users, Wifi, Info, Handshake } from "lucide-react";
+import { CalendarIcon, ShieldCheck, Users, Wifi, Info, Handshake, FileText, UploadCloud, MailCheck } from "lucide-react";
 
 import { cn } from "@/lib/utils";
 import PublicHeader from "@/components/public-header";
@@ -83,6 +83,51 @@ export default function ApplyPage() {
   return (
     <div className="flex flex-col min-h-screen bg-muted/40">
       <PublicHeader />
+        {/* Hero Section */}
+        <section className="w-full py-16 bg-secondary/50 border-b">
+            <div className="container mx-auto px-4 md:px-6">
+                <div className="text-center space-y-4">
+                    <h1 className="text-4xl md:text-5xl font-bold tracking-tighter font-headline">
+                        Begin Your Journey With Us
+                    </h1>
+                    <p className="max-w-2xl mx-auto text-lg text-muted-foreground">
+                        Applying for your new home is simple and straightforward. Our online form makes it easy to secure your spot at HostelPro.
+                    </p>
+                </div>
+                <Card className="mt-12 max-w-4xl mx-auto">
+                    <CardHeader>
+                        <CardTitle className="text-center">Application in 3 Easy Steps</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 text-center">
+                            <div className="flex flex-col items-center gap-2">
+                                <div className="flex items-center justify-center w-16 h-16 rounded-full bg-primary/10 text-primary mb-2">
+                                    <FileText className="w-8 h-8" />
+                                </div>
+                                <h3 className="font-semibold">1. Fill the Form</h3>
+                                <p className="text-sm text-muted-foreground">Provide your personal, academic, and guardian details.</p>
+                            </div>
+                            <div className="flex flex-col items-center gap-2">
+                                <div className="flex items-center justify-center w-16 h-16 rounded-full bg-primary/10 text-primary mb-2">
+                                    <UploadCloud className="w-8 h-8" />
+                                </div>
+                                <h3 className="font-semibold">2. Upload Documents</h3>
+                                <p className="text-sm text-muted-foreground">Attach necessary documents like your student ID and photo.</p>
+                            </div>
+                            <div className="flex flex-col items-center gap-2">
+                                <div className="flex items-center justify-center w-16 h-16 rounded-full bg-primary/10 text-primary mb-2">
+                                    <MailCheck className="w-8 h-8" />
+                                </div>
+                                <h3 className="font-semibold">3. Receive Confirmation</h3>
+                                <p className="text-sm text-muted-foreground">Get a confirmation email once your application is processed.</p>
+                            </div>
+                        </div>
+                    </CardContent>
+                </Card>
+            </div>
+        </section>
+
+
       <main className="flex-1 py-12 px-4">
         <div className="container mx-auto max-w-6xl">
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-12">
