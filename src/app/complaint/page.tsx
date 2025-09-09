@@ -130,58 +130,8 @@ export default function ComplaintPage() {
         <main className="flex-1 py-12 px-4">
            <div className="container mx-auto max-w-6xl">
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-12">
-                    <div className="lg:col-span-2">
-                        <Card>
-                            <CardHeader>
-                                <CardTitle className="text-center font-headline text-3xl">Submit a Complaint</CardTitle>
-                                <CardDescription className="text-center">Describe your issue in detail. Our AI will help categorize it for a faster response.</CardDescription>
-                            </CardHeader>
-                            <CardContent>
-                                {isClient && !student ? (
-                                    <Alert>
-                                        <LogIn className="h-4 w-4" />
-                                        <AlertTitle>You are not logged in</AlertTitle>
-                                        <AlertDescription>
-                                            Please <Link href="/student/login" className="font-bold underline">log in</Link> to submit a complaint. This ensures we can track your issue and respond to you directly.
-                                        </AlertDescription>
-                                    </Alert>
-                                ) : (
-                                    <form onSubmit={handleSubmit} className="space-y-6">
-                                        <div>
-                                        <Label htmlFor="complaintSubject" className="text-right">Subject</Label>
-                                        <Input id="complaintSubject" value={subject} onChange={e => setSubject(e.target.value)} placeholder="e.g., Leaky Faucet in Room 201" required />
-                                        </div>
-                                        <div>
-                                        <Label htmlFor="complaintText" className="text-right">Details</Label>
-                                        <Textarea id="complaintText" value={text} onChange={e => setText(e.target.value)} placeholder="Please be as specific as possible." className="min-h-[150px]" required />
-                                        </div>
-
-                                        {analysisResult && (
-                                        <Alert>
-                                            <Sparkles className="h-4 w-4" />
-                                            <AlertTitle>AI Analysis Complete</AlertTitle>
-                                            <AlertDescription className="space-y-2 mt-2">
-                                                <p><strong>Summary:</strong> {analysisResult.summary}</p>
-                                                <div className="flex flex-wrap gap-4">
-                                                    <span><strong>Category:</strong> <Badge>{analysisResult.category}</Badge></span>
-                                                    <span><strong>Urgency:</strong> <Badge variant={urgencyVariant(analysisResult.urgency)}>{analysisResult.urgency}</Badge></span>
-                                                </div>
-                                            </AlertDescription>
-                                        </Alert>
-                                        )}
-                                        {error && <p className="text-sm text-destructive">{error}</p>}
-                                        
-                                        <Button type="submit" className="w-full" size="lg" disabled={isLoading || !subject || !text}>
-                                            {isLoading ? "Submitting..." : "Submit Complaint"}
-                                        </Button>
-                                    </form>
-                                )}
-                            </CardContent>
-                        </Card>
-                    </div>
-
                     <div className="lg:col-span-1">
-                        <div className="sticky top-20 space-y-8">
+                        <div className="space-y-8">
                             <Card>
                                 <CardHeader>
                                     <CardTitle className="flex items-center gap-2">
@@ -215,6 +165,57 @@ export default function ComplaintPage() {
                                     <p className="text-sm font-semibold">warden@hostelpro.com</p>
                                     <p className="text-sm text-muted-foreground">+1 (234) 567-8901</p>
                                     </div>
+                                </CardContent>
+                            </Card>
+                        </div>
+                    </div>
+                    <div className="lg:col-span-2">
+                         <div className="sticky top-20">
+                            <Card>
+                                <CardHeader>
+                                    <CardTitle className="text-center font-headline text-3xl">Submit a Complaint</CardTitle>
+                                    <CardDescription className="text-center">Describe your issue in detail. Our AI will help categorize it for a faster response.</CardDescription>
+                                </CardHeader>
+                                <CardContent>
+                                    {isClient && !student ? (
+                                        <Alert>
+                                            <LogIn className="h-4 w-4" />
+                                            <AlertTitle>You are not logged in</AlertTitle>
+                                            <AlertDescription>
+                                                Please <Link href="/student/login" className="font-bold underline">log in</Link> to submit a complaint. This ensures we can track your issue and respond to you directly.
+                                            </AlertDescription>
+                                        </Alert>
+                                    ) : (
+                                        <form onSubmit={handleSubmit} className="space-y-6">
+                                            <div>
+                                            <Label htmlFor="complaintSubject" className="text-right">Subject</Label>
+                                            <Input id="complaintSubject" value={subject} onChange={e => setSubject(e.target.value)} placeholder="e.g., Leaky Faucet in Room 201" required />
+                                            </div>
+                                            <div>
+                                            <Label htmlFor="complaintText" className="text-right">Details</Label>
+                                            <Textarea id="complaintText" value={text} onChange={e => setText(e.target.value)} placeholder="Please be as specific as possible." className="min-h-[150px]" required />
+                                            </div>
+
+                                            {analysisResult && (
+                                            <Alert>
+                                                <Sparkles className="h-4 w-4" />
+                                                <AlertTitle>AI Analysis Complete</AlertTitle>
+                                                <AlertDescription className="space-y-2 mt-2">
+                                                    <p><strong>Summary:</strong> {analysisResult.summary}</p>
+                                                    <div className="flex flex-wrap gap-4">
+                                                        <span><strong>Category:</strong> <Badge>{analysisResult.category}</Badge></span>
+                                                        <span><strong>Urgency:</strong> <Badge variant={urgencyVariant(analysisResult.urgency)}>{analysisResult.urgency}</Badge></span>
+                                                    </div>
+                                                </AlertDescription>
+                                            </Alert>
+                                            )}
+                                            {error && <p className="text-sm text-destructive">{error}</p>}
+                                            
+                                            <Button type="submit" className="w-full" size="lg" disabled={isLoading || !subject || !text}>
+                                                {isLoading ? "Submitting..." : "Submit Complaint"}
+                                            </Button>
+                                        </form>
+                                    )}
                                 </CardContent>
                             </Card>
                         </div>
