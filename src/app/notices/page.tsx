@@ -1,18 +1,18 @@
 
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import PublicHeader from "@/components/public-header";
 import { Card, CardContent, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
-import { mockNotices } from "@/lib/data";
 import { format } from 'date-fns';
 import type { Notice } from "@/lib/types";
-import { X, Search, Pin, Megaphone, HeartHandshake, ShieldCheck, Users, Wifi } from "lucide-react";
+import { X, Search, Pin, Megaphone, HeartHandshake, ShieldCheck, Users, Wifi, AlertTriangle, RefreshCw } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import PublicFooter from "@/components/public-footer";
+import { Skeleton } from "@/components/ui/skeleton";
 
 // The Modal component for displaying a single notice
 function NoticeModal({ notice, onClose }: { notice: Notice | null, onClose: () => void }) {
@@ -68,16 +68,40 @@ const categoryBadgeVariant = (category: Notice['category']) => {
 
 
 export default function NoticesPage() {
+  const [notices, setNotices] = useState<Notice[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
   const [selectedNotice, setSelectedNotice] = useState<Notice | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
   const [activeCategory, setActiveCategory] = useState<string>("All");
 
   const noticeCategories: Notice['category'][] = ['Maintenance', 'Event', 'General', 'Urgent'];
 
-  const featuredNotice = useMemo(() => mockNotices.find(n => n.featured), []);
-  const otherNotices = useMemo(() => mockNotices
+  const fetchNotices = async () => {
+    setLoading(true);
+    setError(null);
+    try {
+        const response = await fetch('/api/notices');
+        if (!response.ok) throw new Error("Failed to fetch notices.");
+        const data = await response.json();
+        setNotices(data);
+    } catch(err) {
+        setError((err as Error).message);
+    } finally {
+        setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchNotices();
+  }, []);
+
+
+  const featuredNotice = useMemo(() => notices.find(n => n.featured), [notices]);
+  const otherNotices = useMemo(() => notices
     .filter(n => !n.featured)
-    .sort((a, b) => b.publishedAt.getTime() - a.publishedAt.getTime()), []);
+    .sort((a, b) => new Date(b.publishedAt).getTime() - new Date(a.publishedAt).getTime()), [notices]);
 
   const filteredNotices = useMemo(() => {
     return otherNotices.filter(notice => {
@@ -110,7 +134,9 @@ export default function NoticesPage() {
           <div className="container mx-auto max-w-7xl">
             
             {/* Featured Notice */}
-            {featuredNotice && (
+            {loading ? (
+                <Skeleton className="mb-12 h-44 w-full" />
+            ) : featuredNotice && (
               <Card 
                 className="mb-12 bg-card/60 border-primary/20 shadow-lg hover:shadow-primary/20 transition-shadow cursor-pointer"
                 onClick={() => setSelectedNotice(featuredNotice)}
@@ -170,11 +196,25 @@ export default function NoticesPage() {
             </div>
 
             {/* Notices Grid */}
-            {filteredNotices.length > 0 ? (
+            {loading ? (
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                    {Array.from({length:6}).map((_, i) => <Skeleton key={i} className="h-48"/>)}
+                </div>
+            ) : error ? (
+                <Card className="md:col-span-3 text-center text-destructive p-12 bg-card">
+                    <AlertTriangle className="h-12 w-12 mx-auto mb-4" />
+                    <h3 className="text-xl font-semibold">Failed to load notices</h3>
+                    <p>{error}</p>
+                    <Button onClick={fetchNotices} variant="outline" className="mt-4">
+                        <RefreshCw className="mr-2 h-4 w-4"/>
+                        Try Again
+                    </Button>
+                </Card>
+            ) : filteredNotices.length > 0 ? (
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
                     {filteredNotices.map((notice) => (
                     <Card 
-                        key={notice.id} 
+                        key={notice._id} 
                         className="transition-shadow hover:shadow-xl hover:-translate-y-1 cursor-pointer flex flex-col bg-card"
                         onClick={() => setSelectedNotice(notice)}
                         tabIndex={0}
