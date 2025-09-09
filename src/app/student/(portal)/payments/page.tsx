@@ -102,6 +102,12 @@ export default function StudentPaymentsPage() {
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ amount: upcomingPayment.amount, paymentId: upcomingPayment._id })
         });
+
+        if (!res.ok) {
+            toast({ title: "Error", description: "Failed to create payment order.", variant: "destructive" });
+            return;
+        }
+
         const data = await res.json();
         
         const options = {
