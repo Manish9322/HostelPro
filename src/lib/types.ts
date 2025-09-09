@@ -1,5 +1,6 @@
 
 
+
 export type Student = {
   _id: string;
   id: string;
@@ -115,4 +116,18 @@ export type ReportData = {
     title: string;
     headers: string[];
     rows: (string | number)[][];
+};
+
+export type Inquiry = {
+  _id: string;
+  studentId: string;
+  studentName: string;
+  subject: string;
+  text: string;
+  submittedAt: Date;
+  status: 'Pending' | 'Addressed' | 'Dismissed';
+  summary: string;
+  category: 'Question' | 'Request';
+  urgency: 'High' | 'Medium' | 'Low';
+  requestedItem?: string;
 };

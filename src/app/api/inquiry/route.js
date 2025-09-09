@@ -2,6 +2,7 @@
 import { processInquiry } from '@/ai/flows/process-inquiry-flow';
 import { NextResponse } from 'next/server';
 import InventoryItemModel from '@/models/inventory.model';
+import InquiryModel from '@/models/inquiry.model';
 import _db from '@/utils/db';
 
 export async function POST(req) {
@@ -26,17 +27,14 @@ export async function POST(req) {
         availableItems,
     });
     
-    // Here you would typically save the inquiry to a new "Inquiries" collection in your database.
-    // For this demo, we'll just return the AI's analysis.
-    // Example save logic:
-    // const newInquiry = new InquiryModel({
-    //   studentId,
-    //   studentName,
-    //   subject,
-    //   text,
-    //   ...result,
-    // });
-    // await newInquiry.save();
+    const newInquiry = new InquiryModel({
+      studentId,
+      studentName,
+      subject,
+      text,
+      ...result,
+    });
+    await newInquiry.save();
 
     return NextResponse.json({ message: 'Inquiry submitted', analysis: result });
   } catch (error) {
