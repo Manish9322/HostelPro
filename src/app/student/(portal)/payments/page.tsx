@@ -147,6 +147,33 @@ export default function StudentPaymentsPage() {
             theme: {
                 color: "#3399cc",
             },
+            config: {
+              display: {
+                blocks: {
+                  banks: {
+                    name: 'All payment methods',
+                    instruments: [
+                      {
+                          method: 'upi'
+                      },
+                      {
+                          method: 'card'
+                      },
+                      {
+                          method: 'wallet'
+                      },
+                      {
+                          method: 'netbanking'
+                      }
+                    ],
+                  },
+                },
+                sequence: ['block.banks'],
+                preferences: {
+                  show_default_blocks: true,
+                },
+              },
+            },
         };
 
         const paymentObject = new (window as any).Razorpay(options);
