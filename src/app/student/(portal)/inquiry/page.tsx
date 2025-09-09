@@ -8,12 +8,6 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import {
-  Accordion,
-  AccordionContent,
-  AccordionItem,
-  AccordionTrigger,
-} from "@/components/ui/accordion";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -21,7 +15,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
 import { useState, useEffect } from "react";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { Sparkles, HelpCircle, LogIn, Lightbulb, Info } from "lucide-react";
+import { Sparkles, LogIn, Lightbulb, Info } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import type { Student, InventoryItem } from "@/lib/types";
 import Link from "next/link";
@@ -68,7 +62,6 @@ export default function InquiryPage() {
         
         const invRes = await fetch('/api/inventory');
         const inventory: InventoryItem[] = await invRes.json();
-        console.log('All Inventory Items:', inventory);
         const available = inventory
             .filter(item => item.status === 'In Stock' && !['Appliance', 'Safety'].includes(item.category))
             .map(item => item.name);
