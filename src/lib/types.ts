@@ -22,7 +22,10 @@ export type Student = {
 export type Complaint = {
   _id: string;
   id: string;
+  studentId: string;
+  studentName: string;
   submittedAt: Date;
+  complaintSubject: string;
   complaintText: string;
   status: 'Pending' | 'In Progress' | 'Resolved';
   category: 'Maintenance' | 'Noise' | 'Safety' | 'Harassment' | 'Other' | 'Uncategorized';

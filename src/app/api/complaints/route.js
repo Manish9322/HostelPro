@@ -1,10 +1,16 @@
+
 import _db from "@/utils/db";
 import ComplaintModel from "@/models/complaint.model";
 import { NextResponse } from "next/server";
 
-export async function GET() {
+export async function GET(request) {
   await _db();
-  const complaints = await ComplaintModel.find({}).sort({ submittedAt: -1 });
+  const { searchParams } = new URL(request.url);
+  const studentId = searchParams.get('studentId');
+  
+  const query = studentId ? { studentId } : {};
+
+  const complaints = await ComplaintModel.find(query).sort({ submittedAt: -1 });
   return NextResponse.json(complaints);
 }
 

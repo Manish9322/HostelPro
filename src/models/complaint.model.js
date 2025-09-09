@@ -1,9 +1,12 @@
+
 import mongoose from "mongoose";
 
 const complaintSchema = new mongoose.Schema({
+  studentId: { type: String, required: true, trim: true },
+  studentName: { type: String, required: true, trim: true },
   submittedAt: { type: Date, default: Date.now },
-  complaintText: { type: String, required: true },
   complaintSubject: { type: String, required: true },
+  complaintText: { type: String, required: true },
   status: {
     type: String,
     enum: ['Pending', 'In Progress', 'Resolved'],
