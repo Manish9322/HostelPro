@@ -1,3 +1,4 @@
+
 import mongoose from "mongoose";
 
 const noticeSchema = new mongoose.Schema({
@@ -10,7 +11,8 @@ const noticeSchema = new mongoose.Schema({
     enum: ['Maintenance', 'Event', 'General', 'Urgent'],
     default: 'General',
   },
-  featured: { type: Boolean, default: false }
+  featured: { type: Boolean, default: false },
+  order: { type: Number, default: 0 },
 }, { timestamps: true });
 
 const NoticeModel = mongoose.models.Notice || mongoose.model("Notice", noticeSchema);

@@ -1,3 +1,4 @@
+
 "use client"
 
 import Link from 'next/link';
@@ -12,7 +13,7 @@ import {
   SidebarFooter,
   useSidebar,
 } from '@/components/ui/sidebar';
-import { LayoutDashboard, User, MessageSquareWarning, LogOut, University, Bed, UsersRound, PanelLeft, CreditCard, Home } from 'lucide-react';
+import { LayoutDashboard, User, MessageSquareWarning, LogOut, University, Bed, UsersRound, PanelLeft, CreditCard, Home, HelpCircle } from 'lucide-react';
 
 const menuItems = [
   { href: '/student/dashboard', label: 'Dashboard', icon: LayoutDashboard },
@@ -21,6 +22,7 @@ const menuItems = [
   { href: '/student/complaints', label: 'My Complaints', icon: MessageSquareWarning },
   { href: '/student/payments', label: 'Payments', icon: CreditCard },
   { href: '/student/directory', label: 'Resident Directory', icon: UsersRound },
+  { href: '/student/inquiry', label: 'Inquiry / Request', icon: HelpCircle },
 ];
 
 export default function StudentSidebar() {

@@ -39,22 +39,14 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { format } from "date-fns";
-import { mockApplications } from "@/lib/data";
 import PublicFooter from "@/components/public-footer";
-
-// Define a type for the application details we'll show
-type ApplicationDetails = {
-  id: string;
-  name: string;
-  submittedAt: Date;
-  status: "Pending" | "Approved" | "Rejected";
-};
+import { Application } from "@/lib/types";
 
 // Component to render the status result
 function StatusResultCard({
   application,
 }: {
-  application: ApplicationDetails | { status: "Not Found" };
+  application: Application | { status: "Not Found" };
 }) {
   if (!application) return null;
 
@@ -71,7 +63,7 @@ function StatusResultCard({
     );
   }
 
-  const { id, name, submittedAt, status } = application;
+  const { studentId, name, submittedAt, status } = application;
 
   const statusConfig = {
     Approved: {
@@ -121,11 +113,11 @@ function StatusResultCard({
           </div>
           <div className="text-right">
             <p className="text-muted-foreground">Application ID</p>
-            <p className="font-semibold">{id}</p>
+            <p className="font-semibold">{studentId}</p>
           </div>
           <div>
             <p className="text-muted-foreground">Submitted On</p>
-            <p className="font-semibold">{format(submittedAt, "PPP")}</p>
+            <p className="font-semibold">{format(new Date(submittedAt), "PPP")}</p>
           </div>
           <div className="text-right">
             <p className="text-muted-foreground">Status</p>
@@ -248,35 +240,35 @@ function ProcessingTimeline() {
 export default function StatusPage() {
   const [applicationId, setApplicationId] = useState("");
   const [result, setResult] = useState<
-    ApplicationDetails | { status: "Not Found" } | null
+    Application | { status: "Not Found" } | null
   >(null);
   const [loading, setLoading] = useState(false);
 
-  const handleCheckStatus = (e: React.FormEvent) => {
+  const handleCheckStatus = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!applicationId) return;
 
     setLoading(true);
     setResult(null);
 
-    // Mock API call using data from lib/data.ts
-    setTimeout(() => {
-      const foundApp = mockApplications.find(
-        (app) => app.studentId.toLowerCase() === applicationId.toLowerCase()
-      );
+    try {
+        const response = await fetch('/api/applications');
+        if (!response.ok) throw new Error("Failed to fetch applications");
+        const applications: Application[] = await response.json();
+        const foundApp = applications.find(
+            (app) => app.studentId.toLowerCase() === applicationId.toLowerCase()
+        );
 
-      if (foundApp) {
-        setResult({
-          id: foundApp.studentId,
-          name: foundApp.name,
-          submittedAt: foundApp.submittedAt,
-          status: foundApp.status as "Pending" | "Approved" | "Rejected",
-        });
-      } else {
+        if (foundApp) {
+            setResult(foundApp);
+        } else {
+            setResult({ status: "Not Found" });
+        }
+    } catch (error) {
         setResult({ status: "Not Found" });
-      }
-      setLoading(false);
-    }, 1000);
+    } finally {
+        setLoading(false);
+    }
   };
 
   return (
@@ -312,7 +304,7 @@ export default function StatusPage() {
                 <CardContent>
                   <form onSubmit={handleCheckStatus} className="flex gap-2">
                     <Input
-                      placeholder="e.g., APP001"
+                      placeholder="e.g., STU-XXXXX"
                       value={applicationId}
                       onChange={(e) => setApplicationId(e.target.value)}
                       className="text-base h-11"

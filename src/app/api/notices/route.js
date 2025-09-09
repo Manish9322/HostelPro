@@ -5,7 +5,7 @@ import { NextResponse } from "next/server";
 
 export async function GET() {
   await _db();
-  const notices = await NoticeModel.find({}).sort({ featured: -1, publishedAt: -1 });
+  const notices = await NoticeModel.find({}).sort({ order: 1, featured: -1, publishedAt: -1 });
   return NextResponse.json(notices);
 }
 
@@ -17,6 +17,10 @@ export async function POST(request) {
     // Un-feature all other notices
     await NoticeModel.updateMany({ featured: true }, { $set: { featured: false } });
   }
+
+  // Assign order
+  const count = await NoticeModel.countDocuments();
+  body.order = count;
 
   const newNotice = new NoticeModel(body);
   const savedNotice = await newNotice.save();

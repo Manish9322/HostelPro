@@ -26,7 +26,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
-import { MoreHorizontal, PlusCircle, AlertTriangle, FileWarning, RefreshCw } from "lucide-react";
+import { MoreHorizontal, PlusCircle, AlertTriangle, FileWarning, RefreshCw, ArrowUp, ArrowDown } from "lucide-react";
 import { format } from 'date-fns';
 import { NoticeModal } from "@/components/modals/notice-modal";
 import { DeleteConfirmationDialog } from "@/components/modals/delete-confirmation-modal";
@@ -121,6 +121,33 @@ export default function NoticesAdminPage() {
         toast({ title: "Error", description: "Failed to delete notice.", variant: "destructive" });
     }
   };
+  
+  const handleMove = async (index: number, direction: 'up' | 'down') => {
+    const newNotices = [...notices];
+    const item = newNotices[index];
+    const swapIndex = direction === 'up' ? index - 1 : index + 1;
+    
+    if (swapIndex < 0 || swapIndex >= newNotices.length) return;
+
+    newNotices.splice(index, 1);
+    newNotices.splice(swapIndex, 0, item);
+    
+    const originalNotices = [...notices];
+    setNotices(newNotices); // Optimistic update
+
+    try {
+        const response = await fetch('/api/notices/reorder', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ orderedIds: newNotices.map(n => n._id) }),
+        });
+        if (!response.ok) throw new Error('Failed to reorder notices');
+        toast({ title: "Success", description: "Notice order updated." });
+    } catch (error) {
+        setNotices(originalNotices); // Revert on failure
+        toast({ title: "Error", description: "Failed to reorder notices.", variant: "destructive" });
+    }
+  };
 
 
   return (
@@ -144,6 +171,7 @@ export default function NoticesAdminPage() {
           <Table>
             <TableHeader>
               <TableRow>
+                <TableHead className="w-[80px]">Order</TableHead>
                 <TableHead>Title</TableHead>
                 <TableHead>Author</TableHead>
                 <TableHead>Published Date</TableHead>
@@ -154,6 +182,7 @@ export default function NoticesAdminPage() {
               {loading ? (
                   Array.from({ length: ITEMS_PER_PAGE }).map((_, i) => (
                       <TableRow key={i}>
+                          <TableCell><Skeleton className="h-8 w-16" /></TableCell>
                           <TableCell><Skeleton className="h-4 w-48" /></TableCell>
                           <TableCell><Skeleton className="h-4 w-24" /></TableCell>
                           <TableCell><Skeleton className="h-4 w-24" /></TableCell>
@@ -162,7 +191,7 @@ export default function NoticesAdminPage() {
                   ))
               ) : error ? (
                     <TableRow>
-                        <TableCell colSpan={4} className="text-center py-16">
+                        <TableCell colSpan={5} className="text-center py-16">
                         <div className="flex flex-col items-center gap-4">
                             <AlertTriangle className="h-12 w-12 text-destructive" />
                             <h3 className="text-xl font-semibold">Error Loading Notices</h3>
@@ -175,8 +204,20 @@ export default function NoticesAdminPage() {
                         </TableCell>
                     </TableRow>
               ) : currentNotices.length > 0 ? (
-                currentNotices.map((notice) => (
+                currentNotices.map((notice, index) => {
+                  const globalIndex = startIndex + index;
+                  return (
                   <TableRow key={notice._id}>
+                    <TableCell>
+                      <div className="flex gap-1">
+                        <Button variant="ghost" size="icon" onClick={() => handleMove(globalIndex, 'up')} disabled={globalIndex === 0}>
+                           <ArrowUp className="h-4 w-4" />
+                        </Button>
+                         <Button variant="ghost" size="icon" onClick={() => handleMove(globalIndex, 'down')} disabled={globalIndex === notices.length - 1}>
+                           <ArrowDown className="h-4 w-4" />
+                        </Button>
+                      </div>
+                    </TableCell>
                     <TableCell className="font-medium">{notice.title}</TableCell>
                     <TableCell>{notice.author}</TableCell>
                     <TableCell>{format(new Date(notice.publishedAt), 'PPP')}</TableCell>
@@ -196,10 +237,11 @@ export default function NoticesAdminPage() {
                       </DropdownMenu>
                     </TableCell>
                   </TableRow>
-                ))
+                  )
+                })
               ) : (
                 <TableRow>
-                    <TableCell colSpan={4} className="text-center py-16">
+                    <TableCell colSpan={5} className="text-center py-16">
                         <div className="flex flex-col items-center gap-4">
                             <FileWarning className="h-12 w-12 text-muted-foreground" />
                             <h3 className="text-xl font-semibold">No Notices Found</h3>

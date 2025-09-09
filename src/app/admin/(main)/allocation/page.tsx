@@ -51,6 +51,11 @@ export default function RoomAllocationPage() {
   const [selectedStudentId, setSelectedStudentId] = useState("");
   const [selectedRoomId, setSelectedRoomId] = useState("");
   const [allocationResult, setAllocationResult] = useState<{allocated: number, waiting: number} | null>(null);
+  
+  const [allocationPriority, setAllocationPriority] = useState('application-date');
+  const [matchGender, setMatchGender] = useState(true);
+  const [matchPreferences, setMatchPreferences] = useState(false);
+
 
   const fetchData = async () => {
     try {
@@ -99,14 +104,19 @@ export default function RoomAllocationPage() {
     }, 200);
 
     try {
-        const response = await fetch('/api/rooms', {
+        const response = await fetch('/api/rooms/allocate', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ action: 'run-allocation' }),
+            body: JSON.stringify({ 
+              priority: allocationPriority,
+              matchGender,
+              matchPreferences,
+             }),
         });
 
         if (!response.ok) {
-            throw new Error('Allocation process failed.');
+            const errorData = await response.json();
+            throw new Error(errorData.error || 'Allocation process failed.');
         }
         
         const result = await response.json();
@@ -303,28 +313,26 @@ export default function RoomAllocationPage() {
           <CardContent className="space-y-6">
              <div className="space-y-2">
                 <Label htmlFor="allocation-priority">Prioritize Based On</Label>
-                <Select defaultValue="application-date" disabled>
+                <Select value={allocationPriority} onValueChange={setAllocationPriority}>
                     <SelectTrigger id="allocation-priority">
                         <SelectValue placeholder="Select priority" />
                     </SelectTrigger>
                     <SelectContent>
                         <SelectItem value="application-date">Application Date</SelectItem>
                         <SelectItem value="year-of-study">Year of Study</SelectItem>
-                        <SelectItem value="random">Random</SelectItem>
                     </SelectContent>
                 </Select>
              </div>
              <div className="space-y-2">
                 <Label>Matching Logic</Label>
                 <div className="flex items-center space-x-2">
-                    <Checkbox id="match-gender" defaultChecked disabled/>
+                    <Checkbox id="match-gender" checked={matchGender} onCheckedChange={(checked) => setMatchGender(Boolean(checked))} />
                     <Label htmlFor="match-gender" className="font-normal">Match gender</Label>
                 </div>
                 <div className="flex items-center space-x-2">
-                    <Checkbox id="match-preferences" disabled/>
+                    <Checkbox id="match-preferences" checked={matchPreferences} onCheckedChange={(checked) => setMatchPreferences(Boolean(checked))} />
                     <Label htmlFor="match-preferences" className="font-normal">Consider roommate preferences</Label>
                 </div>
-                <p className="text-xs text-muted-foreground mt-2">Advanced criteria coming soon.</p>
              </div>
           </CardContent>
         </Card>

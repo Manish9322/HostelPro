@@ -99,6 +99,23 @@ export function ViewApplicationModal({ isOpen, onClose, application, onUpdateSta
             </>
           )}
 
+          <Separator />
+
+          <div>
+             <h4 className="font-semibold mb-2 text-primary">Uploaded Documents</h4>
+             <div className="flex gap-4">
+                {application.profilePhoto && (
+                  <Button variant="outline" asChild>
+                    <a href={application.profilePhoto} target="_blank" rel="noopener noreferrer">View Profile Photo</a>
+                  </Button>
+                )}
+                 {application.studentIdCard && (
+                  <Button variant="outline" asChild>
+                    <a href={application.studentIdCard} target="_blank" rel="noopener noreferrer">View ID Card</a>
+                  </Button>
+                )}
+             </div>
+          </div>
         </div>
 
         <DialogFooter className="sm:justify-between pt-4 border-t">
