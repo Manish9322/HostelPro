@@ -75,10 +75,10 @@ export function FeedbackModal({ isOpen, onClose }: FeedbackModalProps) {
         <form onSubmit={handleSubmit}>
           <div className="grid gap-4 py-4">
               <div className="grid sm:grid-cols-2 gap-4">
-                  <Input name="name" placeholder="Your Name" required />
-                  <Input name="email" type="email" placeholder="Your Email" required />
+                  <Input name="name" placeholder="Your Name" required maxLength={50} />
+                  <Input name="email" type="email" placeholder="Your Email" required maxLength={50}/>
               </div>
-              <Textarea name="message" placeholder="Your feedback..." required className="min-h-[120px]" />
+              <Textarea name="message" placeholder="Your feedback..." required className="min-h-[120px]" maxLength={500}/>
               <div className='flex items-center gap-2'>
                 <Label>Rating:</Label>
                 <div className="flex items-center">
