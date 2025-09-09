@@ -15,11 +15,10 @@ import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
 import { useState, useEffect } from "react";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { LogIn, Lightbulb, PackageSearch } from "lucide-react";
+import { LogIn, Lightbulb, PackageSearch, HelpCircle } from "lucide-react";
 import type { Student, InventoryItem } from "@/lib/types";
 import Link from "next/link";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Separator } from "@/components/ui/separator";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { Skeleton } from "@/components/ui/skeleton";
 
@@ -141,113 +140,133 @@ export default function InquiryPage() {
 
 
   return (
-    <div className="space-y-8">
-        <Card>
-            <CardHeader>
-                <CardTitle className="font-headline text-3xl">Inquiry & Request Form</CardTitle>
-                <CardDescription>Ask a general question, request an available item, or submit a request to change rooms.</CardDescription>
-            </CardHeader>
-            <CardContent>
-                {isClient && !student ? (
-                    <Alert>
-                        <LogIn className="h-4 w-4" />
-                        <AlertTitle>You are not logged in</AlertTitle>
-                        <AlertDescription>
-                            Please <Link href="/student/login" className="font-bold underline">log in</Link> to use this form.
-                        </AlertDescription>
-                    </Alert>
-                ) : (
-                    <form onSubmit={handleSubmit} className="space-y-6">
-                        
-                        <div>
-                            <Label htmlFor="inquiryType">Inquiry Type</Label>
-                            <Select value={inquiryType} onValueChange={(value) => setInquiryType(value as any)} required>
-                                <SelectTrigger id="inquiryType"><SelectValue placeholder="Select the type of your inquiry..." /></SelectTrigger>
-                                <SelectContent>
-                                    <SelectItem value="Question">General Question</SelectItem>
-                                    <SelectItem value="Item Request">Item Request</SelectItem>
-                                    <SelectItem value="Room Change Request">Room Change Request</SelectItem>
-                                </SelectContent>
-                            </Select>
-                        </div>
-                        
-                        {inquiryType && (
-                            <>
-                                {inquiryType === 'Item Request' && (
-                                    <div>
-                                        <Label htmlFor="itemRequest">Available Item</Label>
-                                        {loadingInventory ? (
-                                            <Skeleton className="h-10 w-full" />
-                                        ) : (
-                                            <Select value={selectedItem} onValueChange={setSelectedItem} required>
-                                                <SelectTrigger id="itemRequest">
-                                                    <SelectValue placeholder="Select an item to request..." />
-                                                </SelectTrigger>
-                                                <SelectContent>
-                                                    {availableItems.length > 0 ? (
-                                                        availableItems.map(item => (
-                                                            <SelectItem key={item._id} value={item.name}>
-                                                                {item.name} ({item.category})
-                                                            </SelectItem>
-                                                        ))
-                                                    ) : (
-                                                        <div className="p-4 text-center text-sm text-muted-foreground">
-                                                            No items are currently in stock.
-                                                        </div>
-                                                    )}
-                                                </SelectContent>
-                                            </Select>
-                                        )}
-                                    </div>
-                                )}
-                                <div>
-                                    <Label htmlFor="subject">Subject</Label>
-                                    <Input id="subject" value={subject} onChange={e => setSubject(e.target.value)} placeholder="Enter a brief subject line" required />
-                                </div>
-                                <div>
-                                    <Label htmlFor="text">{inquiryType === 'Room Change Request' ? 'Reason for Change' : (inquiryType === 'Item Request' ? 'Additional Details (Optional)' : 'Details')}</Label>
-                                    <Textarea id="text" value={text} onChange={e => setText(e.target.value)} placeholder={getPlaceholderText()} className="min-h-[150px]" required={inquiryType !== 'Item Request'} />
-                                </div>
-                            </>
-                        )}
-                        
-                        {error && <p className="text-sm text-destructive">{error}</p>}
-                        
-                        <Button type="submit" className="w-full" size="lg" disabled={isLoading || !inquiryType || !subject || (inquiryType !== 'Item Request' && !text)}>
-                            {isLoading ? "Submitting..." : "Submit Inquiry"}
-                        </Button>
-                    </form>
-                )}
-            </CardContent>
-        </Card>
-        
-        <Separator/>
+    <div className="grid grid-cols-1 lg:grid-cols-3 gap-12">
+        <div className="lg:col-span-1">
+            <div className="sticky top-20 space-y-6">
+                <Card>
+                    <CardHeader>
+                        <CardTitle className="flex items-center gap-2">
+                            <Lightbulb className="w-5 h-5 text-primary"/>
+                            Tips for Inquiries
+                        </CardTitle>
+                        <CardDescription>
+                           Follow these tips for a faster response.
+                        </CardDescription>
+                    </CardHeader>
+                    <CardContent className="text-sm text-muted-foreground space-y-4">
+                        <p><strong>Be Specific:</strong> Provide a clear and concise subject line that summarizes your inquiry.</p>
+                        <p><strong>Select the Right Category:</strong> Choose the inquiry type that best matches your request to ensure it's routed to the correct department.</p>
+                        <p><strong>Provide Details:</strong> In the details section, include all relevant information, such as dates, times, or specific names if applicable.</p>
+                        <p><strong>Urgent Issues:</strong> For urgent matters like safety concerns, please use the <Link href="/student/complaints" className="font-bold underline text-primary">Complaints Page</Link> instead.</p>
+                    </CardContent>
+                </Card>
+                <Card>
+                    <CardHeader>
+                        <CardTitle className="flex items-center gap-2">
+                            <HelpCircle className="w-5 h-5 text-primary"/>
+                            FAQs
+                        </CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                        <Accordion type="single" collapsible className="w-full">
+                            <AccordionItem value="item-1">
+                            <AccordionTrigger>What kind of questions can I ask?</AccordionTrigger>
+                            <AccordionContent>
+                                This form is for general, non-urgent questions about hostel life, such as gym hours, guest policies, or clarifying a notice.
+                            </AccordionContent>
+                            </AccordionItem>
+                            <AccordionItem value="item-2">
+                            <AccordionTrigger>How do item requests work?</AccordionTrigger>
+                            <AccordionContent>
+                                You can request items that are currently in stock. Requests are processed based on need and availability.
+                            </AccordionContent>
+                            </AccordionItem>
+                        </Accordion>
+                    </CardContent>
+                </Card>
+            </div>
+        </div>
 
-        <div>
-            <h3 className="text-2xl font-semibold mb-4 text-center">Frequently Asked Questions</h3>
-            <Accordion type="single" collapsible className="w-full max-w-3xl mx-auto">
-                <AccordionItem value="item-1">
-                <AccordionTrigger>What kind of questions can I ask here?</AccordionTrigger>
-                <AccordionContent>
-                    This form is for general, non-urgent questions about hostel life. Examples include asking about gym hours, upcoming events, guest policies, or clarifying a notice.
-                </AccordionContent>
-                </AccordionItem>
-                <AccordionItem value="item-2">
-                <AccordionTrigger>How do I request an item?</AccordionTrigger>
-                <AccordionContent>
-                    You can request items available in the dropdown list, which are currently in stock. Please note that availability is not guaranteed and requests are processed based on need and order.
-                </AccordionContent>
-                </AccordionItem>
-                <AccordionItem value="item-3">
-                <AccordionTrigger>What should I do for an urgent issue?</AccordionTrigger>
-                <AccordionContent>
-                    For urgent problems like a power outage, water leak, or any safety concern, please do not use this form. Instead, use the dedicated <Button asChild variant="link" className="p-0 h-auto font-semibold"><Link href="/student/complaints">Complaints Page</Link></Button> which is monitored for high-priority issues.
-                </AccordionContent>
-                </AccordionItem>
-            </Accordion>
+        <div className="lg:col-span-2">
+             <Card>
+                <CardHeader>
+                    <CardTitle className="font-headline text-3xl">Inquiry & Request Form</CardTitle>
+                    <CardDescription>Ask a general question, request an available item, or submit a request to change rooms.</CardDescription>
+                </CardHeader>
+                <CardContent>
+                    {isClient && !student ? (
+                        <Alert>
+                            <LogIn className="h-4 w-4" />
+                            <AlertTitle>You are not logged in</AlertTitle>
+                            <AlertDescription>
+                                Please <Link href="/student/login" className="font-bold underline">log in</Link> to use this form.
+                            </AlertDescription>
+                        </Alert>
+                    ) : (
+                        <form onSubmit={handleSubmit} className="space-y-6">
+                            
+                            <div>
+                                <Label htmlFor="inquiryType">1. What is this about?</Label>
+                                <Select value={inquiryType} onValueChange={(value) => setInquiryType(value as any)} required>
+                                    <SelectTrigger id="inquiryType"><SelectValue placeholder="Select the type of your inquiry..." /></SelectTrigger>
+                                    <SelectContent>
+                                        <SelectItem value="Question">General Question</SelectItem>
+                                        <SelectItem value="Item Request">Item Request</SelectItem>
+                                        <SelectItem value="Room Change Request">Room Change Request</SelectItem>
+                                    </SelectContent>
+                                </Select>
+                            </div>
+                            
+                            {inquiryType && (
+                                <>
+                                    {inquiryType === 'Item Request' && (
+                                        <div>
+                                            <Label htmlFor="itemRequest">2. Which item do you need?</Label>
+                                            {loadingInventory ? (
+                                                <Skeleton className="h-10 w-full" />
+                                            ) : (
+                                                <Select value={selectedItem} onValueChange={setSelectedItem} required>
+                                                    <SelectTrigger id="itemRequest">
+                                                        <SelectValue placeholder="Select an item to request..." />
+                                                    </SelectTrigger>
+                                                    <SelectContent>
+                                                        {availableItems.length > 0 ? (
+                                                            availableItems.map(item => (
+                                                                <SelectItem key={item._id} value={item.name}>
+                                                                    {item.name} ({item.category})
+                                                                </SelectItem>
+                                                            ))
+                                                        ) : (
+                                                            <div className="p-4 text-center text-sm text-muted-foreground">
+                                                                No items are currently in stock.
+                                                            </div>
+                                                        )}
+                                                    </SelectContent>
+                                                </Select>
+                                            )}
+                                        </div>
+                                    )}
+                                    <div>
+                                        <Label htmlFor="subject">{inquiryType === 'Item Request' ? '3. Subject Line' : '2. Subject Line'}</Label>
+                                        <Input id="subject" value={subject} onChange={e => setSubject(e.target.value)} placeholder="Enter a brief subject line" required />
+                                    </div>
+                                    <div>
+                                        <Label htmlFor="text">{inquiryType === 'Item Request' ? '4. Details' : '3. Details'}</Label>
+                                        <Textarea id="text" value={text} onChange={e => setText(e.target.value)} placeholder={getPlaceholderText()} className="min-h-[150px]" required={inquiryType !== 'Item Request'} />
+                                    </div>
+                                </>
+                            )}
+                            
+                            {error && <p className="text-sm text-destructive">{error}</p>}
+                            
+                            <Button type="submit" className="w-full" size="lg" disabled={isLoading || !inquiryType || !subject || (inquiryType !== 'Item Request' && !text)}>
+                                {isLoading ? "Submitting..." : "Submit Inquiry"}
+                            </Button>
+                        </form>
+                    )}
+                </CardContent>
+            </Card>
         </div>
     </div>
   );
 }
-
-    
