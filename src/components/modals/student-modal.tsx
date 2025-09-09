@@ -13,7 +13,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Student } from "@/lib/types";
-import { FormEvent } from "react";
+import { FormEvent, useEffect } from "react";
 import {
   Select,
   SelectContent,
@@ -35,6 +35,14 @@ export function StudentModal({ isOpen, onClose, student, onSubmit }: StudentModa
   const isEditMode = !!student;
   const title = isEditMode ? "Edit Student Details" : "Add New Student";
   const description = isEditMode ? "Update the details of the student." : "Enter the details for the new student.";
+
+  useEffect(() => {
+    if (isOpen && student) {
+      console.log("Student data passed to modal:", student);
+      console.log("Password value:", student.password);
+    }
+  }, [isOpen, student]);
+
 
   const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
