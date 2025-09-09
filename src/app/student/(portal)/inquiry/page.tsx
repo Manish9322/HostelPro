@@ -254,14 +254,13 @@ export default function InquiryPage() {
                                         <Label htmlFor="text">{inquiryType === 'Item Request' ? '4. Details' : '3. Details'}</Label>
                                         <Textarea id="text" value={text} onChange={e => setText(e.target.value)} placeholder={getPlaceholderText()} className="min-h-[150px]" required={inquiryType !== 'Item Request'} />
                                     </div>
+                                     {error && <p className="text-sm text-destructive">{error}</p>}
+                            
+                                    <Button type="submit" className="w-full" size="lg" disabled={isLoading || !inquiryType || !subject || (inquiryType !== 'Item Request' && !text)}>
+                                        {isLoading ? "Submitting..." : "Submit Inquiry"}
+                                    </Button>
                                 </>
                             )}
-                            
-                            {error && <p className="text-sm text-destructive">{error}</p>}
-                            
-                            <Button type="submit" className="w-full" size="lg" disabled={isLoading || !inquiryType || !subject || (inquiryType !== 'Item Request' && !text)}>
-                                {isLoading ? "Submitting..." : "Submit Inquiry"}
-                            </Button>
                         </form>
                     )}
                 </CardContent>
