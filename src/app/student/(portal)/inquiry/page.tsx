@@ -68,6 +68,7 @@ export default function InquiryPage() {
         
         const invRes = await fetch('/api/inventory');
         const inventory: InventoryItem[] = await invRes.json();
+        console.log('All Inventory Items:', inventory);
         const available = inventory
             .filter(item => item.status === 'In Stock' && !['Appliance', 'Safety'].includes(item.category))
             .map(item => item.name);
