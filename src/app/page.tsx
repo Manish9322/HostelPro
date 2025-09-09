@@ -5,7 +5,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { BedDouble, Users, ShieldCheck, Wifi, Dumbbell, UtensilsCrossed, BookOpen, Tv, Star, University, FileCheck2, Building, Handshake, Smile, Shield, Trophy, PartyPopper, Lightbulb, Images, HeartHandshake, HelpCircle, MapPin, Sparkles, RefreshCw, AlertTriangle } from 'lucide-react';
+import { BedDouble, Users, ShieldCheck, Wifi, Dumbbell, UtensilsCrossed, BookOpen, Tv, Star, University, FileCheck2, Building, Handshake, Smile, Shield, Trophy, PartyPopper, Lightbulb, Images, HeartHandshake, HelpCircle, MapPin, Sparkles, RefreshCw, AlertTriangle, MessageSquarePlus } from 'lucide-react';
 import PublicHeader from '@/components/public-header';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import {
@@ -20,6 +20,7 @@ import { useEffect, useState } from 'react';
 import { Faq, GalleryImage, Feedback } from '@/lib/types';
 import { Skeleton } from '@/components/ui/skeleton';
 import { GalleryImageModal } from '@/components/modals/gallery-image-modal';
+import { FeedbackModal } from '@/components/modals/feedback-modal';
 
 const SectionTag = ({ icon: Icon, children }: { icon: React.ElementType, children: React.ReactNode }) => (
   <div className="flex items-center justify-center gap-2 mb-8">
@@ -41,6 +42,8 @@ export default function Home() {
     const [error, setError] = useState<string | null>(null);
 
     const [selectedImage, setSelectedImage] = useState<GalleryImage | null>(null);
+    const [isFeedbackModalOpen, setFeedbackModalOpen] = useState(false);
+
 
     useEffect(() => {
         const fetchData = async () => {
@@ -383,6 +386,20 @@ export default function Home() {
           </div>
         </section>
 
+        {/* New Feedback Section */}
+        <section id="feedback" className="w-full py-12 md:py-16 lg:py-20">
+          <div className="container mx-auto px-4 md:px-6">
+            <SectionTag icon={MessageSquarePlus}>Share Your Feedback</SectionTag>
+            <div className="max-w-3xl mx-auto text-center">
+               <h2 className="text-3xl md:text-4xl font-bold font-headline">Help Us Improve</h2>
+               <p className="mt-4 text-lg text-muted-foreground">Your feedback is invaluable to us. Whether you have a suggestion, a compliment, or a concern, we want to hear it. Sharing your experience helps us make HostelPro a better place for everyone.</p>
+               <Button size="lg" className="mt-8 transform hover:scale-105 transition-transform" onClick={() => setFeedbackModalOpen(true)}>
+                 Leave Feedback
+               </Button>
+            </div>
+          </div>
+        </section>
+
         {/* Final CTA */}
         <section className="w-full py-12 md:py-16 lg:py-20 bg-primary text-primary-foreground">
           <div className="container mx-auto grid items-center justify-center gap-4 px-4 text-center md:px-6">
@@ -410,6 +427,10 @@ export default function Home() {
         isOpen={!!selectedImage}
         onClose={() => setSelectedImage(null)}
         image={selectedImage}
+    />
+    <FeedbackModal 
+        isOpen={isFeedbackModalOpen}
+        onClose={() => setFeedbackModalOpen(false)}
     />
     </>
   );
