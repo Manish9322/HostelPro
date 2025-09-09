@@ -39,7 +39,6 @@ export function StudentModal({ isOpen, onClose, student, onSubmit }: StudentModa
   useEffect(() => {
     if (isOpen && student) {
       console.log("Student data passed to modal:", student);
-      console.log("Password value:", student.password);
     }
   }, [isOpen, student]);
 
