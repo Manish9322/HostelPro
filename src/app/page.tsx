@@ -110,52 +110,6 @@ export default function Home() {
                             <Link href="#features">Explore Features</Link>
                         </Button>
                     </div>
-                    <div className="w-full max-w-5xl pt-12">
-                      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-                        <div className="relative group overflow-hidden rounded-xl">
-                           <Image src="https://picsum.photos/400/500" data-ai-hint="hostel room" alt="A clean and modern hostel room" width={400} height={500} className="object-cover w-full h-full transition-transform duration-500 group-hover:scale-110" />
-                           <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent"/>
-                           <div className="absolute bottom-4 left-4 text-white">
-                              <h3 className="font-bold text-lg">Comfortable Rooms</h3>
-                              <p className="text-sm">Secure and well-furnished.</p>
-                           </div>
-                        </div>
-                         <div className="relative group overflow-hidden rounded-xl">
-                           <Image src="https://picsum.photos/400/500" data-ai-hint="hostel exterior" alt="The modern exterior of the hostel building" width={400} height={500} className="object-cover w-full h-full transition-transform duration-500 group-hover:scale-110" />
-                            <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent"/>
-                           <div className="absolute bottom-4 left-4 text-white">
-                              <h3 className="font-bold text-lg">Prime Location</h3>
-                              <p className="text-sm">Close to campus and city.</p>
-                           </div>
-                        </div>
-                         <div className="relative group overflow-hidden rounded-xl">
-                           <Image src="https://picsum.photos/400/500" data-ai-hint="common area" alt="A vibrant common area with students" width={400} height={500} className="object-cover w-full h-full transition-transform duration-500 group-hover:scale-110" />
-                            <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent"/>
-                           <div className="absolute bottom-4 left-4 text-white">
-                              <h3 className="font-bold text-lg">Vibrant Community</h3>
-                              <p className="text-sm">Connect and collaborate.</p>
-                           </div>
-                        </div>
-                        <div className="space-y-4">
-                           <div className="relative group overflow-hidden rounded-xl">
-                              <Image src="https://picsum.photos/400/242" data-ai-hint="study lounge" alt="A quiet study lounge for students" width={400} height={242} className="object-cover w-full h-full transition-transform duration-500 group-hover:scale-110" />
-                               <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent"/>
-                              <div className="absolute bottom-4 left-4 text-white">
-                                 <h3 className="font-bold text-lg">Modern Amenities</h3>
-                                 <p className="text-sm">Wi-Fi, gym, and more.</p>
-                              </div>
-                           </div>
-                           <div className="relative group overflow-hidden rounded-xl">
-                             <Image src="https://picsum.photos/400/242" data-ai-hint="security camera" alt="A security camera ensuring safety" width={400} height={242} className="object-cover w-full h-full transition-transform duration-500 group-hover:scale-110" />
-                              <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent"/>
-                              <div className="absolute bottom-4 left-4 text-white">
-                                 <h3 className="font-bold text-lg">24/7 Security</h3>
-                                 <p className="text-sm">Your safety is our priority.</p>
-                              </div>
-                           </div>
-                        </div>
-                      </div>
-                    </div>
                 </div>
             </div>
         </section>
@@ -216,17 +170,15 @@ export default function Home() {
             </div>
              {loadingGallery ? (
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                    {Array.from({length: 4}).map((_, i) => <Skeleton key={i} className="h-[400px] rounded-lg" />)}
+                    {Array.from({length: 8}).map((_, i) => <Skeleton key={i} className="h-64 rounded-lg" />)}
                 </div>
             ) : error ? (
                 <p className="text-destructive text-center">Could not load gallery images.</p>
             ) : (
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                     {galleryImages.map((image, index) => (
-                        <div key={image._id} className={`grid gap-4 ${index === 0 || index === 2 ? 'row-span-2' : ''}`}>
-                            <div className="overflow-hidden rounded-lg shadow-md group cursor-pointer" onClick={() => setSelectedImage(image)}>
-                                <Image src={image.url} alt={image.alt} width={400} height={index === 0 || index === 2 ? 600 : 300} className="rounded-lg object-cover w-full h-full transition-transform duration-500 group-hover:scale-110" />
-                            </div>
+                        <div key={image._id} className="overflow-hidden rounded-lg shadow-md group cursor-pointer" onClick={() => setSelectedImage(image)}>
+                            <Image src={image.url} alt={image.alt} width={400} height={400} className="rounded-lg object-cover w-full h-full aspect-square transition-transform duration-500 group-hover:scale-110" />
                         </div>
                     ))}
                 </div>
@@ -333,8 +285,8 @@ export default function Home() {
                                     </div>
                                 </div>
                                 <div className="flex mb-2">
-                                    {[...Array(testimonial.rating)].map((_, i) => <Star key={i} className="w-5 h-5 fill-current text-foreground" />)}
-                                    {[...Array(5 - testimonial.rating)].map((_, i) => <Star key={i} className="w-5 h-5 text-muted" />)}
+                                    {[...Array(testimonial.rating)].map((_, i) => <Star key={i} className="w-5 h-5 fill-yellow-400 text-yellow-400" />)}
+                                    {[...Array(5 - testimonial.rating)].map((_, i) => <Star key={i} className="w-5 h-5 text-muted-foreground" />)}
                                 </div>
                                 <blockquote className="text-muted-foreground italic text-base border-l-4 border-primary pl-4">
                                     {testimonial.message}

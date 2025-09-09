@@ -325,15 +325,17 @@ export default function SettingsPage() {
         <TabsContent value="general" className="mt-6">
             <div className="grid gap-8 grid-cols-1 xl:grid-cols-2">
                 {categorySettingSections.map(section => (
-                    <CategorySettingsSection 
-                        key={section.key}
-                        title={section.title} 
-                        description={section.description}
-                        items={settings ? settings[section.key] : []}
-                        categoryKey={section.key}
-                        onUpdate={(key, items) => handleUpdateSettings({ [key]: items })}
-                        loading={loading}
-                    />
+                    settings && settings[section.key] && (
+                        <CategorySettingsSection 
+                            key={section.key}
+                            title={section.title} 
+                            description={section.description}
+                            items={settings[section.key]}
+                            categoryKey={section.key}
+                            onUpdate={(key, items) => handleUpdateSettings({ [key]: items })}
+                            loading={loading}
+                        />
+                    )
                 ))}
             </div>
         </TabsContent>
