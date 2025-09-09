@@ -390,7 +390,7 @@ export default function Home() {
               <h2 className="text-3xl md:text-4xl font-bold font-headline">Our Prime Location</h2>
               <p className="mt-2 text-muted-foreground">Conveniently located to keep you connected to campus and the city.</p>
             </div>
-            <div className="rounded-lg overflow-hidden border-4 border-white shadow-2xl aspect-[2/1]">
+            <div className="rounded-lg overflow-hidden border-4 border-white shadow-2xl aspect-[16/6]">
                 {loadingLocation ? (
                     <Skeleton className="w-full h-full" />
                 ) : location.mapLink ? (
