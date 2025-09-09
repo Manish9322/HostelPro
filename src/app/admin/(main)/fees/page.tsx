@@ -1,7 +1,7 @@
 
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import {
   Card,
   CardContent,
@@ -35,6 +35,7 @@ import { DeleteConfirmationDialog } from "@/components/modals/delete-confirmatio
 import { useToast } from "@/hooks/use-toast";
 import { FeePayment } from "@/lib/types";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 const statusVariant = (status: string) => {
   switch (status) {
@@ -52,7 +53,7 @@ const statusVariant = (status: string) => {
 const ITEMS_PER_PAGE = 7;
 
 export default function FeesPage() {
-  const [payments, setPayments] = useState<FeePayment[]>([]);
+  const [allPayments, setAllPayments] = useState<FeePayment[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [currentPage, setCurrentPage] = useState(1);
@@ -60,6 +61,9 @@ export default function FeesPage() {
   const [isDeleteModalOpen, setDeleteModalOpen] = useState(false);
   const [selectedPayment, setSelectedPayment] = useState<FeePayment | null>(null);
   const { toast } = useToast();
+  
+  const [searchQuery, setSearchQuery] = useState("");
+  const [statusFilter, setStatusFilter] = useState("all");
 
   const fetchPayments = async () => {
     try {
@@ -68,7 +72,7 @@ export default function FeesPage() {
       const response = await fetch('/api/fees');
       if (!response.ok) throw new Error("Failed to fetch payments");
       const data = await response.json();
-      setPayments(data);
+      setAllPayments(data);
     } catch (error) {
       setError("Failed to load fee payments. Please try again.");
       console.error(error);
@@ -81,13 +85,24 @@ export default function FeesPage() {
     fetchPayments();
   }, []);
 
-  const totalRevenue = payments.filter(p => p.status === 'Paid').reduce((sum, p) => sum + p.amount, 0);
-  const outstandingFees = payments.filter(p => p.status === 'Overdue').reduce((sum, p) => sum + p.amount, 0);
+  const totalRevenue = allPayments.filter(p => p.status === 'Paid').reduce((sum, p) => sum + p.amount, 0);
+  const outstandingFees = allPayments.filter(p => p.status === 'Overdue').reduce((sum, p) => sum + p.amount, 0);
   
-  const totalPages = Math.ceil(payments.length / ITEMS_PER_PAGE);
+  const filteredPayments = useMemo(() => {
+      return allPayments
+        .filter(p => {
+            const matchesSearch = p.studentName.toLowerCase().includes(searchQuery.toLowerCase()) || 
+                                  p.studentId.toLowerCase().includes(searchQuery.toLowerCase());
+            const matchesStatus = statusFilter === 'all' || p.status === statusFilter;
+            return matchesSearch && matchesStatus;
+        })
+  }, [allPayments, searchQuery, statusFilter]);
+
+  
+  const totalPages = Math.ceil(filteredPayments.length / ITEMS_PER_PAGE);
   const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
   const endIndex = startIndex + ITEMS_PER_PAGE;
-  const currentPayments = payments.slice(startIndex, endIndex);
+  const currentPayments = filteredPayments.slice(startIndex, endIndex);
 
   const handlePageChange = (page: number) => {
     if (page >= 1 && page <= totalPages) {
@@ -170,8 +185,8 @@ export default function FeesPage() {
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold">
-                {payments.length > 0 ? 
-                 `${Math.round(payments.filter(p => p.status === 'Paid').length / payments.length * 100)}%`
+                {allPayments.length > 0 ? 
+                 `${Math.round(allPayments.filter(p => p.status === 'Paid').length / allPayments.length * 100)}%`
                  : 'N/A'
                 }
               </div>
@@ -180,24 +195,42 @@ export default function FeesPage() {
           </Card>
         </div>
         <Card>
-          <CardHeader className="flex flex-col md:flex-row items-start md:items-center md:justify-between gap-4">
+          <CardHeader>
               <div>
                 <CardTitle>Fee Management</CardTitle>
                 <CardDescription>
                   Track student payments, send reminders, and manage financial records.
                 </CardDescription>
               </div>
-              <div className="flex gap-2 w-full md:w-auto">
+              <div className="flex flex-col sm:flex-row gap-2 pt-2">
                 <div className="relative flex-grow">
                   <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                  <Input placeholder="Search by student or ID..." className="pl-9" />
+                  <Input 
+                    placeholder="Search by student or ID..." 
+                    className="pl-9"
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                  />
                 </div>
-                <Button size="sm" className="gap-1" onClick={() => handleOpenModal()}>
-                  <PlusCircle className="h-3.5 w-3.5" />
-                  <span className="sr-only sm:not-sr-only sm:whitespace-nowrap">
-                    Log Payment
-                  </span>
-                </Button>
+                <div className="flex gap-2">
+                    <Select value={statusFilter} onValueChange={setStatusFilter}>
+                        <SelectTrigger className="w-full sm:w-[180px]">
+                            <SelectValue placeholder="Filter by status" />
+                        </SelectTrigger>
+                        <SelectContent>
+                            <SelectItem value="all">All Statuses</SelectItem>
+                            <SelectItem value="Paid">Paid</SelectItem>
+                            <SelectItem value="Pending">Pending</SelectItem>
+                            <SelectItem value="Overdue">Overdue</SelectItem>
+                        </SelectContent>
+                    </Select>
+                    <Button size="sm" className="gap-1" onClick={() => handleOpenModal()}>
+                        <PlusCircle className="h-3.5 w-3.5" />
+                        <span className="sr-only sm:not-sr-only sm:whitespace-nowrap">
+                            Log Payment
+                        </span>
+                    </Button>
+                </div>
               </div>
           </CardHeader>
           <CardContent>
@@ -274,8 +307,7 @@ export default function FeesPage() {
                             <div className="flex flex-col items-center gap-4">
                                 <FileWarning className="h-12 w-12 text-muted-foreground" />
                                 <h3 className="text-xl font-semibold">No Payments Found</h3>
-                                <p className="text-muted-foreground">Log a new payment to get started.</p>
-                                <Button onClick={() => handleOpenModal()}>Log New Payment</Button>
+                                <p className="text-muted-foreground">Log a new payment or adjust your filters.</p>
                             </div>
                         </TableCell>
                     </TableRow>
@@ -285,14 +317,14 @@ export default function FeesPage() {
           </CardContent>
            <CardFooter>
               <div className="text-xs text-muted-foreground">
-                  Showing <strong>{payments.length > 0 ? startIndex + 1 : 0}-{Math.min(endIndex, payments.length)}</strong> of <strong>{payments.length}</strong> payments
+                  Showing <strong>{filteredPayments.length > 0 ? startIndex + 1 : 0}-{Math.min(endIndex, filteredPayments.length)}</strong> of <strong>{filteredPayments.length}</strong> payments
               </div>
               <div className="ml-auto flex items-center gap-2">
                   <Button
                       size="sm"
                       variant="outline"
                       onClick={() => handlePageChange(currentPage - 1)}
-                      disabled={currentPage === 1 || payments.length === 0}
+                      disabled={currentPage === 1 || filteredPayments.length === 0}
                   >
                       Previous
                   </Button>
@@ -300,7 +332,7 @@ export default function FeesPage() {
                       size="sm"
                       variant="outline"
                       onClick={() => handlePageChange(currentPage + 1)}
-                      disabled={currentPage === totalPages || payments.length === 0}
+                      disabled={currentPage === totalPages || filteredPayments.length === 0}
                   >
                       Next
                   </Button>

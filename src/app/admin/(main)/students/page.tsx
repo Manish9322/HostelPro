@@ -1,7 +1,7 @@
 
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import {
   Card,
   CardContent,
@@ -26,21 +26,27 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
-import { MoreHorizontal, PlusCircle, AlertTriangle, FileWarning, RefreshCw } from "lucide-react";
+import { MoreHorizontal, PlusCircle, AlertTriangle, FileWarning, RefreshCw, Search } from "lucide-react";
 import { StudentModal } from "@/components/modals/student-modal";
 import { DeleteConfirmationDialog } from "@/components/modals/delete-confirmation-modal";
 import { Student } from "@/lib/types";
 import { useToast } from "@/hooks/use-toast";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Input } from "@/components/ui/input";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 export default function StudentsPage() {
-  const [students, setStudents] = useState<Student[]>([]);
+  const [allStudents, setAllStudents] = useState<Student[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [isModalOpen, setModalOpen] = useState(false);
   const [isDeleteModalOpen, setDeleteModalOpen] = useState(false);
   const [selectedStudent, setSelectedStudent] = useState<Student | null>(null);
   const { toast } = useToast();
+  
+  const [searchQuery, setSearchQuery] = useState('');
+  const [roomFilter, setRoomFilter] = useState('all');
+  const [yearFilter, setYearFilter] = useState('all');
 
   const fetchStudents = async () => {
     try {
@@ -51,7 +57,7 @@ export default function StudentsPage() {
         throw new Error('Failed to fetch students');
       }
       const data = await response.json();
-      setStudents(data);
+      setAllStudents(data);
     } catch (error) {
       console.error(error);
       setError("Failed to load students. Please try again.");
@@ -63,6 +69,19 @@ export default function StudentsPage() {
   useEffect(() => {
     fetchStudents();
   }, []);
+
+  const filteredStudents = useMemo(() => {
+    return allStudents.filter(student => {
+        const matchesSearch = student.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                              student.studentId.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                              student.course.toLowerCase().includes(searchQuery.toLowerCase());
+        const matchesRoom = roomFilter === 'all' || 
+                            (roomFilter === 'assigned' && student.roomNumber !== 'Unassigned') ||
+                            (roomFilter === 'unassigned' && student.roomNumber === 'Unassigned');
+        const matchesYear = yearFilter === 'all' || student.year === parseInt(yearFilter);
+        return matchesSearch && matchesRoom && matchesYear;
+    });
+  }, [allStudents, searchQuery, roomFilter, yearFilter]);
 
   const handleOpenModal = (student: Student | null = null) => {
     setSelectedStudent(student);
@@ -145,6 +164,40 @@ export default function StudentsPage() {
           <CardDescription>
             A list of all students currently residing in the hostel. New students are added automatically when their application is approved.
           </CardDescription>
+          <div className="flex flex-col sm:flex-row gap-4 pt-4">
+              <div className="relative flex-grow">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                <Input 
+                    placeholder="Search by name, ID, or course..." 
+                    className="pl-9"
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                />
+              </div>
+              <Select value={roomFilter} onValueChange={setRoomFilter}>
+                <SelectTrigger className="w-full sm:w-[180px]">
+                    <SelectValue placeholder="Filter by room..." />
+                </SelectTrigger>
+                <SelectContent>
+                    <SelectItem value="all">All Room Statuses</SelectItem>
+                    <SelectItem value="assigned">Assigned</SelectItem>
+                    <SelectItem value="unassigned">Unassigned</SelectItem>
+                </SelectContent>
+              </Select>
+              <Select value={yearFilter} onValueChange={setYearFilter}>
+                <SelectTrigger className="w-full sm:w-[150px]">
+                    <SelectValue placeholder="Filter by year..." />
+                </SelectTrigger>
+                <SelectContent>
+                    <SelectItem value="all">All Years</SelectItem>
+                    <SelectItem value="1">Year 1</SelectItem>
+                    <SelectItem value="2">Year 2</SelectItem>
+                    <SelectItem value="3">Year 3</SelectItem>
+                    <SelectItem value="4">Year 4</SelectItem>
+                    <SelectItem value="5">Year 5</SelectItem>
+                </SelectContent>
+              </Select>
+          </div>
         </CardHeader>
         <CardContent>
           <Table>
@@ -182,8 +235,8 @@ export default function StudentsPage() {
                     </div>
                   </TableCell>
                 </TableRow>
-              ) : students.length > 0 ? (
-                students.map((student) => (
+              ) : filteredStudents.length > 0 ? (
+                filteredStudents.map((student) => (
                   <TableRow key={student._id}>
                     <TableCell className="font-medium">{student.name}</TableCell>
                     <TableCell>{student.studentId}</TableCell>
@@ -212,7 +265,7 @@ export default function StudentsPage() {
                     <div className="flex flex-col items-center gap-4">
                         <FileWarning className="h-12 w-12 text-muted-foreground" />
                         <h3 className="text-xl font-semibold">No Students Found</h3>
-                        <p className="text-muted-foreground">Approve an application to add a student.</p>
+                        <p className="text-muted-foreground">No students match the current filters.</p>
                     </div>
                   </TableCell>
                 </TableRow>
@@ -222,7 +275,7 @@ export default function StudentsPage() {
         </CardContent>
         <CardFooter>
           <div className="text-xs text-muted-foreground">
-            Showing <strong>1-{students.length}</strong> of <strong>{students.length}</strong> students
+            Showing <strong>1-{filteredStudents.length}</strong> of <strong>{filteredStudents.length}</strong> students
           </div>
         </CardFooter>
       </Card>

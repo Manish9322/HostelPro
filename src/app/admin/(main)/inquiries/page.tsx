@@ -1,7 +1,7 @@
 
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import {
   Card,
   CardContent,
@@ -24,6 +24,7 @@ import {
   AccordionTrigger,
 } from "@/components/ui/accordion";
 import { UpdateStatusConfirmationDialog } from "@/components/modals/update-status-confirmation-modal";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 const urgencyVariant = (urgency?: string) => {
   if (!urgency) return 'outline';
@@ -58,17 +59,19 @@ const categoryVariant = (category: string) => {
 const ITEMS_PER_PAGE = 5;
 
 export default function InquiriesPage() {
-  const [inquiries, setInquiries] = useState<Inquiry[]>([]);
+  const [allInquiries, setAllInquiries] = useState<Inquiry[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [currentPage, setCurrentPage] = useState(1);
-  const [selectedInquiry, setSelectedInquiry] = useState<Inquiry | null>(null);
   const [confirmationState, setConfirmationState] = useState<{
     isOpen: boolean;
     inquiryId: string;
     newStatus: 'Addressed' | 'Dismissed';
   } | null>(null);
   const { toast } = useToast();
+
+  const [statusFilter, setStatusFilter] = useState('all');
+  const [categoryFilter, setCategoryFilter] = useState('all');
 
   const fetchInquiries = async () => {
     try {
@@ -77,7 +80,7 @@ export default function InquiriesPage() {
       const response = await fetch('/api/inquiries');
       if (!response.ok) throw new Error("Failed to fetch inquiries");
       const data = await response.json();
-      setInquiries(data);
+      setAllInquiries(data);
     } catch (error) {
       setError("Failed to load inquiries. Please try again.");
       console.error(error);
@@ -89,11 +92,18 @@ export default function InquiriesPage() {
   useEffect(() => {
     fetchInquiries();
   }, []);
+  
+  const filteredInquiries = useMemo(() => {
+      return allInquiries.filter(i => 
+        (statusFilter === 'all' || i.status === statusFilter) &&
+        (categoryFilter === 'all' || i.category === categoryFilter)
+      );
+  }, [allInquiries, statusFilter, categoryFilter]);
 
-  const totalPages = Math.ceil(inquiries.length / ITEMS_PER_PAGE);
+  const totalPages = Math.ceil(filteredInquiries.length / ITEMS_PER_PAGE);
   const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
   const endIndex = startIndex + ITEMS_PER_PAGE;
-  const currentInquiries = inquiries.slice(startIndex, endIndex);
+  const currentInquiries = filteredInquiries.slice(startIndex, endIndex);
 
   const handlePageChange = (page: number) => {
     if (page >= 1 && page <= totalPages) {
@@ -147,6 +157,26 @@ export default function InquiriesPage() {
         <CardDescription>
           Review and manage student questions and requests.
         </CardDescription>
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-4">
+             <Select value={categoryFilter} onValueChange={setCategoryFilter}>
+                <SelectTrigger><SelectValue placeholder="Filter by category" /></SelectTrigger>
+                <SelectContent>
+                    <SelectItem value="all">All Categories</SelectItem>
+                    <SelectItem value="Question">Question</SelectItem>
+                    <SelectItem value="Item Request">Item Request</SelectItem>
+                    <SelectItem value="Room Change Request">Room Change Request</SelectItem>
+                </SelectContent>
+            </Select>
+            <Select value={statusFilter} onValueChange={setStatusFilter}>
+                <SelectTrigger><SelectValue placeholder="Filter by status" /></SelectTrigger>
+                <SelectContent>
+                    <SelectItem value="all">All Statuses</SelectItem>
+                    <SelectItem value="Pending">Pending</SelectItem>
+                    <SelectItem value="Addressed">Addressed</SelectItem>
+                    <SelectItem value="Dismissed">Dismissed</SelectItem>
+                </SelectContent>
+            </Select>
+        </div>
       </CardHeader>
       <CardContent className="space-y-6">
         {loading ? (
@@ -238,21 +268,21 @@ export default function InquiriesPage() {
                 <div className="flex flex-col items-center gap-4">
                     <FileWarning className="h-12 w-12 text-muted-foreground" />
                     <h3 className="text-xl font-semibold">No Inquiries Found</h3>
-                    <p className="text-muted-foreground">There are currently no student inquiries to display.</p>
+                    <p className="text-muted-foreground">There are currently no student inquiries matching your filters.</p>
                 </div>
             </div>
         )}
       </CardContent>
       <CardFooter>
         <div className="text-xs text-muted-foreground">
-          Showing <strong>{inquiries.length > 0 ? startIndex + 1 : 0}-{Math.min(endIndex, inquiries.length)}</strong> of <strong>{inquiries.length}</strong> inquiries
+          Showing <strong>{filteredInquiries.length > 0 ? startIndex + 1 : 0}-{Math.min(endIndex, filteredInquiries.length)}</strong> of <strong>{filteredInquiries.length}</strong> inquiries
         </div>
         <div className="ml-auto flex items-center gap-2">
           <Button
             size="sm"
             variant="outline"
             onClick={() => handlePageChange(currentPage - 1)}
-            disabled={currentPage === 1 || inquiries.length === 0}
+            disabled={currentPage === 1 || filteredInquiries.length === 0}
           >
             Previous
           </Button>
@@ -260,7 +290,7 @@ export default function InquiriesPage() {
             size="sm"
             variant="outline"
             onClick={() => handlePageChange(currentPage + 1)}
-            disabled={currentPage === totalPages || inquiries.length === 0}
+            disabled={currentPage === totalPages || filteredInquiries.length === 0}
           >
             Next
           </Button>
@@ -281,5 +311,3 @@ export default function InquiriesPage() {
     </>
   );
 }
-
-    

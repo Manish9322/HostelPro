@@ -1,7 +1,7 @@
 
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import {
   Card,
   CardContent,
@@ -17,6 +17,7 @@ import { Complaint } from "@/lib/types";
 import { useToast } from "@/hooks/use-toast";
 import { Skeleton } from "@/components/ui/skeleton";
 import { AlertTriangle, FileWarning, RefreshCw } from "lucide-react";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 
 const urgencyVariant = (urgency: string) => {
@@ -46,11 +47,15 @@ const statusVariant = (status: string) => {
 const ITEMS_PER_PAGE = 4;
 
 export default function ComplaintsPage() {
-  const [complaints, setComplaints] = useState<Complaint[]>([]);
+  const [allComplaints, setAllComplaints] = useState<Complaint[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [currentPage, setCurrentPage] = useState(1);
   const { toast } = useToast();
+  
+  const [statusFilter, setStatusFilter] = useState('all');
+  const [categoryFilter, setCategoryFilter] = useState('all');
+  const [urgencyFilter, setUrgencyFilter] = useState('all');
 
   const fetchComplaints = async () => {
     try {
@@ -59,7 +64,7 @@ export default function ComplaintsPage() {
       const response = await fetch('/api/complaints');
       if (!response.ok) throw new Error("Failed to fetch complaints");
       const data = await response.json();
-      setComplaints(data);
+      setAllComplaints(data);
     } catch (error) {
       setError("Failed to load complaints. Please try again.");
       console.error(error);
@@ -72,10 +77,18 @@ export default function ComplaintsPage() {
     fetchComplaints();
   }, []);
 
-  const totalPages = Math.ceil(complaints.length / ITEMS_PER_PAGE);
+  const filteredComplaints = useMemo(() => {
+    return allComplaints.filter(c => 
+        (statusFilter === 'all' || c.status === statusFilter) &&
+        (categoryFilter === 'all' || c.category === categoryFilter) &&
+        (urgencyFilter === 'all' || c.urgency === urgencyFilter)
+    );
+  }, [allComplaints, statusFilter, categoryFilter, urgencyFilter]);
+
+  const totalPages = Math.ceil(filteredComplaints.length / ITEMS_PER_PAGE);
   const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
   const endIndex = startIndex + ITEMS_PER_PAGE;
-  const currentComplaints = complaints.slice(startIndex, endIndex);
+  const currentComplaints = filteredComplaints.slice(startIndex, endIndex);
 
   const handlePageChange = (page: number) => {
     if (page >= 1 && page <= totalPages) {
@@ -118,6 +131,37 @@ export default function ComplaintsPage() {
         <CardDescription>
           Review and manage student complaints. Complaints are automatically categorized by AI.
         </CardDescription>
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-4">
+            <Select value={statusFilter} onValueChange={setStatusFilter}>
+                <SelectTrigger><SelectValue placeholder="Filter by status" /></SelectTrigger>
+                <SelectContent>
+                    <SelectItem value="all">All Statuses</SelectItem>
+                    <SelectItem value="Pending">Pending</SelectItem>
+                    <SelectItem value="In Progress">In Progress</SelectItem>
+                    <SelectItem value="Resolved">Resolved</SelectItem>
+                </SelectContent>
+            </Select>
+            <Select value={categoryFilter} onValueChange={setCategoryFilter}>
+                <SelectTrigger><SelectValue placeholder="Filter by category" /></SelectTrigger>
+                <SelectContent>
+                    <SelectItem value="all">All Categories</SelectItem>
+                    <SelectItem value="Maintenance">Maintenance</SelectItem>
+                    <SelectItem value="Noise">Noise</SelectItem>
+                    <SelectItem value="Safety">Safety</SelectItem>
+                    <SelectItem value="Harassment">Harassment</SelectItem>
+                    <SelectItem value="Other">Other</SelectItem>
+                </SelectContent>
+            </Select>
+            <Select value={urgencyFilter} onValueChange={setUrgencyFilter}>
+                <SelectTrigger><SelectValue placeholder="Filter by urgency" /></SelectTrigger>
+                <SelectContent>
+                    <SelectItem value="all">All Urgencies</SelectItem>
+                    <SelectItem value="High">High</SelectItem>
+                    <SelectItem value="Medium">Medium</SelectItem>
+                    <SelectItem value="Low">Low</SelectItem>
+                </SelectContent>
+            </Select>
+        </div>
       </CardHeader>
       <CardContent className="space-y-6">
         {loading ? (
@@ -196,21 +240,21 @@ export default function ComplaintsPage() {
                 <div className="flex flex-col items-center gap-4">
                     <FileWarning className="h-12 w-12 text-muted-foreground" />
                     <h3 className="text-xl font-semibold">No Complaints Found</h3>
-                    <p className="text-muted-foreground">There are currently no complaints to display.</p>
+                    <p className="text-muted-foreground">There are currently no complaints matching your filters.</p>
                 </div>
             </div>
         )}
       </CardContent>
       <CardFooter>
         <div className="text-xs text-muted-foreground">
-          Showing <strong>{complaints.length > 0 ? startIndex + 1 : 0}-{Math.min(endIndex, complaints.length)}</strong> of <strong>{complaints.length}</strong> complaints
+          Showing <strong>{filteredComplaints.length > 0 ? startIndex + 1 : 0}-{Math.min(endIndex, filteredComplaints.length)}</strong> of <strong>{filteredComplaints.length}</strong> complaints
         </div>
         <div className="ml-auto flex items-center gap-2">
           <Button
             size="sm"
             variant="outline"
             onClick={() => handlePageChange(currentPage - 1)}
-            disabled={currentPage === 1 || complaints.length === 0}
+            disabled={currentPage === 1 || filteredComplaints.length === 0}
           >
             Previous
           </Button>
@@ -218,7 +262,7 @@ export default function ComplaintsPage() {
             size="sm"
             variant="outline"
             onClick={() => handlePageChange(currentPage + 1)}
-            disabled={currentPage === totalPages || complaints.length === 0}
+            disabled={currentPage === totalPages || filteredComplaints.length === 0}
           >
             Next
           </Button>

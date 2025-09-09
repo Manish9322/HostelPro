@@ -1,7 +1,7 @@
 
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import {
   Card,
   CardContent,
@@ -34,6 +34,7 @@ import { DeleteConfirmationDialog } from "@/components/modals/delete-confirmatio
 import { useToast } from "@/hooks/use-toast";
 import { InventoryItem } from "@/lib/types";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 const conditionVariant = (condition: string) => {
   switch (condition) {
@@ -65,7 +66,7 @@ const statusVariant = (status: string) => {
 const ITEMS_PER_PAGE = 7;
 
 export default function InventoryPage() {
-  const [inventory, setInventory] = useState<InventoryItem[]>([]);
+  const [allInventory, setAllInventory] = useState<InventoryItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [currentPage, setCurrentPage] = useState(1);
@@ -73,6 +74,10 @@ export default function InventoryPage() {
   const [isDeleteModalOpen, setDeleteModalOpen] = useState(false);
   const [selectedItem, setSelectedItem] = useState<InventoryItem | null>(null);
   const { toast } = useToast();
+  
+  const [searchQuery, setSearchQuery] = useState('');
+  const [statusFilter, setStatusFilter] = useState('all');
+  const [conditionFilter, setConditionFilter] = useState('all');
 
   const fetchInventory = async () => {
     try {
@@ -81,7 +86,7 @@ export default function InventoryPage() {
       const response = await fetch('/api/inventory');
       if (!response.ok) throw new Error("Failed to fetch inventory");
       const data = await response.json();
-      setInventory(data);
+      setAllInventory(data);
     } catch (error) {
       setError("Failed to load inventory. Please try again.");
       console.error(error);
@@ -94,14 +99,25 @@ export default function InventoryPage() {
     fetchInventory();
   }, []);
 
-  const totalItems = inventory.length;
-  const inUseItems = inventory.filter(item => item.status === 'In Use').length;
-  const damagedItems = inventory.filter(item => item.condition === 'Damaged').length;
+  const totalItems = allInventory.length;
+  const inUseItems = allInventory.filter(item => item.status === 'In Use').length;
+  const damagedItems = allInventory.filter(item => item.condition === 'Damaged').length;
+  
+  const filteredInventory = useMemo(() => {
+      return allInventory.filter(item => {
+          const matchesSearch = item.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                                item.category.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                                item.location.toLowerCase().includes(searchQuery.toLowerCase());
+          const matchesStatus = statusFilter === 'all' || item.status === statusFilter;
+          const matchesCondition = conditionFilter === 'all' || item.condition === conditionFilter;
+          return matchesSearch && matchesStatus && matchesCondition;
+      })
+  }, [allInventory, searchQuery, statusFilter, conditionFilter]);
 
-  const totalPages = Math.ceil(inventory.length / ITEMS_PER_PAGE);
+  const totalPages = Math.ceil(filteredInventory.length / ITEMS_PER_PAGE);
   const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
   const endIndex = startIndex + ITEMS_PER_PAGE;
-  const currentItems = inventory.slice(startIndex, endIndex);
+  const currentItems = filteredInventory.slice(startIndex, endIndex);
 
   const handlePageChange = (page: number) => {
     if (page >= 1 && page <= totalPages) {
@@ -190,24 +206,54 @@ export default function InventoryPage() {
           </Card>
         </div>
         <Card>
-          <CardHeader className="flex flex-col md:flex-row items-start md:items-center md:justify-between gap-4">
+          <CardHeader>
             <div>
               <CardTitle>Inventory & Asset Management</CardTitle>
               <CardDescription>
                 Track hostel assets, from room furniture to gym equipment.
               </CardDescription>
             </div>
-            <div className="flex gap-2 w-full md:w-auto">
+            <div className="flex flex-col md:flex-row gap-4 pt-2">
                <div className="relative flex-grow">
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                <Input placeholder="Search inventory..." className="pl-9" />
+                <Input 
+                    placeholder="Search by name, category, or location..." 
+                    className="pl-9"
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                />
               </div>
-              <Button size="sm" className="gap-1" onClick={() => handleOpenModal()}>
-                <PlusCircle className="h-3.5 w-3.5" />
-                <span className="sr-only sm:not-sr-only sm:whitespace-nowrap">
-                  New Item
-                </span>
-              </Button>
+              <div className="flex gap-2">
+                    <Select value={statusFilter} onValueChange={setStatusFilter}>
+                        <SelectTrigger className="w-full md:w-[150px]">
+                            <SelectValue placeholder="Filter by status" />
+                        </SelectTrigger>
+                        <SelectContent>
+                            <SelectItem value="all">All Statuses</SelectItem>
+                            <SelectItem value="In Stock">In Stock</SelectItem>
+                            <SelectItem value="In Use">In Use</SelectItem>
+                            <SelectItem value="Under Repair">Under Repair</SelectItem>
+                        </SelectContent>
+                    </Select>
+                     <Select value={conditionFilter} onValueChange={setConditionFilter}>
+                        <SelectTrigger className="w-full md:w-[150px]">
+                            <SelectValue placeholder="Filter by condition" />
+                        </SelectTrigger>
+                        <SelectContent>
+                            <SelectItem value="all">All Conditions</SelectItem>
+                            <SelectItem value="New">New</SelectItem>
+                            <SelectItem value="Good">Good</SelectItem>
+                            <SelectItem value="Used">Used</SelectItem>
+                            <SelectItem value="Damaged">Damaged</SelectItem>
+                        </SelectContent>
+                    </Select>
+                    <Button size="sm" className="gap-1" onClick={() => handleOpenModal()}>
+                        <PlusCircle className="h-3.5 w-3.5" />
+                        <span className="sr-only sm:not-sr-only sm:whitespace-nowrap">
+                        New Item
+                        </span>
+                    </Button>
+              </div>
             </div>
           </CardHeader>
           <CardContent>
@@ -283,8 +329,7 @@ export default function InventoryPage() {
                             <div className="flex flex-col items-center gap-4">
                                 <FileWarning className="h-12 w-12 text-muted-foreground" />
                                 <h3 className="text-xl font-semibold">No Inventory Found</h3>
-                                <p className="text-muted-foreground">Add a new item to get started.</p>
-                                <Button onClick={() => handleOpenModal()}>Add New Item</Button>
+                                <p className="text-muted-foreground">Add an item or adjust your filters.</p>
                             </div>
                         </TableCell>
                     </TableRow>
@@ -294,14 +339,14 @@ export default function InventoryPage() {
           </CardContent>
           <CardFooter>
               <div className="text-xs text-muted-foreground">
-                  Showing <strong>{inventory.length > 0 ? startIndex + 1: 0}-{Math.min(endIndex, inventory.length)}</strong> of <strong>{inventory.length}</strong> items
+                  Showing <strong>{filteredInventory.length > 0 ? startIndex + 1: 0}-{Math.min(endIndex, filteredInventory.length)}</strong> of <strong>{filteredInventory.length}</strong> items
               </div>
               <div className="ml-auto flex items-center gap-2">
                   <Button
                       size="sm"
                       variant="outline"
                       onClick={() => handlePageChange(currentPage - 1)}
-                      disabled={currentPage === 1 || inventory.length === 0}
+                      disabled={currentPage === 1 || filteredInventory.length === 0}
                   >
                       Previous
                   </Button>
@@ -309,7 +354,7 @@ export default function InventoryPage() {
                       size="sm"
                       variant="outline"
                       onClick={() => handlePageChange(currentPage + 1)}
-                      disabled={currentPage === totalPages || inventory.length === 0}
+                      disabled={currentPage === totalPages || filteredInventory.length === 0}
                   >
                       Next
                   </Button>

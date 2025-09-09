@@ -1,7 +1,7 @@
 
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import {
   Card,
   CardContent,
@@ -27,12 +27,14 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { MoreHorizontal, AlertTriangle, FileWarning, RefreshCw } from "lucide-react";
+import { MoreHorizontal, AlertTriangle, FileWarning, RefreshCw, Search } from "lucide-react";
 import { format } from 'date-fns';
 import { Application } from "@/lib/types";
 import { ViewApplicationModal } from "@/components/modals/view-application-modal";
 import { useToast } from "@/hooks/use-toast";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Input } from "@/components/ui/input";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 const statusVariant = (status: string) => {
   switch (status) {
@@ -50,12 +52,15 @@ const statusVariant = (status: string) => {
 const ITEMS_PER_PAGE = 7;
 
 export default function ApplicationsPage() {
-  const [applications, setApplications] = useState<Application[]>([]);
+  const [allApplications, setAllApplications] = useState<Application[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [currentPage, setCurrentPage] = useState(1);
   const [selectedApplication, setSelectedApplication] = useState<Application | null>(null);
   const { toast } = useToast();
+  
+  const [searchQuery, setSearchQuery] = useState('');
+  const [statusFilter, setStatusFilter] = useState('all');
 
   const fetchApplications = async () => {
     try {
@@ -64,7 +69,7 @@ export default function ApplicationsPage() {
       const response = await fetch('/api/applications');
       if (!response.ok) throw new Error("Failed to fetch applications");
       const data = await response.json();
-      setApplications(data);
+      setAllApplications(data);
     } catch (error) {
        setError("Failed to load applications. Please try again.");
        console.error(error);
@@ -76,11 +81,23 @@ export default function ApplicationsPage() {
   useEffect(() => {
     fetchApplications();
   }, []);
+  
+  const filteredApplications = useMemo(() => {
+      return allApplications
+        .filter(app => {
+            const matchesSearch = app.name.toLowerCase().includes(searchQuery.toLowerCase()) || 
+                                  app.course.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                                  app.studentId.toLowerCase().includes(searchQuery.toLowerCase());
+            const matchesStatus = statusFilter === 'all' || app.status === statusFilter;
+            return matchesSearch && matchesStatus;
+        })
+  }, [allApplications, searchQuery, statusFilter]);
 
-  const totalPages = Math.ceil(applications.length / ITEMS_PER_PAGE);
+
+  const totalPages = Math.ceil(filteredApplications.length / ITEMS_PER_PAGE);
   const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
   const endIndex = startIndex + ITEMS_PER_PAGE;
-  const currentApplications = applications.slice(startIndex, endIndex);
+  const currentApplications = filteredApplications.slice(startIndex, endIndex);
 
   const handlePageChange = (page: number) => {
     if (page >= 1 && page <= totalPages) {
@@ -132,6 +149,28 @@ export default function ApplicationsPage() {
         <CardDescription>
           Manage student hostel applications.
         </CardDescription>
+        <div className="flex flex-col sm:flex-row gap-4 pt-4">
+            <div className="relative flex-grow">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+              <Input 
+                placeholder="Search by name, course, or ID..." 
+                className="pl-9"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+              />
+            </div>
+            <Select value={statusFilter} onValueChange={setStatusFilter}>
+                <SelectTrigger className="w-full sm:w-[180px]">
+                    <SelectValue placeholder="Filter by status" />
+                </SelectTrigger>
+                <SelectContent>
+                    <SelectItem value="all">All Statuses</SelectItem>
+                    <SelectItem value="Pending">Pending</SelectItem>
+                    <SelectItem value="Approved">Approved</SelectItem>
+                    <SelectItem value="Rejected">Rejected</SelectItem>
+                </SelectContent>
+            </Select>
+        </div>
       </CardHeader>
       <CardContent>
         <Table>
@@ -202,7 +241,7 @@ export default function ApplicationsPage() {
                      <div className="flex flex-col items-center gap-4">
                         <FileWarning className="h-12 w-12 text-muted-foreground" />
                         <h3 className="text-xl font-semibold">No Applications Found</h3>
-                        <p className="text-muted-foreground">There are currently no applications to display.</p>
+                        <p className="text-muted-foreground">There are currently no applications matching your criteria.</p>
                     </div>
                   </TableCell>
                 </TableRow>
@@ -212,14 +251,14 @@ export default function ApplicationsPage() {
       </CardContent>
        <CardFooter>
         <div className="text-xs text-muted-foreground">
-          Showing <strong>{applications.length > 0 ? startIndex + 1 : 0}-{Math.min(endIndex, applications.length)}</strong> of <strong>{applications.length}</strong> applications
+          Showing <strong>{filteredApplications.length > 0 ? startIndex + 1 : 0}-{Math.min(endIndex, filteredApplications.length)}</strong> of <strong>{filteredApplications.length}</strong> applications
         </div>
         <div className="ml-auto flex items-center gap-2">
           <Button
             size="sm"
             variant="outline"
             onClick={() => handlePageChange(currentPage - 1)}
-            disabled={currentPage === 1 || applications.length === 0}
+            disabled={currentPage === 1 || filteredApplications.length === 0}
           >
             Previous
           </Button>
@@ -227,7 +266,7 @@ export default function ApplicationsPage() {
             size="sm"
             variant="outline"
             onClick={() => handlePageChange(currentPage + 1)}
-            disabled={currentPage === totalPages || applications.length === 0}
+            disabled={currentPage === totalPages || filteredApplications.length === 0}
           >
             Next
           </Button>

@@ -1,7 +1,7 @@
 
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import {
   Card,
   CardContent,
@@ -27,13 +27,15 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { MoreHorizontal, PlusCircle, AlertTriangle, FileWarning, RefreshCw } from "lucide-react";
+import { MoreHorizontal, PlusCircle, AlertTriangle, FileWarning, RefreshCw, Search } from "lucide-react";
 import { RoomModal } from "@/components/modals/room-modal";
 import { ManageOccupantsModal } from "@/components/modals/manage-occupants-modal";
 import { DeleteConfirmationDialog } from "@/components/modals/delete-confirmation-modal";
 import { useToast } from "@/hooks/use-toast";
 import { Room } from "@/lib/types";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Input } from "@/components/ui/input";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 const roomStatusVariant = (status: string) => {
   switch (status) {
@@ -66,7 +68,7 @@ const roomConditionVariant = (condition: string) => {
 const ITEMS_PER_PAGE = 7;
 
 export default function RoomsPage() {
-    const [rooms, setRooms] = useState<Room[]>([]);
+    const [allRooms, setAllRooms] = useState<Room[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
     const [currentPage, setCurrentPage] = useState(1);
@@ -75,6 +77,10 @@ export default function RoomsPage() {
     const [isDeleteModalOpen, setDeleteModalOpen] = useState(false);
     const [selectedRoom, setSelectedRoom] = useState<Room | null>(null);
     const { toast } = useToast();
+    
+    const [searchQuery, setSearchQuery] = useState('');
+    const [statusFilter, setStatusFilter] = useState('all');
+    const [conditionFilter, setConditionFilter] = useState('all');
 
     const fetchRooms = async () => {
         try {
@@ -83,7 +89,7 @@ export default function RoomsPage() {
             const response = await fetch('/api/rooms');
             if (!response.ok) throw new Error("Failed to fetch rooms");
             const data = await response.json();
-            setRooms(data);
+            setAllRooms(data);
         } catch (error) {
             setError("Failed to load rooms. Please try again.");
             console.error(error);
@@ -96,10 +102,21 @@ export default function RoomsPage() {
         fetchRooms();
     }, []);
 
-    const totalPages = Math.ceil(rooms.length / ITEMS_PER_PAGE);
+    const filteredRooms = useMemo(() => {
+        return allRooms
+            .filter(room => {
+                const matchesSearch = room.roomNumber.toLowerCase().includes(searchQuery.toLowerCase());
+                const matchesStatus = statusFilter === 'all' || room.status === statusFilter;
+                const matchesCondition = conditionFilter === 'all' || room.condition === conditionFilter;
+                return matchesSearch && matchesStatus && matchesCondition;
+            });
+    }, [allRooms, searchQuery, statusFilter, conditionFilter]);
+
+
+    const totalPages = Math.ceil(filteredRooms.length / ITEMS_PER_PAGE);
     const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
     const endIndex = startIndex + ITEMS_PER_PAGE;
-    const currentRooms = rooms.slice(startIndex, endIndex);
+    const currentRooms = filteredRooms.slice(startIndex, endIndex);
 
     const handlePageChange = (page: number) => {
         if (page >= 1 && page <= totalPages) {
@@ -159,19 +176,55 @@ export default function RoomsPage() {
   return (
     <>
       <Card>
-        <CardHeader className="flex flex-row items-center justify-between">
+        <CardHeader>
           <div>
             <CardTitle>Room Management</CardTitle>
             <CardDescription>
               View and manage hostel room details and availability.
             </CardDescription>
           </div>
-          <Button size="sm" className="gap-1" onClick={() => handleOpenRoomModal()}>
-            <PlusCircle className="h-3.5 w-3.5" />
-            <span className="sr-only sm:not-sr-only sm:whitespace-nowrap">
-              New Room
-            </span>
-          </Button>
+          <div className="flex flex-col sm:flex-row gap-4 pt-4">
+            <div className="relative flex-grow">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+              <Input 
+                placeholder="Search by room number..." 
+                className="pl-9"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+              />
+            </div>
+            <div className="flex gap-2">
+                <Select value={statusFilter} onValueChange={setStatusFilter}>
+                    <SelectTrigger className="w-full sm:w-auto">
+                        <SelectValue placeholder="Filter by status" />
+                    </SelectTrigger>
+                    <SelectContent>
+                        <SelectItem value="all">All Statuses</SelectItem>
+                        <SelectItem value="Available">Available</SelectItem>
+                        <SelectItem value="Occupied">Occupied</SelectItem>
+                        <SelectItem value="Under Maintenance">Under Maintenance</SelectItem>
+                    </SelectContent>
+                </Select>
+                <Select value={conditionFilter} onValueChange={setConditionFilter}>
+                    <SelectTrigger className="w-full sm:w-auto">
+                        <SelectValue placeholder="Filter by condition" />
+                    </SelectTrigger>
+                    <SelectContent>
+                        <SelectItem value="all">All Conditions</SelectItem>
+                        <SelectItem value="Excellent">Excellent</SelectItem>
+                        <SelectItem value="Good">Good</SelectItem>
+                        <SelectItem value="Fair">Fair</SelectItem>
+                        <SelectItem value="Poor">Poor</SelectItem>
+                    </SelectContent>
+                </Select>
+                 <Button size="sm" className="gap-1" onClick={() => handleOpenRoomModal()}>
+                    <PlusCircle className="h-3.5 w-3.5" />
+                    <span className="sr-only sm:not-sr-only sm:whitespace-nowrap">
+                    New Room
+                    </span>
+                </Button>
+            </div>
+          </div>
         </CardHeader>
         <CardContent>
           <Table>
@@ -251,8 +304,7 @@ export default function RoomsPage() {
                         <div className="flex flex-col items-center gap-4">
                             <FileWarning className="h-12 w-12 text-muted-foreground" />
                             <h3 className="text-xl font-semibold">No Rooms Found</h3>
-                            <p className="text-muted-foreground">Add a new room to get started.</p>
-                            <Button onClick={() => handleOpenRoomModal()}>Add New Room</Button>
+                            <p className="text-muted-foreground">Add a new room or adjust your filters.</p>
                         </div>
                     </TableCell>
                 </TableRow>
@@ -262,14 +314,14 @@ export default function RoomsPage() {
         </CardContent>
          <CardFooter>
           <div className="text-xs text-muted-foreground">
-            Showing <strong>{rooms.length > 0 ? startIndex + 1: 0}-{Math.min(endIndex, rooms.length)}</strong> of <strong>{rooms.length}</strong> rooms
+            Showing <strong>{filteredRooms.length > 0 ? startIndex + 1: 0}-{Math.min(endIndex, filteredRooms.length)}</strong> of <strong>{filteredRooms.length}</strong> rooms
           </div>
           <div className="ml-auto flex items-center gap-2">
             <Button
               size="sm"
               variant="outline"
               onClick={() => handlePageChange(currentPage - 1)}
-              disabled={currentPage === 1 || rooms.length === 0}
+              disabled={currentPage === 1 || filteredRooms.length === 0}
             >
               Previous
             </Button>
@@ -277,7 +329,7 @@ export default function RoomsPage() {
               size="sm"
               variant="outline"
               onClick={() => handlePageChange(currentPage + 1)}
-              disabled={currentPage === totalPages || rooms.length === 0}
+              disabled={currentPage === totalPages || filteredRooms.length === 0}
             >
               Next
             </Button>
