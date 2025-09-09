@@ -59,7 +59,7 @@ export function StudentModal({ isOpen, onClose, student, onSubmit }: StudentModa
             </div>
              <div className="grid grid-cols-4 items-center gap-4">
               <Label htmlFor="studentId" className="text-right">Student ID</Label>
-              <Input id="studentId" name="studentId" defaultValue={student?.studentId || ''} className="col-span-3" readOnly/>
+              <Input id="studentId" name="studentId" defaultValue={student?.studentId || ''} className="col-span-3" readOnly={isEditMode} />
             </div>
             <div className="grid grid-cols-4 items-center gap-4">
               <Label htmlFor="password" className="text-right">Password</Label>
