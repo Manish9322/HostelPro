@@ -11,20 +11,14 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import { useRouter } from "next/navigation";
 
 interface LogoutConfirmationDialogProps {
   isOpen: boolean;
   onClose: () => void;
+  onConfirm: () => void;
 }
 
-export function LogoutConfirmationDialog({ isOpen, onClose }: LogoutConfirmationDialogProps) {
-  const router = useRouter();
-
-  const handleLogout = () => {
-    router.push('/'); 
-    onClose();
-  };
+export function LogoutConfirmationDialog({ isOpen, onClose, onConfirm }: LogoutConfirmationDialogProps) {
 
   return (
     <AlertDialog open={isOpen} onOpenChange={onClose}>
@@ -37,7 +31,7 @@ export function LogoutConfirmationDialog({ isOpen, onClose }: LogoutConfirmation
         </AlertDialogHeader>
         <AlertDialogFooter>
           <AlertDialogCancel>Cancel</AlertDialogCancel>
-          <AlertDialogAction onClick={handleLogout}>Log Out</AlertDialogAction>
+          <AlertDialogAction onClick={onConfirm}>Log Out</AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>
     </AlertDialog>

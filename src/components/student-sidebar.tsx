@@ -2,7 +2,7 @@
 "use client"
 
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import {
   Sidebar,
   SidebarHeader,
@@ -14,6 +14,8 @@ import {
   useSidebar,
 } from '@/components/ui/sidebar';
 import { LayoutDashboard, User, MessageSquareWarning, LogOut, University, Bed, UsersRound, PanelLeft, CreditCard, Home, HelpCircle } from 'lucide-react';
+import { useState } from 'react';
+import { LogoutConfirmationDialog } from './modals/logout-confirmation-modal';
 
 const menuItems = [
   { href: '/student/dashboard', label: 'Dashboard', icon: LayoutDashboard },
@@ -27,9 +29,19 @@ const menuItems = [
 
 export default function StudentSidebar() {
   const pathname = usePathname();
+  const router = useRouter();
   const { toggleSidebar } = useSidebar();
+  const [isLogoutModalOpen, setLogoutModalOpen] = useState(false);
+
+  const handleLogout = () => {
+    localStorage.removeItem('studentAuthToken');
+    localStorage.removeItem('loggedInStudentId');
+    setLogoutModalOpen(false);
+    router.push('/student/login');
+  };
 
   return (
+    <>
     <Sidebar collapsible="icon" variant="inset">
       <SidebarHeader>
         <Link href="/student/dashboard" className="flex items-center gap-2.5">
@@ -72,15 +84,19 @@ export default function StudentSidebar() {
             </SidebarMenuButton>
           </SidebarMenuItem>
           <SidebarMenuItem>
-            <SidebarMenuButton asChild tooltip="Logout">
-              <Link href="/student/login">
-                <LogOut />
-                <span>Logout</span>
-              </Link>
+            <SidebarMenuButton onClick={() => setLogoutModalOpen(true)} tooltip="Logout">
+              <LogOut />
+              <span>Logout</span>
             </SidebarMenuButton>
           </SidebarMenuItem>
         </SidebarMenu>
       </SidebarFooter>
     </Sidebar>
+    <LogoutConfirmationDialog
+        isOpen={isLogoutModalOpen}
+        onClose={() => setLogoutModalOpen(false)}
+        onConfirm={handleLogout}
+      />
+    </>
   );
 }

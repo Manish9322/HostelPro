@@ -19,8 +19,8 @@ export default function AdminLayout({
 
   useEffect(() => {
     setIsClient(true);
-    const adminLoggedIn = localStorage.getItem('isAdminLoggedIn');
-    if (!adminLoggedIn) {
+    const token = localStorage.getItem('adminAuthToken');
+    if (!token) {
       router.replace('/admin/login');
     } else {
       setIsAuthenticated(true);

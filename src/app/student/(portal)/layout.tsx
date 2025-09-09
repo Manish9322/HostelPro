@@ -19,8 +19,8 @@ export default function StudentLayout({
 
   useEffect(() => {
     setIsClient(true);
-    const studentLoggedIn = localStorage.getItem('loggedInStudentId');
-    if (!studentLoggedIn) {
+    const token = localStorage.getItem('studentAuthToken');
+    if (!token) {
       router.replace('/student/login');
     } else {
       setIsAuthenticated(true);

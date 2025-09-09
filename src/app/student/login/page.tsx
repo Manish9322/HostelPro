@@ -15,18 +15,46 @@ import { Label } from "@/components/ui/label";
 import { ArrowLeft, University, Eye, EyeOff } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { useToast } from "@/hooks/use-toast";
 
 export default function StudentLoginPage() {
   const router = useRouter();
+  const { toast } = useToast();
   const [showPassword, setShowPassword] = useState(false);
-  const [studentId, setStudentId] = useState("STU001");
+  const [studentId, setStudentId] = useState("");
+  const [password, setPassword] = useState("");
+  const [loading, setLoading] = useState(false);
 
-  const handleLogin = (e: React.FormEvent) => {
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-    // In a real app, you would validate credentials against a backend.
-    // For now, we'll just store the ID and redirect.
-    localStorage.setItem('loggedInStudentId', studentId);
-    router.push("/student/dashboard");
+    setLoading(true);
+
+    try {
+        const response = await fetch('/api/student/login', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ studentId, password }),
+        });
+
+        const data = await response.json();
+
+        if (!response.ok) {
+            throw new Error(data.error || 'Login failed');
+        }
+
+        localStorage.setItem('studentAuthToken', data.token);
+        localStorage.setItem('loggedInStudentId', data.studentId);
+        router.push("/student/dashboard");
+
+    } catch (error) {
+        toast({
+            title: "Login Failed",
+            description: (error as Error).message,
+            variant: "destructive",
+        });
+    } finally {
+        setLoading(false);
+    }
   };
 
   return (
@@ -48,7 +76,7 @@ export default function StudentLoginPage() {
               <Label htmlFor="studentId">Student ID</Label>
               <Input
                 id="studentId"
-                placeholder="e.g., STU001"
+                placeholder="e.g., STU-XXXXX"
                 required
                 value={studentId}
                 onChange={(e) => setStudentId(e.target.value)}
@@ -69,7 +97,8 @@ export default function StudentLoginPage() {
                     id="password" 
                     type={showPassword ? "text" : "password"} 
                     required 
-                    defaultValue="password"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
                     className="pr-10"
                   />
                    <button
@@ -82,8 +111,8 @@ export default function StudentLoginPage() {
                   </button>
                </div>
             </div>
-            <Button type="submit" className="w-full">
-              Sign In
+            <Button type="submit" className="w-full" disabled={loading}>
+              {loading ? 'Signing In...' : 'Sign In'}
             </Button>
             <Button variant="outline" className="w-full" asChild>
                 <Link href="/">

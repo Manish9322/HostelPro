@@ -17,6 +17,7 @@ import {
 import { LayoutDashboard, Users, MessageSquareWarning, LogOut, University, Bell, Bed, UsersRound, ClipboardList, PanelLeft, CircleDollarSign, Box, KeyRound, BarChart, SlidersHorizontal, HelpCircle, MessageSquareQuote, FileQuestion } from 'lucide-react';
 import { useState } from 'react';
 import { LogoutConfirmationDialog } from './modals/logout-confirmation-modal';
+import { useRouter } from 'next/navigation';
 
 const menuItems = [
   { href: '/admin/dashboard', label: 'Dashboard', icon: LayoutDashboard },
@@ -38,8 +39,15 @@ const menuItems = [
 
 export default function AdminSidebar() {
   const pathname = usePathname();
+  const router = useRouter();
   const { toggleSidebar } = useSidebar();
   const [isLogoutModalOpen, setLogoutModalOpen] = useState(false);
+
+  const handleLogout = () => {
+    localStorage.removeItem('adminAuthToken');
+    setLogoutModalOpen(false);
+    router.push('/');
+  };
 
   return (
     <>
@@ -88,6 +96,7 @@ export default function AdminSidebar() {
       <LogoutConfirmationDialog
         isOpen={isLogoutModalOpen}
         onClose={() => setLogoutModalOpen(false)}
+        onConfirm={handleLogout}
       />
     </>
   );

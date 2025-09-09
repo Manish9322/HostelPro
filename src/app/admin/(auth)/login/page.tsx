@@ -15,17 +15,44 @@ import { Label } from "@/components/ui/label";
 import { ArrowLeft, University, Eye, EyeOff } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { useToast } from "@/hooks/use-toast";
 
 export default function AdminLoginPage() {
   const router = useRouter();
+  const { toast } = useToast();
   const [showPassword, setShowPassword] = useState(false);
+  const [email, setEmail] = useState("admin@hostelpro.com");
+  const [password, setPassword] = useState("password");
+  const [loading, setLoading] = useState(false);
 
-  const handleLogin = (e: React.FormEvent) => {
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-    // In a real app, you would validate credentials.
-    // For this protected route example, we'll set a flag in localStorage.
-    localStorage.setItem('isAdminLoggedIn', 'true');
-    router.push("/admin/dashboard");
+    setLoading(true);
+    try {
+        const response = await fetch('/api/admin/login', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email, password }),
+        });
+
+        const data = await response.json();
+
+        if (!response.ok) {
+            throw new Error(data.error || 'Login failed');
+        }
+        
+        localStorage.setItem('adminAuthToken', data.token);
+        router.push("/admin/dashboard");
+
+    } catch (error) {
+        toast({
+            title: "Login Failed",
+            description: (error as Error).message,
+            variant: "destructive",
+        });
+    } finally {
+        setLoading(false);
+    }
   };
 
   return (
@@ -50,7 +77,8 @@ export default function AdminLoginPage() {
                 type="email"
                 placeholder="admin@hostelpro.com"
                 required
-                defaultValue="admin@hostelpro.com"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
               />
             </div>
             <div className="space-y-2">
@@ -60,7 +88,8 @@ export default function AdminLoginPage() {
                     id="password" 
                     type={showPassword ? "text" : "password"} 
                     required 
-                    defaultValue="password"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
                     className="pr-10"
                   />
                   <button
@@ -73,8 +102,8 @@ export default function AdminLoginPage() {
                   </button>
                </div>
             </div>
-            <Button type="submit" className="w-full">
-              Sign In
+            <Button type="submit" className="w-full" disabled={loading}>
+              {loading ? 'Signing In...' : 'Sign In'}
             </Button>
              <Button variant="outline" className="w-full" asChild>
                 <Link href="/">
