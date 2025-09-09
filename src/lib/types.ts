@@ -2,6 +2,7 @@
 
 
 
+
 export type Student = {
   _id: string;
   id: string;
@@ -132,3 +133,26 @@ export type Inquiry = {
   urgency: 'High' | 'Medium' | 'Low';
   requestedItem?: string;
 };
+
+export interface Faq {
+  _id: string;
+  question: string;
+  answer: string;
+  order: number;
+}
+
+export interface GalleryImage {
+    _id: string;
+    url: string;
+    alt: string;
+    order: number;
+}
+
+export interface Feedback {
+    _id: string;
+    name: string;
+    email: string;
+    message: string;
+    rating: number;
+    createdAt: Date;
+}

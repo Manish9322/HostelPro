@@ -8,6 +8,7 @@ import {
   CardDescription,
   CardHeader,
   CardTitle,
+  CardFooter
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -17,10 +18,13 @@ import {
   TableCell,
   TableRow,
 } from "@/components/ui/table";
-import { PlusCircle, Trash2, AlertTriangle, RefreshCw, Pen, ArrowUp, ArrowDown, X, Check } from "lucide-react";
+import { PlusCircle, Trash2, AlertTriangle, RefreshCw, Pen, ArrowUp, ArrowDown, X, Check, UploadCloud } from "lucide-react";
 import { Separator } from "@/components/ui/separator";
 import { useToast } from "@/hooks/use-toast";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Label } from "@/components/ui/label";
+import Image from "next/image";
 
 interface SettingsData {
   _id: string;
@@ -31,10 +35,18 @@ interface SettingsData {
   inventoryStatus: string[];
   complaintCategories: string[];
   noticeCategories: string[];
+  locationAddress: string;
+  locationMapLink: string;
   [key: string]: any; 
 }
 
-const SettingsSection = ({ 
+interface GalleryImage {
+  _id: string;
+  url: string;
+  alt: string;
+}
+
+const CategorySettingsSection = ({ 
     title, 
     description, 
     items,
@@ -179,6 +191,7 @@ const SettingsSection = ({
 
 export default function SettingsPage() {
     const [settings, setSettings] = useState<SettingsData | null>(null);
+    const [galleryImages, setGalleryImages] = useState<GalleryImage[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
     const { toast } = useToast();
@@ -187,12 +200,21 @@ export default function SettingsPage() {
         try {
             setLoading(true);
             setError(null);
-            const response = await fetch('/api/settings');
-            if (!response.ok) throw new Error("Failed to fetch settings");
-            const data = await response.json();
-            setSettings(data);
+            const [settingsRes, galleryRes] = await Promise.all([
+                fetch('/api/settings'),
+                fetch('/api/gallery')
+            ]);
+            if (!settingsRes.ok) throw new Error("Failed to fetch settings");
+            if (!galleryRes.ok) throw new Error("Failed to fetch gallery images");
+            
+            const settingsData = await settingsRes.json();
+            const galleryData = await galleryRes.json();
+
+            setSettings(settingsData);
+            setGalleryImages(galleryData);
+
         } catch (error) {
-            setError("Failed to load settings. Please try again.");
+            setError("Failed to load settings data. Please try again.");
             console.error(error);
         } finally {
             setLoading(false);
@@ -203,31 +225,66 @@ export default function SettingsPage() {
         fetchSettings();
     }, []);
 
-    const handleUpdateSettings = async (categoryKey: keyof Omit<SettingsData, '_id'>, newItems: string[]) => {
+    const handleUpdateSettings = async (updateData: Partial<SettingsData>) => {
         if (!settings) return;
         
-        const originalItems = settings[categoryKey];
+        const originalSettings = {...settings};
         
-        // Optimistic UI update
-        setSettings(prev => prev ? { ...prev, [categoryKey]: newItems } : null);
+        setSettings(prev => prev ? { ...prev, ...updateData } : null);
 
         try {
             const response = await fetch('/api/settings', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ [categoryKey]: newItems }),
+                body: JSON.stringify(updateData),
             });
             if (!response.ok) throw new Error("Failed to update settings");
             toast({ title: "Success", description: "Settings updated successfully." });
         } catch (error) {
             toast({ title: "Error", description: "Failed to update settings.", variant: "destructive" });
-            // Revert on failure
-            setSettings(prev => prev ? { ...prev, [categoryKey]: originalItems } : null);
+            setSettings(originalSettings);
+        }
+    };
+
+    const handleLocationSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+        e.preventDefault();
+        const formData = new FormData(e.currentTarget);
+        const locationAddress = formData.get('locationAddress') as string;
+        const locationMapLink = formData.get('locationMapLink') as string;
+        handleUpdateSettings({ locationAddress, locationMapLink });
+    };
+
+    const handleImageUpload = async (e: React.FormEvent<HTMLFormElement>) => {
+      e.preventDefault();
+      const formData = new FormData(e.currentTarget);
+      
+      try {
+        const response = await fetch('/api/gallery', {
+            method: 'POST',
+            body: formData,
+        });
+        if(!response.ok) throw new Error('Image upload failed');
+        toast({ title: 'Success', description: 'Image uploaded successfully.'});
+        fetchSettings(); // Refresh gallery
+        (e.target as HTMLFormElement).reset();
+      } catch (error) {
+        toast({ title: 'Error', description: 'Failed to upload image.', variant: 'destructive'});
+      }
+    };
+
+    const handleImageDelete = async (id: string) => {
+        try {
+            const response = await fetch(`/api/gallery?id=${id}`, { method: 'DELETE' });
+            if(!response.ok) throw new Error('Failed to delete image');
+            toast({ title: 'Success', description: 'Image deleted successfully.'});
+            fetchSettings(); // Refresh gallery
+        } catch(error) {
+             toast({ title: 'Error', description: 'Failed to delete image.', variant: 'destructive'});
         }
     };
 
 
-  const settingSections = [
+  const categorySettingSections = [
     { key: 'roomConditions', title: 'Room Conditions', description: 'Manage the condition options for rooms (e.g., Excellent, Good).' },
     { key: 'roomUtilities', title: 'Room Utilities', description: 'Manage the available utilities for rooms (e.g., AC, Wi-Fi).' },
     { key: 'inventoryCategories', title: 'Inventory Categories', description: 'Manage categories for inventory items.' },
@@ -236,7 +293,7 @@ export default function SettingsPage() {
     { key: 'noticeCategories', title: 'Notice Categories', description: 'Manage categories for public notices.' },
   ] as const;
 
-  if (error) {
+  if (error && !settings) {
      return (
         <div className="text-center py-16">
             <div className="flex flex-col items-center gap-4">
@@ -256,23 +313,105 @@ export default function SettingsPage() {
     <div className="space-y-8">
       <div>
           <h1 className="text-2xl font-bold tracking-tight">Settings</h1>
-          <p className="text-muted-foreground">Manage application-wide options and categories.</p>
+          <p className="text-muted-foreground">Manage application-wide options and public content.</p>
       </div>
-      <Separator />
-
-      <div className="grid gap-8 grid-cols-1 xl:grid-cols-2">
-         {settingSections.map(section => (
-            <SettingsSection 
-                key={section.key}
-                title={section.title} 
-                description={section.description}
-                items={settings ? settings[section.key] : []}
-                categoryKey={section.key}
-                onUpdate={handleUpdateSettings}
-                loading={loading}
-            />
-         ))}
-      </div>
+     
+      <Tabs defaultValue="general">
+        <TabsList className="grid w-full grid-cols-3">
+          <TabsTrigger value="general">General</TabsTrigger>
+          <TabsTrigger value="gallery">Gallery</TabsTrigger>
+          <TabsTrigger value="location">Location</TabsTrigger>
+        </TabsList>
+        <TabsContent value="general" className="mt-6">
+            <div className="grid gap-8 grid-cols-1 xl:grid-cols-2">
+                {categorySettingSections.map(section => (
+                    <CategorySettingsSection 
+                        key={section.key}
+                        title={section.title} 
+                        description={section.description}
+                        items={settings ? settings[section.key] : []}
+                        categoryKey={section.key}
+                        onUpdate={(key, items) => handleUpdateSettings({ [key]: items })}
+                        loading={loading}
+                    />
+                ))}
+            </div>
+        </TabsContent>
+        <TabsContent value="gallery" className="mt-6">
+            <Card>
+                <CardHeader>
+                    <CardTitle>Gallery Management</CardTitle>
+                    <CardDescription>Upload and manage images for the public homepage gallery.</CardDescription>
+                </CardHeader>
+                <CardContent>
+                    <form onSubmit={handleImageUpload} className="mb-6 p-4 border rounded-lg space-y-4">
+                        <h4 className="font-medium">Upload New Image</h4>
+                        <div className="grid sm:grid-cols-2 gap-4">
+                            <div className="space-y-2">
+                                <Label htmlFor="galleryImage">Image File</Label>
+                                <Input id="galleryImage" name="image" type="file" required/>
+                            </div>
+                            <div className="space-y-2">
+                                <Label htmlFor="altText">Alt Text (for accessibility)</Label>
+                                <Input id="altText" name="alt" placeholder="e.g., A clean and modern hostel room" required/>
+                            </div>
+                        </div>
+                        <Button type="submit"><UploadCloud className="mr-2 h-4 w-4"/>Upload Image</Button>
+                    </form>
+                    <Separator/>
+                    <div className="mt-6">
+                        <h4 className="font-medium mb-4">Current Images</h4>
+                        {loading ? (
+                            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                                <Skeleton className="w-full h-32"/>
+                                <Skeleton className="w-full h-32"/>
+                                <Skeleton className="w-full h-32"/>
+                                <Skeleton className="w-full h-32"/>
+                            </div>
+                        ) : galleryImages.length > 0 ? (
+                            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                                {galleryImages.map(image => (
+                                    <div key={image._id} className="relative group">
+                                        <Image src={image.url} alt={image.alt} width={200} height={200} className="rounded-md object-cover w-full aspect-square" />
+                                        <div className="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                                            <Button variant="destructive" size="icon" onClick={() => handleImageDelete(image._id)}>
+                                                <Trash2 className="h-4 w-4"/>
+                                            </Button>
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                        ) : (
+                            <p className="text-muted-foreground text-center py-4">No gallery images uploaded yet.</p>
+                        )}
+                    </div>
+                </CardContent>
+            </Card>
+        </TabsContent>
+        <TabsContent value="location" className="mt-6">
+            <Card>
+                <CardHeader>
+                    <CardTitle>Location Details</CardTitle>
+                    <CardDescription>Set the address and map link for the public homepage.</CardDescription>
+                </CardHeader>
+                <form onSubmit={handleLocationSubmit}>
+                    <CardContent className="space-y-4">
+                        <div className="space-y-2">
+                            <Label htmlFor="locationAddress">Hostel Address</Label>
+                            <Input id="locationAddress" name="locationAddress" placeholder="e.g., 123 University Lane, College Town, USA 12345" defaultValue={settings?.locationAddress || ''} />
+                        </div>
+                        <div className="space-y-2">
+                            <Label htmlFor="locationMapLink">Google Maps Link</Label>
+                            <Input id="locationMapLink" name="locationMapLink" placeholder="https://maps.google.com/..." defaultValue={settings?.locationMapLink || ''} />
+                        </div>
+                    </CardContent>
+                    <CardFooter>
+                        <Button type="submit">Save Location</Button>
+                    </CardFooter>
+                </form>
+            </Card>
+        </TabsContent>
+      </Tabs>
     </div>
   );
 }

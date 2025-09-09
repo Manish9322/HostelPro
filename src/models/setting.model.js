@@ -1,4 +1,5 @@
 
+
 import mongoose from "mongoose";
 
 const settingSchema = new mongoose.Schema({
@@ -9,6 +10,8 @@ const settingSchema = new mongoose.Schema({
   inventoryStatus: { type: [String], default: ["In Stock", "In Use", "Under Repair"] },
   complaintCategories: { type: [String], default: ["Maintenance", "Noise", "Safety", "Harassment", "Other"] },
   noticeCategories: { type: [String], default: ["General", "Maintenance", "Event", "Urgent"] },
+  locationAddress: { type: String, default: "HostelPro, 123 University Lane, College Town, USA 12345" },
+  locationMapLink: { type: String, default: "https://maps.google.com/" },
 }, { timestamps: true });
 
 const SettingModel = mongoose.models.Setting || mongoose.model("Setting", settingSchema);
