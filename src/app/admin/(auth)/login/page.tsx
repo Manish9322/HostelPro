@@ -22,6 +22,9 @@ export default function AdminLoginPage() {
 
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
+    // In a real app, you would validate credentials.
+    // For this protected route example, we'll set a flag in localStorage.
+    localStorage.setItem('isAdminLoggedIn', 'true');
     router.push("/admin/dashboard");
   };
 
