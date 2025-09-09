@@ -5,7 +5,7 @@ const inquirySchema = new mongoose.Schema({
   studentId: { type: String, required: true, trim: true },
   studentName: { type: String, required: true, trim: true },
   subject: { type: String, required: true, trim: true },
-  text: { type: String, required: true, trim: true },
+  text: { type: String, trim: true },
   submittedAt: { type: Date, default: Date.now },
   status: {
     type: String,
@@ -28,3 +28,5 @@ const inquirySchema = new mongoose.Schema({
 const InquiryModel = mongoose.models.Inquiry || mongoose.model("Inquiry", inquirySchema);
 
 export default InquiryModel;
+
+    

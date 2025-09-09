@@ -16,7 +16,7 @@ import { Button } from "@/components/ui/button";
 import { Inquiry } from "@/lib/types";
 import { useToast } from "@/hooks/use-toast";
 import { Skeleton } from "@/components/ui/skeleton";
-import { AlertTriangle, FileWarning, RefreshCw } from "lucide-react";
+import { AlertTriangle, FileWarning, RefreshCw, Package } from "lucide-react";
 import {
   Accordion,
   AccordionContent,
@@ -180,11 +180,17 @@ export default function InquiriesPage() {
                           </p>
                       </div>
                       <p className="font-semibold text-primary">{inquiry.subject}</p>
+                      {inquiry.requestedItem && (
+                          <div className="flex items-center gap-2 text-sm text-muted-foreground pt-1">
+                              <Package className="h-4 w-4 text-primary" />
+                              <span>Requested Item: <span className="font-medium text-foreground">{inquiry.requestedItem}</span></span>
+                          </div>
+                      )}
                    </div>
                 </AccordionTrigger>
                 <AccordionContent className="pt-4">
                     <div className="border-t pt-4">
-                       <p className="text-sm text-muted-foreground whitespace-pre-wrap">{inquiry.text}</p>
+                       <p className="text-sm text-muted-foreground whitespace-pre-wrap">{inquiry.text || <i className="text-muted-foreground/70">No additional details provided.</i>}</p>
                        <p className="text-sm text-muted-foreground mt-4"><strong>From:</strong> {inquiry.studentName} ({inquiry.studentId})</p>
                         <div className="flex justify-end gap-2 mt-4">
                             <Button 
@@ -245,3 +251,5 @@ export default function InquiriesPage() {
     </Card>
   );
 }
+
+    

@@ -15,12 +15,13 @@ import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
 import { useState, useEffect } from "react";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { LogIn, Lightbulb } from "lucide-react";
-import type { Student } from "@/lib/types";
+import { LogIn, Lightbulb, PackageSearch } from "lucide-react";
+import type { Student, InventoryItem } from "@/lib/types";
 import Link from "next/link";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Separator } from "@/components/ui/separator";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
+import { Skeleton } from "@/components/ui/skeleton";
 
 export default function InquiryPage() {
   const [inquiryType, setInquiryType] = useState<'Question' | 'Item Request' | 'Room Change Request' | ''>('');
@@ -28,10 +29,15 @@ export default function InquiryPage() {
   const [text, setText] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const { toast } = useToast();
   
   const [student, setStudent] = useState<Student | null>(null);
   const [isClient, setIsClient] = useState(false);
+
+  const [availableItems, setAvailableItems] = useState<InventoryItem[]>([]);
+  const [loadingInventory, setLoadingInventory] = useState(false);
+  const [selectedItem, setSelectedItem] = useState('');
+
+  const { toast } = useToast();
 
   useEffect(() => {
     setIsClient(true);
@@ -51,6 +57,25 @@ export default function InquiryPage() {
     }
     fetchInitialData();
   }, [toast]);
+  
+  useEffect(() => {
+      if(inquiryType === 'Item Request') {
+          const fetchInventory = async () => {
+              setLoadingInventory(true);
+              try {
+                  const res = await fetch('/api/inventory');
+                  if(!res.ok) throw new Error("Could not fetch inventory.");
+                  const allItems: InventoryItem[] = await res.json();
+                  setAvailableItems(allItems.filter(item => item.status === 'In Stock'));
+              } catch(err) {
+                  toast({ title: "Error", description: "Could not load available items.", variant: "destructive"});
+              } finally {
+                  setLoadingInventory(false);
+              }
+          }
+          fetchInventory();
+      }
+  }, [inquiryType, toast]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -58,21 +83,28 @@ export default function InquiryPage() {
         toast({ title: "Missing Information", description: "You must be logged in and select an inquiry type.", variant: "destructive"});
         return;
     }
+    if (inquiryType === 'Item Request' && !selectedItem) {
+        toast({ title: "Missing Information", description: "Please select an item to request.", variant: "destructive"});
+        return;
+    }
 
     setIsLoading(true);
     setError(null);
+
+    const requestBody = { 
+        studentId: student.studentId,
+        studentName: student.name,
+        inquiryType,
+        subject, 
+        text,
+        requestedItem: inquiryType === 'Item Request' ? selectedItem : undefined,
+      };
 
     try {
       const response = await fetch('/api/inquiry', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ 
-              studentId: student.studentId,
-              studentName: student.name,
-              inquiryType,
-              subject, 
-              text,
-            }),
+          body: JSON.stringify(requestBody),
       });
 
       if (!response.ok) {
@@ -84,6 +116,7 @@ export default function InquiryPage() {
       setSubject("");
       setText("");
       setInquiryType('');
+      setSelectedItem('');
 
     } catch (err) {
       setError((err as Error).message);
@@ -96,7 +129,7 @@ export default function InquiryPage() {
   const getPlaceholderText = () => {
     switch (inquiryType) {
         case 'Item Request':
-            return "Please be specific about which item you are requesting. Note: Only non-essential items can be requested here.";
+            return "Provide any additional details about your request. For example, why you need the item or for how long.";
         case 'Room Change Request':
             return "Please provide a detailed reason for your room change request. Include any relevant details about your current situation.";
         case 'Question':
@@ -140,20 +173,47 @@ export default function InquiryPage() {
                         
                         {inquiryType && (
                             <>
+                                {inquiryType === 'Item Request' && (
+                                    <div>
+                                        <Label htmlFor="itemRequest">Available Item</Label>
+                                        {loadingInventory ? (
+                                            <Skeleton className="h-10 w-full" />
+                                        ) : (
+                                            <Select value={selectedItem} onValueChange={setSelectedItem} required>
+                                                <SelectTrigger id="itemRequest">
+                                                    <SelectValue placeholder="Select an item to request..." />
+                                                </SelectTrigger>
+                                                <SelectContent>
+                                                    {availableItems.length > 0 ? (
+                                                        availableItems.map(item => (
+                                                            <SelectItem key={item._id} value={item.name}>
+                                                                {item.name} ({item.category})
+                                                            </SelectItem>
+                                                        ))
+                                                    ) : (
+                                                        <div className="p-4 text-center text-sm text-muted-foreground">
+                                                            No items are currently in stock.
+                                                        </div>
+                                                    )}
+                                                </SelectContent>
+                                            </Select>
+                                        )}
+                                    </div>
+                                )}
                                 <div>
                                     <Label htmlFor="subject">Subject</Label>
                                     <Input id="subject" value={subject} onChange={e => setSubject(e.target.value)} placeholder="Enter a brief subject line" required />
                                 </div>
                                 <div>
-                                    <Label htmlFor="text">{inquiryType === 'Room Change Request' ? 'Reason for Change' : 'Details'}</Label>
-                                    <Textarea id="text" value={text} onChange={e => setText(e.target.value)} placeholder={getPlaceholderText()} className="min-h-[150px]" required />
+                                    <Label htmlFor="text">{inquiryType === 'Room Change Request' ? 'Reason for Change' : (inquiryType === 'Item Request' ? 'Additional Details (Optional)' : 'Details')}</Label>
+                                    <Textarea id="text" value={text} onChange={e => setText(e.target.value)} placeholder={getPlaceholderText()} className="min-h-[150px]" required={inquiryType !== 'Item Request'} />
                                 </div>
                             </>
                         )}
                         
                         {error && <p className="text-sm text-destructive">{error}</p>}
                         
-                        <Button type="submit" className="w-full" size="lg" disabled={isLoading || !subject || !text || !inquiryType}>
+                        <Button type="submit" className="w-full" size="lg" disabled={isLoading || !inquiryType || !subject || (inquiryType !== 'Item Request' && !text)}>
                             {isLoading ? "Submitting..." : "Submit Inquiry"}
                         </Button>
                     </form>
@@ -175,7 +235,7 @@ export default function InquiryPage() {
                 <AccordionItem value="item-2">
                 <AccordionTrigger>How do I request an item?</AccordionTrigger>
                 <AccordionContent>
-                    You can request non-essential items like extra blankets, study lamps, or sports equipment. Please be specific in the 'Details' section. Note that availability is not guaranteed.
+                    You can request items available in the dropdown list, which are currently in stock. Please note that availability is not guaranteed and requests are processed based on need and order.
                 </AccordionContent>
                 </AccordionItem>
                 <AccordionItem value="item-3">
@@ -189,3 +249,5 @@ export default function InquiryPage() {
     </div>
   );
 }
+
+    
