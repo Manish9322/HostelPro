@@ -78,7 +78,7 @@ export function FeedbackModal({ isOpen, onClose }: FeedbackModalProps) {
                   <Input name="name" placeholder="Your Name" required maxLength={50} />
                   <Input name="email" type="email" placeholder="Your Email" required maxLength={50}/>
               </div>
-              <Textarea name="message" placeholder="Your feedback..." required className="min-h-[120px]" maxLength={500}/>
+              <Textarea name="message" placeholder="Your feedback..." required className="min-h-[120px]" maxLength={200}/>
               <div className='flex items-center gap-2'>
                 <Label>Rating:</Label>
                 <div className="flex items-center">
