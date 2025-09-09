@@ -15,7 +15,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
 import { useState, useEffect } from "react";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { Sparkles, HelpCircle, LogIn, Lightbulb, Info } from "lucide-react";
+import { Sparkles, HelpCircle, LogIn, Lightbulb, Info, AlertTriangle } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import type { Student, InventoryItem } from "@/lib/types";
 import Link from "next/link";
@@ -102,7 +102,7 @@ export default function InquiryPage() {
       const resultData = await response.json();
       setAnalysisResult(resultData.analysis);
 
-      toast({ title: "Success!", description: "Your inquiry has been submitted." });
+      toast({ title: "Success!", description: "Your inquiry has been submitted and will be reviewed by the administration." });
       setSubject("");
       setText("");
 
@@ -121,35 +121,44 @@ export default function InquiryPage() {
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-12">
                     <div className="lg:col-span-1 pt-8">
                         <div className="space-y-8">
-                            <Card>
+                            <Card className="bg-secondary/50">
                                 <CardHeader>
                                     <CardTitle className="flex items-center gap-2">
                                         <Lightbulb className="w-5 h-5 text-primary"/>
-                                        How this page works
+                                        How This Works
                                     </CardTitle>
                                     <CardDescription>
-                                        Our AI assistant helps categorize your request.
+                                        Our AI assistant helps categorize your message.
                                     </CardDescription>
                                 </CardHeader>
                                 <CardContent className="text-sm text-muted-foreground space-y-4">
-                                    <p><strong>General Question:</strong> If you ask a question, our system will log it for the admin team to answer.</p>
-                                    <p><strong>Item Request:</strong> If you request an available item (like a study desk), the AI will identify it and forward the request for approval.</p>
-                                    <p><strong>Available Items:</strong> The dropdown list shows items currently available for borrowing. Critical items are not listed.</p>
+                                    <div>
+                                        <h4 className="font-semibold text-foreground">General Question</h4>
+                                        <p>If you ask a general question (e.g., about guest policies), our system will log it for the admin team to review and answer.</p>
+                                    </div>
+                                    <div>
+                                        <h4 className="font-semibold text-foreground">Item Request</h4>
+                                        <p>If you request an available item (like a study lamp), the AI will identify the item and forward your request to the administration for approval.</p>
+                                    </div>
+                                    <div>
+                                        <h4 className="font-semibold text-foreground">Available Items List</h4>
+                                        <p>The dropdown list shows items currently available for borrowing. Critical items like fire extinguishers or major appliances are not listed here.</p>
+                                    </div>
                                 </CardContent>
                             </Card>
-                             <Card>
+                             <Card className="border-destructive/50">
                                 <CardHeader>
-                                    <CardTitle className="flex items-center gap-2">
-                                    <Info className="w-5 h-5 text-primary" />
+                                    <CardTitle className="flex items-center gap-2 text-destructive">
+                                    <AlertTriangle className="w-5 h-5" />
                                     Urgent Issues
                                     </CardTitle>
                                 </CardHeader>
                                 <CardContent>
                                     <p className="text-sm text-muted-foreground mb-4">
-                                    For urgent issues like maintenance or safety, please use the dedicated complaints page for a faster response.
+                                    For urgent issues like maintenance (e.g., broken faucet) or safety concerns, please use the dedicated complaints page for a faster, prioritized response.
                                     </p>
-                                    <Button variant="outline" className="w-full" asChild>
-                                        <Link href="/student/complaints">Go to Complaints</Link>
+                                    <Button variant="destructive" className="w-full" asChild>
+                                        <Link href="/student/complaints">Go to Complaints Page</Link>
                                     </Button>
                                 </CardContent>
                             </Card>
@@ -159,7 +168,7 @@ export default function InquiryPage() {
                         <Card>
                             <CardHeader>
                                 <CardTitle className="text-center font-headline text-3xl">Inquiry & Request Form</CardTitle>
-                                <CardDescription className="text-center">Ask a question or request an available item from the hostel inventory.</CardDescription>
+                                <CardDescription className="text-center">Ask a general question or request an available item from the hostel inventory.</CardDescription>
                             </CardHeader>
                             <CardContent>
                                 {isClient && !student ? (
