@@ -82,6 +82,7 @@ export function RoomModal({ isOpen, onClose, room, onSubmit }: RoomModalProps) {
     const data = {
         roomNumber: roomNumber,
         capacity: Number(formData.get('capacity')),
+        rent: Number(formData.get('rent')),
         status: formData.get('status'),
         condition: formData.get('condition'),
         utilities,
@@ -108,6 +109,10 @@ export function RoomModal({ isOpen, onClose, room, onSubmit }: RoomModalProps) {
             <div className="grid grid-cols-4 items-center gap-4">
               <Label htmlFor="capacity" className="text-right">Capacity</Label>
               <Input id="capacity" name="capacity" type="number" defaultValue={room?.capacity || ''} className="col-span-3" required/>
+            </div>
+            <div className="grid grid-cols-4 items-center gap-4">
+              <Label htmlFor="rent" className="text-right">Rent ($)</Label>
+              <Input id="rent" name="rent" type="number" defaultValue={room?.rent || '500'} className="col-span-3" required/>
             </div>
             <div className="grid grid-cols-4 items-center gap-4">
               <Label htmlFor="status" className="text-right">Status</Label>

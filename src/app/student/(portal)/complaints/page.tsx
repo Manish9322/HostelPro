@@ -7,16 +7,17 @@ import {
   CardDescription,
   CardHeader,
   CardTitle,
-  CardFooter
 } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { format } from "date-fns";
-import { FilePlus2, AlertTriangle, RefreshCw, FileWarning } from "lucide-react";
+import { FilePlus2, AlertTriangle, RefreshCw, FileWarning, Trash2 } from "lucide-react";
 import { useState, useEffect } from "react";
 import type { Complaint, Student } from "@/lib/types";
 import { Skeleton } from "@/components/ui/skeleton";
 import { SubmitComplaintModal } from "@/components/modals/submit-complaint-modal";
+import { DeleteConfirmationDialog } from "@/components/modals/delete-confirmation-modal";
+import { useToast } from "@/hooks/use-toast";
 
 const urgencyVariant = (urgency: string) => {
   switch (urgency) {
@@ -48,6 +49,9 @@ export default function StudentComplaintsPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [isModalOpen, setModalOpen] = useState(false);
+  const [isDeleteModalOpen, setDeleteModalOpen] = useState(false);
+  const [selectedComplaint, setSelectedComplaint] = useState<Complaint | null>(null);
+  const { toast } = useToast();
 
   const fetchData = async () => {
       setLoading(true);
@@ -82,6 +86,26 @@ export default function StudentComplaintsPage() {
   useEffect(() => {
     fetchData();
   }, []);
+  
+  const handleOpenDeleteModal = (complaint: Complaint) => {
+    setSelectedComplaint(complaint);
+    setDeleteModalOpen(true);
+  };
+
+  const handleWithdrawComplaint = async () => {
+    if (!selectedComplaint) return;
+    try {
+      const response = await fetch(`/api/complaints?id=${selectedComplaint._id}`, { method: 'DELETE' });
+      if (!response.ok) throw new Error('Failed to withdraw complaint');
+      
+      toast({ title: "Success", description: "Complaint withdrawn successfully." });
+      fetchData();
+      setDeleteModalOpen(false);
+    } catch (error) {
+        toast({ title: "Error", description: "Failed to withdraw complaint.", variant: "destructive" });
+    }
+  };
+
 
   return (
     <>
@@ -140,6 +164,18 @@ export default function StudentComplaintsPage() {
                 <p className="font-semibold text-primary">{complaint.summary}</p>
                 <p className="text-muted-foreground mt-1 text-sm">{complaint.complaintText}</p>
               </div>
+              {complaint.status === 'Pending' && (
+                <div className="flex justify-end mt-4">
+                    <Button
+                        variant="destructive"
+                        size="sm"
+                        onClick={() => handleOpenDeleteModal(complaint)}
+                    >
+                        <Trash2 className="mr-2 h-4 w-4" />
+                        Withdraw Complaint
+                    </Button>
+                </div>
+              )}
             </div>
           ))
         ) : (
@@ -160,6 +196,12 @@ export default function StudentComplaintsPage() {
             onComplaintSubmitted={fetchData}
         />
     )}
+    <DeleteConfirmationDialog
+        isOpen={isDeleteModalOpen}
+        onClose={() => setDeleteModalOpen(false)}
+        onConfirm={handleWithdrawComplaint}
+        itemName={`complaint "${selectedComplaint?.summary}"`}
+    />
     </>
   );
 }

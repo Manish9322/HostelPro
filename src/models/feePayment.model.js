@@ -1,3 +1,4 @@
+
 import mongoose from "mongoose";
 
 const feePaymentSchema = new mongoose.Schema({
@@ -11,7 +12,10 @@ const feePaymentSchema = new mongoose.Schema({
     enum: ['Paid', 'Pending', 'Overdue'],
     default: 'Pending',
     required: true
-  }
+  },
+  razorpay_order_id: { type: String },
+  razorpay_payment_id: { type: String },
+  razorpay_signature: { type: String },
 }, { timestamps: true });
 
 const FeePaymentModel = mongoose.models.FeePayment || mongoose.model("FeePayment", feePaymentSchema);

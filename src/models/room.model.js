@@ -1,3 +1,4 @@
+
 import mongoose from "mongoose";
 
 const roomSchema = new mongoose.Schema({
@@ -20,6 +21,7 @@ const roomSchema = new mongoose.Schema({
     type: [String],
     default: [],
   },
+  rent: { type: Number, required: true, default: 500 }
 }, { timestamps: true });
 
 const RoomModel = mongoose.models.Room || mongoose.model("Room", roomSchema);

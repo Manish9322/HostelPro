@@ -38,3 +38,19 @@ export async function PUT(request) {
         return NextResponse.json({ error: error.message }, { status: 400 });
     }
 }
+
+export async function DELETE(request) {
+    await _db();
+    const { searchParams } = new URL(request.url);
+    const id = searchParams.get('id');
+
+    try {
+        const deletedComplaint = await ComplaintModel.findByIdAndDelete(id);
+        if (!deletedComplaint) {
+            return NextResponse.json({ error: 'Complaint not found' }, { status: 404 });
+        }
+        return NextResponse.json({ message: 'Complaint deleted successfully' });
+    } catch (error) {
+        return NextResponse.json({ error: error.message }, { status: 400 });
+    }
+}

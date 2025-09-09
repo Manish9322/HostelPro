@@ -84,6 +84,7 @@ export type Room = {
   status: 'Available' | 'Occupied' | 'Under Maintenance';
   condition: 'Excellent' | 'Good' | 'Fair' | 'Poor';
   utilities: string[];
+  rent: number;
 };
 
 export type FeePayment = {
@@ -95,6 +96,9 @@ export type FeePayment = {
     amount: number;
     dueDate: Date;
     status: 'Paid' | 'Pending' | 'Overdue';
+    razorpay_order_id?: string;
+    razorpay_payment_id?: string;
+    razorpay_signature?: string;
 };
 
 export type InventoryItem = {
