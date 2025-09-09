@@ -147,30 +147,14 @@ export default function StudentPaymentsPage() {
             theme: {
                 color: "#3399cc",
             },
-            config: {
-              display: {
-                blocks: {
-                  upi: {
-                    name: 'Pay with UPI / QR',
-                    instruments: [
-                      { method: 'upi' },
-                      { method: 'qr' },
-                    ],
-                  },
-                  banks: {
-                    name: 'Other payment methods',
-                    instruments: [
-                      { method: 'card' },
-                      { method: 'wallet' },
-                      { method: 'netbanking' },
-                    ],
-                  },
-                },
-                sequence: ['block.upi', 'block.banks'],
-                preferences: {
-                  show_default_blocks: false,
-                },
-              },
+            method: {
+              upi: true,
+              card: true,
+              netbanking: true,
+              wallet: true,
+            },
+            upi: {
+              flow: "qr",
             },
         };
 
