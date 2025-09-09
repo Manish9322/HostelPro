@@ -85,6 +85,7 @@ export default function NoticesPage() {
         const response = await fetch('/api/notices');
         if (!response.ok) throw new Error("Failed to fetch notices.");
         const data = await response.json();
+        console.log("Fetched notices data:", data);
         setNotices(data);
     } catch(err) {
         setError((err as Error).message);
@@ -283,3 +284,5 @@ export default function NoticesPage() {
     </>
   );
 }
+
+    
