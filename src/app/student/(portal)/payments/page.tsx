@@ -151,7 +151,7 @@ export default function StudentPaymentsPage() {
               display: {
                 blocks: {
                   upi: {
-                    name: 'Pay with UPI',
+                    name: 'Pay with UPI / QR',
                     instruments: [
                       { method: 'upi' },
                       { method: 'qr' },
@@ -168,7 +168,7 @@ export default function StudentPaymentsPage() {
                 },
                 sequence: ['block.upi', 'block.banks'],
                 preferences: {
-                  show_default_blocks: true,
+                  show_default_blocks: false,
                 },
               },
             },
