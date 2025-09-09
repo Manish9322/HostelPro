@@ -10,3 +10,5 @@ const galleryImageSchema = new mongoose.Schema({
 const GalleryImageModel = mongoose.models.GalleryImage || mongoose.model("GalleryImage", galleryImageSchema);
 
 export default GalleryImageModel;
+
+    
