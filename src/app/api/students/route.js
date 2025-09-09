@@ -5,7 +5,7 @@ import { NextResponse } from "next/server";
 
 export async function GET() {
   await _db();
-  const students = await StudentModel.find({});
+  const students = await StudentModel.find({}).lean();
   return NextResponse.json(students);
 }
 
