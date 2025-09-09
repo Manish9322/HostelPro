@@ -15,7 +15,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
 import { useState, useEffect } from "react";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { Sparkles, HelpCircle, LogIn, Info, Lightbulb, ShieldCheck, Users, Wifi, HeartHandshake } from "lucide-react";
+import { Sparkles, HelpCircle, LogIn, Info, Lightbulb, ShieldCheck, Users, Wifi, HeartHandshake, FileText, Bot, MailCheck } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import type { Complaint, Student } from "@/lib/types";
 import PublicHeader from "@/components/public-header";
@@ -123,6 +123,41 @@ export default function ComplaintPage() {
                     <p className="max-w-2xl mx-auto text-lg text-muted-foreground">
                        Our goal is to provide a comfortable and safe living environment. Submitting a complaint helps us identify and resolve issues quickly.
                     </p>
+                </div>
+                 <div className="mt-16 max-w-4xl mx-auto">
+                    <div className="relative">
+                      {/* Desktop connecting line */}
+                      <div className="hidden md:block absolute top-8 left-1/2 -translate-x-1/2 w-[calc(66%-4rem)] h-0.5 border-t-2 border-dashed border-border" aria-hidden="true"></div>
+                      
+                      <div className="relative grid grid-cols-1 md:grid-cols-3 gap-y-12 md:gap-x-8">
+                        {/* Step 1 */}
+                        <div className="flex flex-col items-center text-center">
+                          <div className="flex items-center justify-center w-16 h-16 rounded-full bg-primary text-primary-foreground border-4 border-background mb-4 z-10">
+                            <FileText className="w-8 h-8" />
+                          </div>
+                          <h3 className="text-lg font-semibold">1. Describe the Issue</h3>
+                          <p className="text-sm text-muted-foreground mt-1">Provide a clear and specific description of the problem you are facing.</p>
+                        </div>
+                        
+                        {/* Step 2 */}
+                        <div className="flex flex-col items-center text-center">
+                           <div className="flex items-center justify-center w-16 h-16 rounded-full bg-primary text-primary-foreground border-4 border-background mb-4 z-10">
+                             <Bot className="w-8 h-8" />
+                          </div>
+                          <h3 className="text-lg font-semibold">2. AI-Powered Analysis</h3>
+                          <p className="text-sm text-muted-foreground mt-1">Our system analyzes your complaint to categorize it and determine its urgency.</p>
+                        </div>
+
+                        {/* Step 3 */}
+                        <div className="flex flex-col items-center text-center">
+                           <div className="flex items-center justify-center w-16 h-16 rounded-full bg-primary text-primary-foreground border-4 border-background mb-4 z-10">
+                             <MailCheck className="w-8 h-8" />
+                          </div>
+                          <h3 className="text-lg font-semibold">3. Admin Review</h3>
+                          <p className="text-sm text-muted-foreground mt-1">The categorized complaint is sent to the administration for prompt review and action.</p>
+                        </div>
+                      </div>
+                    </div>
                 </div>
             </div>
         </section>
