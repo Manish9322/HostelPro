@@ -56,12 +56,20 @@ export default function StudentRoomPage() {
         try {
             setLoading(true);
             setError(null);
+            
+            const studentId = localStorage.getItem('loggedInStudentId');
+             if (!studentId) {
+                setError("No logged-in student found. Please log in again.");
+                setLoading(false);
+                return;
+            }
 
             const studentsRes = await fetch('/api/students');
             if (!studentsRes.ok) throw new Error("Failed to fetch students");
             const students: Student[] = await studentsRes.json();
-            const currentStudent = students[0] || null;
-            setStudent(currentStudent);
+
+            const currentStudent = students.find(s => s.studentId === studentId);
+            setStudent(currentStudent || null);
             
             if (currentStudent && currentStudent.roomNumber !== "Unassigned") {
                 const roomsRes = await fetch('/api/rooms');

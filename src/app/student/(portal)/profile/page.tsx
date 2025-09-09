@@ -35,11 +35,23 @@ export default function StudentProfilePage() {
     try {
       setLoading(true);
       setError(null);
+      const studentId = localStorage.getItem('loggedInStudentId');
+      if (!studentId) {
+          setError("No logged-in student found. Please log in again.");
+          setLoading(false);
+          return;
+      }
       const response = await fetch('/api/students');
       if (!response.ok) throw new Error("Failed to fetch student data.");
-      const students = await response.json();
-      // In a real app, you'd get the logged-in user. Here, we'll take the first.
-      setStudent(students[0] || null); 
+      const students: Student[] = await response.json();
+      
+      const currentStudent = students.find(s => s.studentId === studentId);
+      
+      if (currentStudent) {
+        setStudent(currentStudent); 
+      } else {
+        setError(`Profile for student ID "${studentId}" not found.`);
+      }
     } catch (err) {
       setError("Could not load your profile. Please try again.");
       console.error(err);

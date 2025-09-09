@@ -19,9 +19,13 @@ import { useState } from "react";
 export default function StudentLoginPage() {
   const router = useRouter();
   const [showPassword, setShowPassword] = useState(false);
+  const [studentId, setStudentId] = useState("STU001");
 
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
+    // In a real app, you would validate credentials against a backend.
+    // For now, we'll just store the ID and redirect.
+    localStorage.setItem('loggedInStudentId', studentId);
     router.push("/student/dashboard");
   };
 
@@ -46,7 +50,8 @@ export default function StudentLoginPage() {
                 id="studentId"
                 placeholder="e.g., STU001"
                 required
-                defaultValue="STU001"
+                value={studentId}
+                onChange={(e) => setStudentId(e.target.value)}
               />
             </div>
             <div className="space-y-2">
