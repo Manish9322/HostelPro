@@ -36,18 +36,6 @@ export function StudentModal({ isOpen, onClose, student, onSubmit }: StudentModa
   const title = isEditMode ? "Edit Student Details" : "Add New Student";
   const description = isEditMode ? "Update the details of the student." : "Enter the details for the new student.";
 
-  useEffect(() => {
-    if (isOpen && student) {
-      console.log("Student data received by modal:", student);
-      console.log("Password:", student.password);
-      console.log("Date of Birth:", student.dob);
-      console.log("Gender:", student.gender);
-      console.log("Guardian Name:", student.guardianName);
-      console.log("Guardian Phone:", student.guardianPhone);
-    }
-  }, [isOpen, student]);
-
-
   const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const formData = new FormData(e.currentTarget);
