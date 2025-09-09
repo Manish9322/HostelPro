@@ -19,6 +19,7 @@ import { Separator } from '@/components/ui/separator';
 import { useEffect, useState } from 'react';
 import { Faq, GalleryImage, Feedback } from '@/lib/types';
 import { Skeleton } from '@/components/ui/skeleton';
+import { GalleryImageModal } from '@/components/modals/gallery-image-modal';
 
 const SectionTag = ({ icon: Icon, children }: { icon: React.ElementType, children: React.ReactNode }) => (
   <div className="flex items-center justify-center gap-2 mb-8">
@@ -31,18 +32,24 @@ export default function Home() {
     const [faqs, setFaqs] = useState<Faq[]>([]);
     const [galleryImages, setGalleryImages] = useState<GalleryImage[]>([]);
     const [testimonials, setTestimonials] = useState<Feedback[]>([]);
+    const [location, setLocation] = useState<{address: string, mapLink: string}>({address: '', mapLink: ''});
+    
     const [loadingFaqs, setLoadingFaqs] = useState(true);
     const [loadingGallery, setLoadingGallery] = useState(true);
     const [loadingTestimonials, setLoadingTestimonials] = useState(true);
+    const [loadingLocation, setLoadingLocation] = useState(true);
     const [error, setError] = useState<string | null>(null);
+
+    const [selectedImage, setSelectedImage] = useState<GalleryImage | null>(null);
 
     useEffect(() => {
         const fetchData = async () => {
             try {
-                const [faqRes, galleryRes, feedbackRes] = await Promise.all([
+                const [faqRes, galleryRes, feedbackRes, settingsRes] = await Promise.all([
                     fetch('/api/faqs'),
                     fetch('/api/gallery'),
-                    fetch('/api/feedback')
+                    fetch('/api/feedback'),
+                    fetch('/api/settings'),
                 ]);
 
                 if (!faqRes.ok) throw new Error('Failed to load FAQs');
@@ -60,11 +67,17 @@ export default function Home() {
                 setTestimonials(feedbackData.filter((fb: Feedback) => fb.rating >= 4).slice(0, 3));
                 setLoadingTestimonials(false);
 
+                if(!settingsRes.ok) throw new Error('Failed to load settings');
+                const settingsData = await settingsRes.json();
+                setLocation({ address: settingsData.locationAddress, mapLink: settingsData.locationMapLink });
+                setLoadingLocation(false);
+
             } catch (err) {
                 setError((err as Error).message);
                 setLoadingFaqs(false);
                 setLoadingGallery(false);
                 setLoadingTestimonials(false);
+                setLoadingLocation(false);
             }
         };
 
@@ -72,6 +85,7 @@ export default function Home() {
     }, []);
 
   return (
+    <>
     <div className="flex flex-col min-h-screen bg-background">
       <PublicHeader />
       <main className="flex-1">
@@ -202,10 +216,7 @@ export default function Home() {
             </div>
              {loadingGallery ? (
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                    <Skeleton className="h-[400px] rounded-lg" />
-                    <Skeleton className="h-[400px] rounded-lg" />
-                    <Skeleton className="h-[400px] rounded-lg" />
-                    <Skeleton className="h-[400px] rounded-lg" />
+                    {Array.from({length: 4}).map((_, i) => <Skeleton key={i} className="h-[400px] rounded-lg" />)}
                 </div>
             ) : error ? (
                 <p className="text-destructive text-center">Could not load gallery images.</p>
@@ -213,7 +224,7 @@ export default function Home() {
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                     {galleryImages.map((image, index) => (
                         <div key={image._id} className={`grid gap-4 ${index === 0 || index === 2 ? 'row-span-2' : ''}`}>
-                            <div className="overflow-hidden rounded-lg shadow-md group">
+                            <div className="overflow-hidden rounded-lg shadow-md group cursor-pointer" onClick={() => setSelectedImage(image)}>
                                 <Image src={image.url} alt={image.alt} width={400} height={index === 0 || index === 2 ? 600 : 300} className="rounded-lg object-cover w-full h-full transition-transform duration-500 group-hover:scale-110" />
                             </div>
                         </div>
@@ -382,12 +393,22 @@ export default function Home() {
             <div className="rounded-lg overflow-hidden border-4 border-white shadow-2xl">
               <Image src="https://picsum.photos/1200/400" data-ai-hint="city map" alt="Hostel Location Map" width={1200} height={400} className="w-full object-cover" />
             </div>
-            <div className="text-center mt-8">
-              <p className="font-semibold text-xl">HostelPro, 123 University Lane, College Town, USA 12345</p>
-              <p className="mt-2 max-w-2xl mx-auto text-muted-foreground">Just a 5-minute walk from the main university campus and a 10-minute bus ride from the city center. All essential services are within easy reach.</p>
-              <Button asChild variant="link" className="mt-2 text-lg">
-                <a href="#" target="_blank" rel="noopener noreferrer">Get Directions on Google Maps</a>
-              </Button>
+             <div className="text-center mt-8">
+              {loadingLocation ? (
+                <>
+                  <Skeleton className="h-7 w-3/4 mx-auto" />
+                  <Skeleton className="h-4 w-full max-w-2xl mx-auto mt-3" />
+                  <Skeleton className="h-5 w-48 mx-auto mt-3" />
+                </>
+              ) : (
+                <>
+                  <p className="font-semibold text-xl">{location.address}</p>
+                  <p className="mt-2 max-w-2xl mx-auto text-muted-foreground">Just a 5-minute walk from the main university campus and a 10-minute bus ride from the city center. All essential services are within easy reach.</p>
+                  <Button asChild variant="link" className="mt-2 text-lg">
+                    <a href={location.mapLink} target="_blank" rel="noopener noreferrer">Get Directions on Google Maps</a>
+                  </Button>
+                </>
+              )}
             </div>
           </div>
         </section>
@@ -414,5 +435,12 @@ export default function Home() {
       </main>
       <PublicFooter />
     </div>
+
+    <GalleryImageModal
+        isOpen={!!selectedImage}
+        onClose={() => setSelectedImage(null)}
+        image={selectedImage}
+    />
+    </>
   );
 }
