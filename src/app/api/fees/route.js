@@ -3,7 +3,8 @@ import _db from "@/utils/db";
 import FeePaymentModel from "@/models/feePayment.model";
 import { NextResponse } from "next/server";
 import RoomModel from "@/models/room.model";
-import { subMonths, format } from "date-fns";
+import StudentModel from "@/models/student.model";
+import { format } from "date-fns";
 
 export async function GET(request) {
   await _db();
@@ -20,14 +21,10 @@ export async function GET(request) {
     let existingPayment = await FeePaymentModel.findOne({ studentId, month: currentMonth });
 
     if (!existingPayment) {
-        const studentRoomRes = await fetch(`${request.nextUrl.origin}/api/students`);
-        const allStudents = await studentRoomRes.json();
-        const student = allStudents.find(s => s.studentId === studentId);
+        const student = await StudentModel.findOne({ studentId: studentId });
         
         if (student && student.roomNumber !== 'Unassigned') {
-            const roomRes = await fetch(`${request.nextUrl.origin}/api/rooms`);
-            const allRooms = await roomRes.json();
-            const room = allRooms.find(r => r.roomNumber === student.roomNumber);
+            const room = await RoomModel.findOne({ roomNumber: student.roomNumber });
 
             if(room) {
               const newPayment = new FeePaymentModel({
