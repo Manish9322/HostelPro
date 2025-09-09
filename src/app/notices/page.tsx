@@ -99,19 +99,19 @@ export default function NoticesPage() {
 
 
   const featuredNotice = useMemo(() => notices.find(n => n.featured), [notices]);
-  const otherNotices = useMemo(() => notices
-    .filter(n => !n.featured)
-    .sort((a, b) => new Date(b.publishedAt).getTime() - new Date(a.publishedAt).getTime()), [notices]);
-
+  
   const filteredNotices = useMemo(() => {
-    return otherNotices.filter(notice => {
-      const matchesCategory = activeCategory === 'All' || notice.category === activeCategory;
-      const matchesSearch = notice.title.toLowerCase().includes(searchQuery.toLowerCase()) || 
-                            notice.content.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                            notice.author.toLowerCase().includes(searchQuery.toLowerCase());
-      return matchesCategory && matchesSearch;
-    });
-  }, [searchQuery, activeCategory, otherNotices]);
+    return notices
+      .filter(notice => {
+        const isNotFeatured = !notice.featured;
+        const matchesCategory = activeCategory === 'All' || notice.category === activeCategory;
+        const matchesSearch = notice.title.toLowerCase().includes(searchQuery.toLowerCase()) || 
+                              notice.content.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                              notice.author.toLowerCase().includes(searchQuery.toLowerCase());
+        return isNotFeatured && matchesCategory && matchesSearch;
+      })
+      .sort((a, b) => new Date(b.publishedAt).getTime() - new Date(a.publishedAt).getTime());
+  }, [searchQuery, activeCategory, notices]);
 
   return (
     <>
