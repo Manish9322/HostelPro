@@ -1,4 +1,3 @@
-
 "use client";
 
 import { useState, useEffect } from "react";
@@ -12,7 +11,7 @@ import {
 } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
-import { User, Mail, Phone, GraduationCap, Building, Pen, AlertTriangle, RefreshCw, FilePlus2, Bed, CircleDollarSign, LifeBuoy, Shield } from "lucide-react";
+import { User, Mail, Phone, GraduationCap, Building, Pen, AlertTriangle, RefreshCw, FilePlus2, Bed, CircleDollarSign, LifeBuoy, Shield, Users } from "lucide-react";
 import { Separator } from "@/components/ui/separator";
 import { Student } from "@/lib/types";
 import { Skeleton } from "@/components/ui/skeleton";
