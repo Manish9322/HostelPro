@@ -20,6 +20,9 @@ import { Badge } from "@/components/ui/badge";
 import type { Student, InventoryItem } from "@/lib/types";
 import Link from "next/link";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Separator } from "@/components/ui/separator";
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
+
 
 interface AnalysisResult {
     category: 'Question' | 'Request';
@@ -52,23 +55,35 @@ export default function InquiryPage() {
   useEffect(() => {
     setIsClient(true);
     const fetchInitialData = async () => {
-        const studentId = localStorage.getItem('loggedInStudentId');
-        if(studentId) {
-            const res = await fetch('/api/students');
-            const allStudents: Student[] = await res.json();
-            const currentStudent = allStudents.find(s => s.studentId === studentId);
-            setStudent(currentStudent || null);
+        try {
+            const studentId = localStorage.getItem('loggedInStudentId');
+            if(studentId) {
+                const res = await fetch('/api/students');
+                const allStudents: Student[] = await res.json();
+                const currentStudent = allStudents.find(s => s.studentId === studentId);
+                setStudent(currentStudent || null);
+            }
+            
+            const invRes = await fetch('/api/inventory');
+            if (!invRes.ok) throw new Error('Failed to fetch inventory');
+            const inventory: InventoryItem[] = await invRes.json();
+
+            // Log all items for debugging
+            console.log("All Inventory Items:", inventory);
+
+            // Filter for available items and set them
+            const available = inventory
+                .filter(item => item.status === 'In Stock')
+                .map(item => item.name);
+            setAvailableItems(available);
+
+        } catch (err) {
+            console.error(err);
+            toast({ title: "Error", description: "Could not load initial data.", variant: "destructive"});
         }
-        
-        const invRes = await fetch('/api/inventory');
-        const inventory: InventoryItem[] = await invRes.json();
-        const available = inventory
-            .filter(item => item.status === 'In Stock' && !['Appliance', 'Safety'].includes(item.category))
-            .map(item => item.name);
-        setAvailableItems(available);
     }
     fetchInitialData();
-  }, []);
+  }, [toast]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -114,108 +129,100 @@ export default function InquiryPage() {
   };
 
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-3 gap-12">
-        <div className="lg:col-span-1">
-            <div className="space-y-8">
-                <Card>
-                    <CardHeader>
-                        <CardTitle className="flex items-center gap-2">
-                            <Lightbulb className="w-5 h-5 text-primary"/>
-                            How to Use This Form
-                        </CardTitle>
-                        <CardDescription>
-                            Follow these tips for a faster response.
-                        </CardDescription>
-                    </CardHeader>
-                    <CardContent className="text-sm text-muted-foreground space-y-4">
-                        <p><strong>General Questions:</strong> Use this form for non-urgent questions like "What are the gym hours?" or "When is the next movie night?".</p>
-                        <p><strong>Item Requests:</strong> You can request to borrow available items like study lamps or board games. Make sure to specify the item you need.</p>
-                        <p><strong>AI Assistance:</strong> Our AI helps categorize your request to route it to the right person, ensuring a quicker follow-up from our team.</p>
-                    </CardContent>
-                </Card>
-                <Card>
-                    <CardHeader>
-                        <CardTitle className="flex items-center gap-2">
-                            <Info className="w-5 h-5 text-destructive" />
-                            For Urgent Issues
-                        </CardTitle>
-                        <CardDescription>
-                            Do not use this form for emergencies.
-                        </CardDescription>
-                    </CardHeader>
-                    <CardContent className="space-y-4">
-                        <p className="text-sm text-muted-foreground">
-                         For urgent matters like a broken faucet, power outage, or safety concerns, please use the dedicated <Button asChild variant="link" className="p-0 h-auto"><Link href="/student/complaints">Complaints Page</Link></Button>. This ensures your issue is prioritized and addressed quickly by the correct team.
-                        </p>
-                    </CardContent>
-                </Card>
-            </div>
-        </div>
-        <div className="lg:col-span-2">
-             <div className="sticky top-20">
-                <Card>
-                    <CardHeader>
-                        <CardTitle className="font-headline text-3xl">Inquiry & Request Form</CardTitle>
-                        <CardDescription>Ask a general question or request an available item from the hostel inventory.</CardDescription>
-                    </CardHeader>
-                    <CardContent>
-                        {isClient && !student ? (
-                            <Alert>
-                                <LogIn className="h-4 w-4" />
-                                <AlertTitle>You are not logged in</AlertTitle>
-                                <AlertDescription>
-                                    Please <Link href="/student/login" className="font-bold underline">log in</Link> to use this form.
-                                </AlertDescription>
-                            </Alert>
-                        ) : (
-                            <form onSubmit={handleSubmit} className="space-y-6">
-                                <div>
-                                    <Label htmlFor="subject">Subject</Label>
-                                    <Input id="subject" value={subject} onChange={e => setSubject(e.target.value)} placeholder="e.g., Question about guest policy" required />
-                                </div>
-                                <div>
-                                    <Label htmlFor="text">Details</Label>
-                                    <Textarea id="text" value={text} onChange={e => setText(e.target.value)} placeholder="Please be as specific as possible. If you are requesting an item, mention it here." className="min-h-[150px]" required />
-                                </div>
-                                <div>
-                                    <Label>Available Items for Request (Optional)</Label>
-                                    <Select>
-                                        <SelectTrigger><SelectValue placeholder="Browse available items..." /></SelectTrigger>
-                                        <SelectContent>
-                                            {availableItems.length > 0 ? availableItems.map(item => (
-                                                <SelectItem key={item} value={item}>{item}</SelectItem>
-                                            )) : <SelectItem value="none" disabled>No items available</SelectItem>}
-                                        </SelectContent>
-                                    </Select>
-                                    <p className="text-xs text-muted-foreground mt-2">If requesting an item, please also describe your need in the details section above.</p>
-                                </div>
+    <div className="space-y-8">
+        <Card>
+            <CardHeader>
+                <CardTitle className="font-headline text-3xl">Inquiry & Request Form</CardTitle>
+                <CardDescription>Ask a general question or request an available item from the hostel inventory.</CardDescription>
+            </CardHeader>
+            <CardContent>
+                {isClient && !student ? (
+                    <Alert>
+                        <LogIn className="h-4 w-4" />
+                        <AlertTitle>You are not logged in</AlertTitle>
+                        <AlertDescription>
+                            Please <Link href="/student/login" className="font-bold underline">log in</Link> to use this form.
+                        </AlertDescription>
+                    </Alert>
+                ) : (
+                    <form onSubmit={handleSubmit} className="space-y-6">
+                        <div>
+                            <Label htmlFor="subject">Subject</Label>
+                            <Input id="subject" value={subject} onChange={e => setSubject(e.target.value)} placeholder="e.g., Question about guest policy" required />
+                        </div>
+                        <div>
+                            <Label htmlFor="text">Details</Label>
+                            <Textarea id="text" value={text} onChange={e => setText(e.target.value)} placeholder="Please be as specific as possible. If you are requesting an item, mention it here." className="min-h-[150px]" required />
+                        </div>
+                        <div>
+                            <Label>Available Items for Request (Optional)</Label>
+                            <Select>
+                                <SelectTrigger><SelectValue placeholder="Browse available items..." /></SelectTrigger>
+                                <SelectContent>
+                                    {availableItems.length > 0 ? availableItems.map(item => (
+                                        <SelectItem key={item} value={item}>{item}</SelectItem>
+                                    )) : <SelectItem value="none" disabled>No items available for request</SelectItem>}
+                                </SelectContent>
+                            </Select>
+                            <p className="text-xs text-muted-foreground mt-2">If requesting an item, please also describe your need in the details section above.</p>
+                        </div>
 
-                                {analysisResult && (
-                                <Alert>
-                                    <Sparkles className="h-4 w-4" />
-                                    <AlertTitle>AI Analysis Complete</AlertTitle>
-                                    <AlertDescription className="space-y-2 mt-2">
-                                        <p><strong>Summary:</strong> {analysisResult.summary}</p>
-                                        <div className="flex flex-wrap gap-4">
-                                            <span><strong>Category:</strong> <Badge>{analysisResult.category}</Badge></span>
-                                            <span><strong>Urgency:</strong> <Badge variant={urgencyVariant(analysisResult.urgency)}>{analysisResult.urgency}</Badge></span>
-                                            {analysisResult.requestedItem && (
-                                                <span><strong>Requested Item:</strong> <Badge variant="outline">{analysisResult.requestedItem}</Badge></span>
-                                            )}
-                                        </div>
-                                    </AlertDescription>
-                                </Alert>
-                                )}
-                                {error && <p className="text-sm text-destructive">{error}</p>}
-                                
-                                <Button type="submit" className="w-full" size="lg" disabled={isLoading || !subject || !text}>
-                                    {isLoading ? "Submitting..." : "Submit Inquiry"}
-                                </Button>
-                            </form>
+                        {analysisResult && (
+                        <Alert>
+                            <Sparkles className="h-4 w-4" />
+                            <AlertTitle>AI Analysis Complete</AlertTitle>
+                            <AlertDescription className="space-y-2 mt-2">
+                                <p><strong>Summary:</strong> {analysisResult.summary}</p>
+                                <div className="flex flex-wrap gap-4">
+                                    <span><strong>Category:</strong> <Badge>{analysisResult.category}</Badge></span>
+                                    <span><strong>Urgency:</strong> <Badge variant={urgencyVariant(analysisResult.urgency)}>{analysisResult.urgency}</Badge></span>
+                                    {analysisResult.requestedItem && (
+                                        <span><strong>Requested Item:</strong> <Badge variant="outline">{analysisResult.requestedItem}</Badge></span>
+                                    )}
+                                </div>
+                            </AlertDescription>
+                        </Alert>
                         )}
-                    </CardContent>
-                </Card>
-            </div>
+                        {error && <p className="text-sm text-destructive">{error}</p>}
+                        
+                        <Button type="submit" className="w-full" size="lg" disabled={isLoading || !subject || !text}>
+                            {isLoading ? "Submitting..." : "Submit Inquiry"}
+                        </Button>
+                    </form>
+                )}
+            </CardContent>
+        </Card>
+        
+        <Separator/>
+
+        <div>
+            <h3 className="text-2xl font-semibold mb-4 text-center">Frequently Asked Questions</h3>
+            <Accordion type="single" collapsible className="w-full max-w-3xl mx-auto">
+                <AccordionItem value="item-1">
+                <AccordionTrigger>What kind of questions can I ask here?</AccordionTrigger>
+                <AccordionContent>
+                    This form is for general, non-urgent questions about hostel life. Examples include asking about gym hours, upcoming events, guest policies, or clarifying a notice.
+                </AccordionContent>
+                </AccordionItem>
+                <AccordionItem value="item-2">
+                <AccordionTrigger>How do I request an item?</AccordionTrigger>
+                <AccordionContent>
+                    You can browse the "Available Items for Request" dropdown to see what's in stock. If you need something from the list, please mention it clearly in the "Details" section of the form. For example, "I would like to borrow a study lamp for my room for one week."
+                </AccordionContent>
+                </AccordionItem>
+                <AccordionItem value="item-3">
+                <AccordionTrigger>What should I do for an urgent issue?</AccordionTrigger>
+                <AccordionContent>
+                    For urgent problems like a power outage, water leak, or any safety concern, please do not use this form. Instead, use the dedicated <Button asChild variant="link" className="p-0 h-auto font-semibold"><Link href="/student/complaints">Complaints Page</Link></Button> which is monitored for high-priority issues.
+                </AccordionContent>
+                </AccordionItem>
+                 <AccordionItem value="item-4">
+                <AccordionTrigger>How does the AI analysis work?</AccordionTrigger>
+                <AccordionContent>
+                    When you submit your inquiry, our AI system reads the text to understand the subject, categorizes it as a question or request, and estimates its urgency. This helps our administrative staff quickly route your message to the right person for a faster response. Your personal data is always handled with care.
+                </AccordionContent>
+                </AccordionItem>
+            </Accordion>
         </div>
     </div>
   );
