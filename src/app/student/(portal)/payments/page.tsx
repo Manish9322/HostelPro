@@ -150,25 +150,23 @@ export default function StudentPaymentsPage() {
             config: {
               display: {
                 blocks: {
-                  banks: {
-                    name: 'All payment methods',
+                  upi: {
+                    name: 'Pay with UPI',
                     instruments: [
-                      {
-                          method: 'upi'
-                      },
-                      {
-                          method: 'card'
-                      },
-                      {
-                          method: 'wallet'
-                      },
-                      {
-                          method: 'netbanking'
-                      }
+                      { method: 'upi' },
+                      { method: 'qr' },
+                    ],
+                  },
+                  banks: {
+                    name: 'Other payment methods',
+                    instruments: [
+                      { method: 'card' },
+                      { method: 'wallet' },
+                      { method: 'netbanking' },
                     ],
                   },
                 },
-                sequence: ['block.banks'],
+                sequence: ['block.upi', 'block.banks'],
                 preferences: {
                   show_default_blocks: true,
                 },
