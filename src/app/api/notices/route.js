@@ -12,6 +12,12 @@ export async function GET() {
 export async function POST(request) {
   await _db();
   const body = await request.json();
+  
+  if (body.featured) {
+    // Un-feature all other notices
+    await NoticeModel.updateMany({ featured: true }, { $set: { featured: false } });
+  }
+
   const newNotice = new NoticeModel(body);
   const savedNotice = await newNotice.save();
   return NextResponse.json(savedNotice, { status: 201 });
@@ -24,6 +30,11 @@ export async function PUT(request) {
     const body = await request.json();
 
     try {
+        if (body.featured) {
+            // Un-feature all other notices
+            await NoticeModel.updateMany({ _id: { $ne: id }, featured: true }, { $set: { featured: false } });
+        }
+        
         const updatedNotice = await NoticeModel.findByIdAndUpdate(id, body, { new: true });
         if (!updatedNotice) {
             return NextResponse.json({ error: 'Notice not found' }, { status: 404 });
