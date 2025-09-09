@@ -13,7 +13,7 @@ export async function POST(request) {
   await _db();
   const body = await request.json();
   
-  // Assign order
+  // Assign order to be the last
   const count = await FaqModel.countDocuments();
   body.order = count;
 
@@ -29,7 +29,8 @@ export async function PUT(request) {
     const body = await request.json();
 
     try {
-        const updatedFaq = await FaqModel.findByIdAndUpdate(id, body, { new: true });
+        // Only update fields that are passed in the body
+        const updatedFaq = await FaqModel.findByIdAndUpdate(id, { $set: body }, { new: true });
         if (!updatedFaq) {
             return NextResponse.json({ error: 'FAQ not found' }, { status: 404 });
         }

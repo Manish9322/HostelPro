@@ -1,8 +1,4 @@
 
-
-
-
-
 export type Student = {
   _id: string;
   id: string;
@@ -139,6 +135,7 @@ export interface Faq {
   question: string;
   answer: string;
   order: number;
+  visible: boolean;
 }
 
 export interface GalleryImage {

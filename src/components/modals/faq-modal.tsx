@@ -13,6 +13,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { Checkbox } from "@/components/ui/checkbox";
 import { Faq } from "@/lib/types";
 
 interface FaqModalProps {
@@ -33,8 +34,9 @@ export function FaqModal({ isOpen, onClose, faq, onSubmit }: FaqModalProps) {
     const data = {
         question: formData.get('question') as string,
         answer: formData.get('answer') as string,
+        visible: formData.get('visible') === 'on',
     };
-    onSubmit(data);
+    onSubmit(data as any);
   };
 
   return (
@@ -53,6 +55,13 @@ export function FaqModal({ isOpen, onClose, faq, onSubmit }: FaqModalProps) {
             <div className="grid grid-cols-4 items-start gap-4">
               <Label htmlFor="answer" className="text-right pt-2">Answer</Label>
               <Textarea id="answer" name="answer" defaultValue={faq?.answer || ''} className="col-span-3 min-h-[150px]" required />
+            </div>
+            <div className="grid grid-cols-4 items-center gap-4">
+                <div/>
+                <div className="col-span-3 flex items-center space-x-2">
+                    <Checkbox id="visible" name="visible" defaultChecked={faq ? faq.visible : true} />
+                    <Label htmlFor="visible" className="font-normal">Visible on public homepage</Label>
+                </div>
             </div>
           </div>
           <DialogFooter>

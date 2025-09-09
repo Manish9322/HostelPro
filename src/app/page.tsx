@@ -1,9 +1,11 @@
 
+"use client";
+
 import Image from 'next/image';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { BedDouble, Users, ShieldCheck, Wifi, Dumbbell, UtensilsCrossed, BookOpen, Tv, Star, University, FileCheck2, Building, Handshake, Smile, Shield, Trophy, PartyPopper, Lightbulb, Images, HeartHandshake, HelpCircle, MapPin, Sparkles } from 'lucide-react';
+import { BedDouble, Users, ShieldCheck, Wifi, Dumbbell, UtensilsCrossed, BookOpen, Tv, Star, University, FileCheck2, Building, Handshake, Smile, Shield, Trophy, PartyPopper, Lightbulb, Images, HeartHandshake, HelpCircle, MapPin, Sparkles, RefreshCw, AlertTriangle } from 'lucide-react';
 import PublicHeader from '@/components/public-header';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import {
@@ -14,6 +16,9 @@ import {
 } from "@/components/ui/accordion";
 import PublicFooter from '@/components/public-footer';
 import { Separator } from '@/components/ui/separator';
+import { useEffect, useState } from 'react';
+import { Faq, GalleryImage, Feedback } from '@/lib/types';
+import { Skeleton } from '@/components/ui/skeleton';
 
 const SectionTag = ({ icon: Icon, children }: { icon: React.ElementType, children: React.ReactNode }) => (
   <div className="flex items-center justify-center gap-2 mb-8">
@@ -23,6 +28,49 @@ const SectionTag = ({ icon: Icon, children }: { icon: React.ElementType, childre
 )
 
 export default function Home() {
+    const [faqs, setFaqs] = useState<Faq[]>([]);
+    const [galleryImages, setGalleryImages] = useState<GalleryImage[]>([]);
+    const [testimonials, setTestimonials] = useState<Feedback[]>([]);
+    const [loadingFaqs, setLoadingFaqs] = useState(true);
+    const [loadingGallery, setLoadingGallery] = useState(true);
+    const [loadingTestimonials, setLoadingTestimonials] = useState(true);
+    const [error, setError] = useState<string | null>(null);
+
+    useEffect(() => {
+        const fetchData = async () => {
+            try {
+                const [faqRes, galleryRes, feedbackRes] = await Promise.all([
+                    fetch('/api/faqs'),
+                    fetch('/api/gallery'),
+                    fetch('/api/feedback')
+                ]);
+
+                if (!faqRes.ok) throw new Error('Failed to load FAQs');
+                const faqData = await faqRes.json();
+                setFaqs(faqData.filter((faq: Faq) => faq.visible)); // Only show visible FAQs
+                setLoadingFaqs(false);
+
+                if (!galleryRes.ok) throw new Error('Failed to load gallery');
+                const galleryData = await galleryRes.json();
+                setGalleryImages(galleryData);
+                setLoadingGallery(false);
+
+                if (!feedbackRes.ok) throw new Error('Failed to load testimonials');
+                const feedbackData = await feedbackRes.json();
+                setTestimonials(feedbackData.filter((fb: Feedback) => fb.rating >= 4).slice(0, 3));
+                setLoadingTestimonials(false);
+
+            } catch (err) {
+                setError((err as Error).message);
+                setLoadingFaqs(false);
+                setLoadingGallery(false);
+                setLoadingTestimonials(false);
+            }
+        };
+
+        fetchData();
+    }, []);
+
   return (
     <div className="flex flex-col min-h-screen bg-background">
       <PublicHeader />
@@ -51,7 +99,7 @@ export default function Home() {
                     <div className="w-full max-w-5xl pt-12">
                       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
                         <div className="relative group overflow-hidden rounded-xl">
-                           <Image src="https://placehold.co/400x500.png" data-ai-hint="hostel room" alt="A clean and modern hostel room" width={400} height={500} className="object-cover w-full h-full transition-transform duration-500 group-hover:scale-110" />
+                           <Image src="https://picsum.photos/400/500" data-ai-hint="hostel room" alt="A clean and modern hostel room" width={400} height={500} className="object-cover w-full h-full transition-transform duration-500 group-hover:scale-110" />
                            <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent"/>
                            <div className="absolute bottom-4 left-4 text-white">
                               <h3 className="font-bold text-lg">Comfortable Rooms</h3>
@@ -59,7 +107,7 @@ export default function Home() {
                            </div>
                         </div>
                          <div className="relative group overflow-hidden rounded-xl">
-                           <Image src="https://placehold.co/400x500.png" data-ai-hint="hostel exterior" alt="The modern exterior of the hostel building" width={400} height={500} className="object-cover w-full h-full transition-transform duration-500 group-hover:scale-110" />
+                           <Image src="https://picsum.photos/400/500" data-ai-hint="hostel exterior" alt="The modern exterior of the hostel building" width={400} height={500} className="object-cover w-full h-full transition-transform duration-500 group-hover:scale-110" />
                             <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent"/>
                            <div className="absolute bottom-4 left-4 text-white">
                               <h3 className="font-bold text-lg">Prime Location</h3>
@@ -67,7 +115,7 @@ export default function Home() {
                            </div>
                         </div>
                          <div className="relative group overflow-hidden rounded-xl">
-                           <Image src="https://placehold.co/400x500.png" data-ai-hint="common area" alt="A vibrant common area with students" width={400} height={500} className="object-cover w-full h-full transition-transform duration-500 group-hover:scale-110" />
+                           <Image src="https://picsum.photos/400/500" data-ai-hint="common area" alt="A vibrant common area with students" width={400} height={500} className="object-cover w-full h-full transition-transform duration-500 group-hover:scale-110" />
                             <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent"/>
                            <div className="absolute bottom-4 left-4 text-white">
                               <h3 className="font-bold text-lg">Vibrant Community</h3>
@@ -76,7 +124,7 @@ export default function Home() {
                         </div>
                         <div className="space-y-4">
                            <div className="relative group overflow-hidden rounded-xl">
-                              <Image src="https://placehold.co/400x242.png" data-ai-hint="study lounge" alt="A quiet study lounge for students" width={400} height={242} className="object-cover w-full h-full transition-transform duration-500 group-hover:scale-110" />
+                              <Image src="https://picsum.photos/400/242" data-ai-hint="study lounge" alt="A quiet study lounge for students" width={400} height={242} className="object-cover w-full h-full transition-transform duration-500 group-hover:scale-110" />
                                <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent"/>
                               <div className="absolute bottom-4 left-4 text-white">
                                  <h3 className="font-bold text-lg">Modern Amenities</h3>
@@ -84,7 +132,7 @@ export default function Home() {
                               </div>
                            </div>
                            <div className="relative group overflow-hidden rounded-xl">
-                             <Image src="https://placehold.co/400x242.png" data-ai-hint="security camera" alt="A security camera ensuring safety" width={400} height={242} className="object-cover w-full h-full transition-transform duration-500 group-hover:scale-110" />
+                             <Image src="https://picsum.photos/400/242" data-ai-hint="security camera" alt="A security camera ensuring safety" width={400} height={242} className="object-cover w-full h-full transition-transform duration-500 group-hover:scale-110" />
                               <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent"/>
                               <div className="absolute bottom-4 left-4 text-white">
                                  <h3 className="font-bold text-lg">24/7 Security</h3>
@@ -152,34 +200,26 @@ export default function Home() {
               <h2 className="text-3xl md:text-4xl font-bold font-headline">Glimpses of Our Hostel</h2>
               <p className="mt-2 text-muted-foreground">A modern, clean, and welcoming environment designed for student success.</p>
             </div>
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-              <div className="grid gap-4">
-                <div className="overflow-hidden rounded-lg shadow-md group">
-                  <Image src="https://placehold.co/400x600.png" data-ai-hint="hostel room" alt="Spacious and bright hostel room" width={400} height={600} className="rounded-lg object-cover w-full h-full transition-transform duration-500 group-hover:scale-110" />
+             {loadingGallery ? (
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                    <Skeleton className="h-[400px] rounded-lg" />
+                    <Skeleton className="h-[400px] rounded-lg" />
+                    <Skeleton className="h-[400px] rounded-lg" />
+                    <Skeleton className="h-[400px] rounded-lg" />
                 </div>
-              </div>
-              <div className="grid gap-4">
-                <div className="overflow-hidden rounded-lg shadow-md group">
-                  <Image src="https://placehold.co/400x300.png" data-ai-hint="hostel lounge" alt="Comfortable common lounge area" width={400} height={300} className="rounded-lg object-cover w-full h-full transition-transform duration-500 group-hover:scale-110" />
+            ) : error ? (
+                <p className="text-destructive text-center">Could not load gallery images.</p>
+            ) : (
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                    {galleryImages.map((image, index) => (
+                        <div key={image._id} className={`grid gap-4 ${index === 0 || index === 2 ? 'row-span-2' : ''}`}>
+                            <div className="overflow-hidden rounded-lg shadow-md group">
+                                <Image src={image.url} alt={image.alt} width={400} height={index === 0 || index === 2 ? 600 : 300} className="rounded-lg object-cover w-full h-full transition-transform duration-500 group-hover:scale-110" />
+                            </div>
+                        </div>
+                    ))}
                 </div>
-                <div className="overflow-hidden rounded-lg shadow-md group">
-                  <Image src="https://placehold.co/400x300.png" data-ai-hint="study area" alt="Quiet and well-lit study room" width={400} height={300} className="rounded-lg object-cover w-full h-full transition-transform duration-500 group-hover:scale-110" />
-                </div>
-              </div>
-              <div className="grid gap-4">
-                <div className="overflow-hidden rounded-lg shadow-md group">
-                  <Image src="https://placehold.co/400x600.png" data-ai-hint="hostel exterior" alt="Modern exterior of the hostel building" width={400} height={600} className="rounded-lg object-cover w-full h-full transition-transform duration-500 group-hover:scale-110" />
-                </div>
-              </div>
-              <div className="grid gap-4">
-                <div className="overflow-hidden rounded-lg shadow-md group">
-                  <Image src="https://placehold.co/400x300.png" data-ai-hint="hostel cafeteria" alt="Hostel cafeteria with various food options" width={400} height={300} className="rounded-lg object-cover w-full h-full transition-transform duration-500 group-hover:scale-110" />
-                </div>
-                <div className="overflow-hidden rounded-lg shadow-md group">
-                  <Image src="https://placehold.co/400x300.png" data-ai-hint="recreation area" alt="Recreation area with games" width={400} height={300} className="rounded-lg object-cover w-full h-full transition-transform duration-500 group-hover:scale-110" />
-                </div>
-              </div>
-            </div>
+            )}
           </div>
         </section>
 
@@ -260,69 +300,41 @@ export default function Home() {
               <h2 className="text-3xl md:text-4xl font-bold font-headline">What Our Residents Say</h2>
               <p className="mt-2 text-muted-foreground max-w-2xl mx-auto">Real stories from students who have experienced life at HostelPro. Their satisfaction is our best advertisement.</p>
             </div>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-              <Card className="bg-card shadow-lg hover:shadow-xl transition-shadow">
-                <CardContent className="pt-6">
-                  <div className="flex items-center mb-4">
-                    <Avatar className="h-14 w-14 mr-4 border-2 border-primary">
-                      <AvatarImage src="https://placehold.co/56x56.png" data-ai-hint="person avatar" alt="Avatar of Sarah J." />
-                      <AvatarFallback>SJ</AvatarFallback>
-                    </Avatar>
-                    <div>
-                      <p className="font-bold text-lg">Sarah J.</p>
-                      <p className="text-sm text-muted-foreground">Computer Science, Year 2</p>
-                    </div>
-                  </div>
-                  <div className="flex mb-2">
-                    {[...Array(5)].map((_, i) => <Star key={i} className="w-5 h-5 fill-current text-foreground" />)}
-                  </div>
-                  <blockquote className="text-muted-foreground italic text-base border-l-4 border-primary pl-4">
-                    "Living at HostelPro has been a fantastic experience. It's clean, safe, and the community is amazing. The staff is always helpful and responsive to any issues."
-                  </blockquote>
-                </CardContent>
-              </Card>
-              <Card className="bg-card shadow-lg hover:shadow-xl transition-shadow">
-                <CardContent className="pt-6">
-                  <div className="flex items-center mb-4">
-                    <Avatar className="h-14 w-14 mr-4 border-2 border-primary">
-                      <AvatarImage src="https://placehold.co/56x56.png" data-ai-hint="person avatar" alt="Avatar of Michael B." />
-                      <AvatarFallback>MB</AvatarFallback>
-                    </Avatar>
-                    <div>
-                      <p className="font-bold text-lg">Michael B.</p>
-                      <p className="text-sm text-muted-foreground">Mechanical Engineering, Year 3</p>
-                    </div>
-                  </div>
-                  <div className="flex mb-2">
-                    {[...Array(5)].map((_, i) => <Star key={i} className="w-5 h-5 fill-current text-foreground" />)}
-                  </div>
-                  <blockquote className="text-muted-foreground italic text-base border-l-4 border-primary pl-4">
-                    "Great facilities, especially the high-speed Wi-Fi and dedicated study areas. It's the perfect environment for focusing on my studies without any distractions."
-                  </blockquote>
-                </CardContent>
-              </Card>
-              <Card className="bg-card shadow-lg hover:shadow-xl transition-shadow">
-                <CardContent className="pt-6">
-                  <div className="flex items-center mb-4">
-                    <Avatar className="h-14 w-14 mr-4 border-2 border-primary">
-                      <AvatarImage src="https://placehold.co/56x56.png" data-ai-hint="person avatar" alt="Avatar of Linda K." />
-                      <AvatarFallback>LK</AvatarFallback>
-                    </Avatar>
-                    <div>
-                      <p className="font-bold text-lg">Linda K.</p>
-                      <p className="text-sm text-muted-foreground">Fine Arts, Year 1</p>
-                    </div>
-                  </div>
-                  <div className="flex mb-2">
-                    {[...Array(4)].map((_, i) => <Star key={i} className="w-5 h-5 fill-current text-foreground" />)}
-                    <Star className="w-5 h-5 text-muted" />
-                  </div>
-                  <blockquote className="text-muted-foreground italic text-base border-l-4 border-primary pl-4">
-                    "I've made so many friends here. The common rooms and community events are great for socializing. It truly feels like a second home, not just a hostel."
-                  </blockquote>
-                </CardContent>
-              </Card>
-            </div>
+            {loadingTestimonials ? (
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                    <Skeleton className="h-48 rounded-lg" />
+                    <Skeleton className="h-48 rounded-lg" />
+                    <Skeleton className="h-48 rounded-lg" />
+                </div>
+            ) : error ? (
+                <p className="text-destructive text-center">Could not load testimonials.</p>
+            ) : testimonials.length > 0 ? (
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                    {testimonials.map(testimonial => (
+                        <Card key={testimonial._id} className="bg-card shadow-lg hover:shadow-xl transition-shadow">
+                            <CardContent className="pt-6">
+                                <div className="flex items-center mb-4">
+                                    <Avatar className="h-14 w-14 mr-4 border-2 border-primary">
+                                        <AvatarFallback>{testimonial.name.split(' ').map(n => n[0]).join('')}</AvatarFallback>
+                                    </Avatar>
+                                    <div>
+                                        <p className="font-bold text-lg">{testimonial.name}</p>
+                                    </div>
+                                </div>
+                                <div className="flex mb-2">
+                                    {[...Array(testimonial.rating)].map((_, i) => <Star key={i} className="w-5 h-5 fill-current text-foreground" />)}
+                                    {[...Array(5 - testimonial.rating)].map((_, i) => <Star key={i} className="w-5 h-5 text-muted" />)}
+                                </div>
+                                <blockquote className="text-muted-foreground italic text-base border-l-4 border-primary pl-4">
+                                    {testimonial.message}
+                                </blockquote>
+                            </CardContent>
+                        </Card>
+                    ))}
+                </div>
+            ) : (
+                <p className="text-muted-foreground text-center">No testimonials yet.</p>
+            )}
           </div>
         </section>
 
@@ -334,44 +346,28 @@ export default function Home() {
               <h2 className="text-3xl md:text-4xl font-bold font-headline">Frequently Asked Questions</h2>
               <p className="mt-2 text-muted-foreground">Have questions? We have answers. Here are some of the most common inquiries we receive.</p>
             </div>
-            <Accordion type="single" collapsible className="w-full">
-              <AccordionItem value="item-1">
-                <AccordionTrigger className="text-lg">What is the application deadline?</AccordionTrigger>
-                <AccordionContent className="text-base">
-                  Applications are accepted on a rolling basis. However, we recommend applying at least two months before the start of the semester to secure your spot, as rooms are allocated on a first-come, first-served basis.
-                </AccordionContent>
-              </AccordionItem>
-              <AccordionItem value="item-2">
-                <AccordionTrigger className="text-lg">Are utilities included in the rent?</AccordionTrigger>
-                <AccordionContent className="text-base">
-                  Yes, all utilities including water, electricity, heating, and high-speed Wi-Fi are included in the monthly rent. There are no hidden charges.
-                </AccordionContent>
-              </AccordionItem>
-              <AccordionItem value="item-3">
-                <AccordionTrigger className="text-lg">Is there a curfew?</AccordionTrigger>
-                <AccordionContent className="text-base">
-                  For the safety and security of all our residents, the main gates are closed from 11:00 PM to 5:00 AM. Residents can enter and exit during these hours using their personal electronic access cards.
-                </AccordionContent>
-              </AccordionItem>
-              <AccordionItem value="item-4">
-                <AccordionTrigger className="text-lg">What is the guest policy?</AccordionTrigger>
-                <AccordionContent className="text-base">
-                  Residents are allowed to have guests in common areas during visiting hours (9:00 AM to 9:00 PM). For safety reasons, overnight guests are not permitted in the rooms.
-                </AccordionContent>
-              </AccordionItem>
-              <AccordionItem value="item-5">
-                <AccordionTrigger className="text-lg">Can I choose my roommate?</AccordionTrigger>
-                <AccordionContent className="text-base">
-                  You can specify a preferred roommate in your application form. We do our best to accommodate such requests, provided both students have applied and listed each other.
-                </AccordionContent>
-              </AccordionItem>
-              <AccordionItem value="item-6">
-                <AccordionTrigger className="text-lg">Are there laundry facilities available?</AccordionTrigger>
-                <AccordionContent className="text-base">
-                  Yes, we have on-site laundry rooms equipped with modern washers and dryers that are available for use 24/7 at a nominal cost.
-                </AccordionContent>
-              </AccordionItem>
-            </Accordion>
+             {loadingFaqs ? (
+                <div className="space-y-4">
+                    <Skeleton className="h-14 w-full" />
+                    <Skeleton className="h-14 w-full" />
+                    <Skeleton className="h-14 w-full" />
+                </div>
+            ) : error ? (
+                <p className="text-destructive text-center">Could not load FAQs.</p>
+            ) : faqs.length > 0 ? (
+                 <Accordion type="single" collapsible className="w-full">
+                    {faqs.map(faq => (
+                        <AccordionItem key={faq._id} value={faq._id}>
+                            <AccordionTrigger className="text-lg">{faq.question}</AccordionTrigger>
+                            <AccordionContent className="text-base">
+                                {faq.answer}
+                            </AccordionContent>
+                        </AccordionItem>
+                    ))}
+                </Accordion>
+            ) : (
+                 <p className="text-muted-foreground text-center">No FAQs available at the moment.</p>
+            )}
           </div>
         </section>
 
@@ -384,7 +380,7 @@ export default function Home() {
               <p className="mt-2 text-muted-foreground">Conveniently located to keep you connected to campus and the city.</p>
             </div>
             <div className="rounded-lg overflow-hidden border-4 border-white shadow-2xl">
-              <Image src="https://placehold.co/1200x400.png" data-ai-hint="city map" alt="Hostel Location Map" width={1200} height={400} className="w-full object-cover" />
+              <Image src="https://picsum.photos/1200/400" data-ai-hint="city map" alt="Hostel Location Map" width={1200} height={400} className="w-full object-cover" />
             </div>
             <div className="text-center mt-8">
               <p className="font-semibold text-xl">HostelPro, 123 University Lane, College Town, USA 12345</p>

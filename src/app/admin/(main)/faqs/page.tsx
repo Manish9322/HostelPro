@@ -8,21 +8,31 @@ import {
   CardDescription,
   CardHeader,
   CardTitle,
-  CardFooter,
 } from "@/components/ui/card";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import {
+    DropdownMenu,
+    DropdownMenuContent,
+    DropdownMenuItem,
+    DropdownMenuLabel,
+    DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
-import { MoreHorizontal, PlusCircle, AlertTriangle, FileWarning, RefreshCw, ArrowUp, ArrowDown, Pen, Trash2 } from "lucide-react";
+import { MoreHorizontal, PlusCircle, AlertTriangle, FileWarning, RefreshCw, ArrowUp, ArrowDown } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { Faq } from "@/lib/types";
 import { Skeleton } from "@/components/ui/skeleton";
-import {
-  Accordion,
-  AccordionContent,
-  AccordionItem,
-  AccordionTrigger,
-} from "@/components/ui/accordion"
 import { FaqModal } from "@/components/modals/faq-modal";
 import { DeleteConfirmationDialog } from "@/components/modals/delete-confirmation-modal";
+import { Switch } from "@/components/ui/switch";
+
 
 export default function FaqsAdminPage() {
   const [faqs, setFaqs] = useState<Faq[]>([]);
@@ -124,6 +134,24 @@ export default function FaqsAdminPage() {
     }
   };
 
+  const handleVisibilityChange = async (faq: Faq, newVisibility: boolean) => {
+    const originalFaqs = [...faqs];
+    setFaqs(faqs.map(f => f._id === faq._id ? {...f, visible: newVisibility} : f)); // Optimistic update
+    
+    try {
+        const response = await fetch(`/api/faqs?id=${faq._id}`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ visible: newVisibility }),
+        });
+        if (!response.ok) throw new Error('Failed to update visibility');
+        toast({ title: "Success", description: `FAQ visibility updated.` });
+    } catch (error) {
+        setFaqs(originalFaqs);
+        toast({ title: "Error", description: "Failed to update visibility.", variant: "destructive" });
+    }
+  };
+
   return (
     <>
       <Card>
@@ -160,36 +188,54 @@ export default function FaqsAdminPage() {
                     </div>
                 </div>
               ) : faqs.length > 0 ? (
-                <Accordion type="single" collapsible className="w-full space-y-2">
-                    {faqs.map((faq, index) => (
-                        <Card key={faq._id} className="overflow-hidden">
-                             <AccordionItem value={faq._id} className="border-b-0">
-                                <div className="flex items-center p-2">
-                                     <AccordionTrigger className="flex-grow px-4 py-2 hover:no-underline font-semibold">
-                                        {faq.question}
-                                     </AccordionTrigger>
-                                     <div className="flex gap-1 pr-2">
+                <Table>
+                    <TableHeader>
+                        <TableRow>
+                            <TableHead className="w-[80px]">Order</TableHead>
+                            <TableHead>Question</TableHead>
+                            <TableHead className="w-[120px]">Visible</TableHead>
+                            <TableHead className="w-[100px] text-right">Actions</TableHead>
+                        </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                        {faqs.map((faq, index) => (
+                            <TableRow key={faq._id}>
+                                <TableCell>
+                                    <div className="flex gap-1">
                                         <Button variant="ghost" size="icon" onClick={() => handleMove(index, 'up')} disabled={index === 0}>
                                             <ArrowUp className="h-4 w-4" />
                                         </Button>
                                         <Button variant="ghost" size="icon" onClick={() => handleMove(index, 'down')} disabled={index === faqs.length - 1}>
                                             <ArrowDown className="h-4 w-4" />
                                         </Button>
-                                        <Button variant="ghost" size="icon" onClick={() => handleOpenModal(faq)}>
-                                            <Pen className="h-4 w-4" />
-                                        </Button>
-                                        <Button variant="ghost" size="icon" onClick={() => handleOpenDeleteModal(faq)}>
-                                            <Trash2 className="h-4 w-4 text-destructive" />
-                                        </Button>
                                     </div>
-                                </div>
-                                <AccordionContent className="px-6 pb-4 text-muted-foreground">
-                                    {faq.answer}
-                                </AccordionContent>
-                             </AccordionItem>
-                        </Card>
-                    ))}
-                </Accordion>
+                                </TableCell>
+                                <TableCell className="font-medium">{faq.question}</TableCell>
+                                <TableCell>
+                                    <Switch
+                                        checked={faq.visible}
+                                        onCheckedChange={(checked) => handleVisibilityChange(faq, checked)}
+                                    />
+                                </TableCell>
+                                <TableCell className="text-right">
+                                     <DropdownMenu>
+                                        <DropdownMenuTrigger asChild>
+                                        <Button aria-haspopup="true" size="icon" variant="ghost">
+                                            <MoreHorizontal className="h-4 w-4" />
+                                            <span className="sr-only">Toggle menu</span>
+                                        </Button>
+                                        </DropdownMenuTrigger>
+                                        <DropdownMenuContent align="end">
+                                        <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                                        <DropdownMenuItem onClick={() => handleOpenModal(faq)}>Edit</DropdownMenuItem>
+                                        <DropdownMenuItem onClick={() => handleOpenDeleteModal(faq)}>Delete</DropdownMenuItem>
+                                        </DropdownMenuContent>
+                                    </DropdownMenu>
+                                </TableCell>
+                            </TableRow>
+                        ))}
+                    </TableBody>
+                </Table>
               ) : (
                 <div className="text-center py-16">
                     <div className="flex flex-col items-center gap-4">
