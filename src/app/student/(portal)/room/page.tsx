@@ -1,3 +1,7 @@
+
+"use client";
+
+import { useState, useEffect } from "react";
 import {
   Card,
   CardContent,
@@ -6,10 +10,11 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { mockRooms, mockStudents } from "@/lib/data";
-import { Bed, Users, Wifi, Wind, Bath, Thermometer, Wrench, ShieldCheck } from "lucide-react";
+import { Student, Room } from "@/lib/types";
+import { Bed, Users, Wifi, Wind, Bath, Thermometer, Wrench, ShieldCheck, AlertTriangle, RefreshCw } from "lucide-react";
 import { Separator } from "@/components/ui/separator";
 import { Button } from "@/components/ui/button";
+import { Skeleton } from "@/components/ui/skeleton";
 
 const roomStatusVariant = (status: string) => {
   switch (status) {
@@ -41,21 +46,124 @@ const roomConditionVariant = (condition: string) => {
 
 
 export default function StudentRoomPage() {
-    const student = mockStudents[0];
-    const room = mockRooms.find(r => r.roomNumber === student.roomNumber);
+    const [student, setStudent] = useState<Student | null>(null);
+    const [room, setRoom] = useState<Room | null>(null);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState<string | null>(null);
+    const [roommate, setRoommate] = useState<Student | null>(null);
 
-    if(!room) {
+    const fetchData = async () => {
+        try {
+            setLoading(true);
+            setError(null);
+
+            const studentsRes = await fetch('/api/students');
+            if (!studentsRes.ok) throw new Error("Failed to fetch students");
+            const students: Student[] = await studentsRes.json();
+            const currentStudent = students[0] || null;
+            setStudent(currentStudent);
+            
+            if (currentStudent && currentStudent.roomNumber !== "Unassigned") {
+                const roomsRes = await fetch('/api/rooms');
+                if (!roomsRes.ok) throw new Error("Failed to fetch rooms");
+                const rooms: Room[] = await roomsRes.json();
+                
+                const currentRoom = rooms.find(r => r.roomNumber === currentStudent.roomNumber);
+                setRoom(currentRoom || null);
+
+                if (currentRoom && currentRoom.occupancy > 1) {
+                    const foundRoommate = students.find(s => s.roomNumber === currentRoom.roomNumber && s._id !== currentStudent._id);
+                    setRoommate(foundRoommate || null);
+                }
+            } else {
+                 setRoom(null);
+            }
+
+        } catch (err) {
+            setError("Could not load room details. Please try again.");
+            console.error(err);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    useEffect(() => {
+        fetchData();
+    }, []);
+
+    if (loading) {
         return (
-            <Card>
-                <CardHeader>
-                    <CardTitle>Room Not Found</CardTitle>
-                </CardHeader>
-                <CardContent>
-                    <p>We couldn't find details for your assigned room. Please contact the administration.</p>
-                </CardContent>
-            </Card>
-        )
+             <div className="grid gap-8 md:grid-cols-3">
+                <Card className="md:col-span-2">
+                    <CardHeader>
+                        <Skeleton className="h-8 w-32" />
+                        <Skeleton className="h-4 w-48" />
+                    </CardHeader>
+                    <CardContent className="space-y-6">
+                        <div className="grid sm:grid-cols-2 gap-4">
+                           <Skeleton className="h-6 w-24 rounded-full" />
+                           <Skeleton className="h-6 w-24 rounded-full" />
+                        </div>
+                        <Separator/>
+                        <div className="space-y-4">
+                           <Skeleton className="h-5 w-40" />
+                           <div className="grid grid-cols-2 gap-4">
+                             <Skeleton className="h-5 w-full" />
+                             <Skeleton className="h-5 w-full" />
+                             <Skeleton className="h-5 w-full" />
+                             <Skeleton className="h-5 w-full" />
+                           </div>
+                        </div>
+                        <Separator/>
+                        <div className="space-y-4">
+                           <Skeleton className="h-5 w-40" />
+                           <Skeleton className="h-5 w-3/4" />
+                        </div>
+                    </CardContent>
+                </Card>
+                <div className="md:col-span-1 space-y-8">
+                     <Card>
+                        <CardHeader><Skeleton className="h-6 w-24" /></CardHeader>
+                        <CardContent><Skeleton className="h-5 w-full" /></CardContent>
+                     </Card>
+                     <Card>
+                        <CardHeader><Skeleton className="h-6 w-40" /></CardHeader>
+                        <CardContent className="space-y-4">
+                            <Skeleton className="h-5 w-full" />
+                            <Skeleton className="h-10 w-full" />
+                        </CardContent>
+                     </Card>
+                </div>
+             </div>
+        );
     }
+
+     if (error) {
+     return (
+        <Card className="text-center py-16">
+            <AlertTriangle className="mx-auto h-12 w-12 text-destructive" />
+            <h3 className="mt-4 text-lg font-semibold">Error</h3>
+            <p className="text-muted-foreground">{error}</p>
+            <Button onClick={fetchData} variant="outline" className="mt-4">
+                <RefreshCw className="mr-2 h-4 w-4" />
+                Try Again
+            </Button>
+        </Card>
+    );
+  }
+
+  if(!room || !student) {
+      return (
+          <Card>
+              <CardHeader>
+                  <CardTitle>Room Not Assigned</CardTitle>
+              </CardHeader>
+              <CardContent>
+                  <p>You have not been assigned a room yet. Please check back later or contact the administration.</p>
+              </CardContent>
+          </Card>
+      )
+  }
 
   return (
     <div className="grid gap-8 md:grid-cols-3">
@@ -83,10 +191,16 @@ export default function StudentRoomPage() {
                 <div>
                     <h4 className="font-semibold mb-4 text-primary">Utilities & Amenities</h4>
                     <div className="grid grid-cols-2 gap-4">
-                        {room.utilities.includes('AC') && <div className="flex items-center gap-2"><Wind className="w-5 h-5 text-primary"/>Air Conditioning</div>}
-                        {room.utilities.includes('Wi-Fi') && <div className="flex items-center gap-2"><Wifi className="w-5 h-5 text-primary"/>High-Speed Wi-Fi</div>}
-                        {room.utilities.includes('Attached Bathroom') && <div className="flex items-center gap-2"><Bath className="w-5 h-5 text-primary"/>Attached Bathroom</div>}
-                        {room.utilities.includes('Common Bathroom') && <div className="flex items-center gap-2"><Bath className="w-5 h-5 text-primary"/>Common Bathroom</div>}
+                        {room.utilities.map(util => {
+                            const iconMap: { [key: string]: React.ElementType } = {
+                                'AC': Wind,
+                                'Wi-Fi': Wifi,
+                                'Attached Bathroom': Bath,
+                                'Common Bathroom': Bath
+                            };
+                            const Icon = iconMap[util];
+                            return Icon ? <div key={util} className="flex items-center gap-2"><Icon className="w-5 h-5 text-primary"/>{util}</div> : null
+                        })}
                         <div className="flex items-center gap-2"><Thermometer className="w-5 h-5 text-primary"/>Hot Water Supply</div>
                         <div className="flex items-center gap-2"><ShieldCheck className="w-5 h-5 text-primary"/>24/7 Security</div>
                     </div>
@@ -110,8 +224,10 @@ export default function StudentRoomPage() {
                     <CardTitle>Roommate</CardTitle>
                 </CardHeader>
                 <CardContent>
-                    {room.occupancy > 1 ? (
-                        <p>Your roommate details would appear here.</p>
+                    {roommate ? (
+                        <p>{roommate.name} ({roommate.course})</p>
+                    ) : room.occupancy > 1 ? (
+                        <p className="text-muted-foreground">Your roommate details are not available.</p>
                     ) : (
                         <p className="text-muted-foreground">You are the sole occupant of this room.</p>
                     )}
