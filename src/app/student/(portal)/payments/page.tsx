@@ -145,16 +145,36 @@ export default function StudentPaymentsPage() {
                 address: "HostelPro Office",
             },
             theme: {
-                color: "#3399cc",
+                color: "#667eea",
             },
-            method: {
-              upi: true,
-              card: true,
-              netbanking: true,
-              wallet: true,
-            },
-            upi: {
-              flow: "qr",
+            config: {
+                display: {
+                    blocks: {
+                        upi: {
+                            name: "Pay with UPI",
+                            instruments: [
+                                { method: "upi" },
+                                { method: "qr" },
+                            ],
+                        },
+                        card: {
+                            name: "Pay with Card",
+                            instruments: [
+                                { method: "card" },
+                            ]
+                        },
+                        netbanking: {
+                            name: "Netbanking"
+                        },
+                        wallet: {
+                            name: "Wallets"
+                        },
+                    },
+                    sequence: ["block.upi", "block.card", "block.netbanking", "block.wallet"],
+                    preferences: {
+                        show_default_blocks: false,
+                    },
+                },
             },
         };
 
