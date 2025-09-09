@@ -15,6 +15,8 @@ import { User, Mail, Phone, GraduationCap, Building, Pen, AlertTriangle, Refresh
 import { Separator } from "@/components/ui/separator";
 import { Student } from "@/lib/types";
 import { Skeleton } from "@/components/ui/skeleton";
+import { EditStudentProfileModal } from "@/components/modals/edit-student-profile-modal";
+import { useToast } from "@/hooks/use-toast";
 
 const InfoField = ({ icon: Icon, label, value }: { icon: React.ElementType, label: string, value?: string | number }) => (
     <div className="flex items-start gap-4">
@@ -30,6 +32,8 @@ export default function StudentProfilePage() {
   const [student, setStudent] = useState<Student | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [isModalOpen, setModalOpen] = useState(false);
+  const { toast } = useToast();
 
   const fetchStudentData = async () => {
     try {
@@ -64,7 +68,40 @@ export default function StudentProfilePage() {
     fetchStudentData();
   }, []);
 
+  const handleUpdateProfile = async (updatedData: Partial<Student>) => {
+    if (!student) return;
+
+    try {
+        const response = await fetch(`/api/students?id=${student._id}`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(updatedData),
+        });
+
+        if (!response.ok) {
+            throw new Error('Failed to update profile');
+        }
+        
+        toast({
+            title: "Success",
+            description: "Your profile has been updated successfully.",
+        });
+        
+        fetchStudentData(); // Refresh data
+        setModalOpen(false);
+
+    } catch (error) {
+        toast({
+            title: "Error",
+            description: "Failed to update your profile.",
+            variant: "destructive",
+        });
+    }
+  };
+
+
   return (
+    <>
     <Card>
       <CardHeader>
         {loading ? (
@@ -87,7 +124,7 @@ export default function StudentProfilePage() {
                     <CardDescription>Student ID: {student.studentId}</CardDescription>
                 </div>
             </div>
-            <Button variant="outline" className="mt-4 sm:mt-0">
+            <Button variant="outline" className="mt-4 sm:mt-0" onClick={() => setModalOpen(true)}>
                 <Pen className="mr-2 h-4 w-4" />
                 Edit Profile
             </Button>
@@ -145,5 +182,14 @@ export default function StudentProfilePage() {
 
       </CardContent>
     </Card>
+    {student && (
+        <EditStudentProfileModal
+            isOpen={isModalOpen}
+            onClose={() => setModalOpen(false)}
+            student={student}
+            onSubmit={handleUpdateProfile}
+        />
+    )}
+    </>
   );
 }
