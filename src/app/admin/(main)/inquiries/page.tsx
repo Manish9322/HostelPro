@@ -23,6 +23,7 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion";
+import { UpdateStatusConfirmationDialog } from "@/components/modals/update-status-confirmation-modal";
 
 const urgencyVariant = (urgency?: string) => {
   if (!urgency) return 'outline';
@@ -61,6 +62,12 @@ export default function InquiriesPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [currentPage, setCurrentPage] = useState(1);
+  const [selectedInquiry, setSelectedInquiry] = useState<Inquiry | null>(null);
+  const [confirmationState, setConfirmationState] = useState<{
+    isOpen: boolean;
+    inquiryId: string;
+    newStatus: 'Addressed' | 'Dismissed';
+  } | null>(null);
   const { toast } = useToast();
 
   const fetchInquiries = async () => {
@@ -94,12 +101,20 @@ export default function InquiriesPage() {
     }
   };
 
-  const handleUpdateStatus = async (id: string, status: 'Addressed' | 'Dismissed') => {
+  const openConfirmationModal = (inquiryId: string, newStatus: 'Addressed' | 'Dismissed') => {
+    setConfirmationState({ isOpen: true, inquiryId, newStatus });
+  };
+  
+  const handleUpdateStatus = async () => {
+    if (!confirmationState) return;
+
+    const { inquiryId, newStatus } = confirmationState;
+
     try {
-        const response = await fetch(`/api/inquiries?id=${id}`, {
+        const response = await fetch(`/api/inquiries?id=${inquiryId}`, {
             method: 'PUT',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ status }),
+            body: JSON.stringify({ status: newStatus }),
         });
 
         if (!response.ok) {
@@ -108,7 +123,7 @@ export default function InquiriesPage() {
 
         toast({
             title: "Success",
-            description: `Inquiry status updated to "${status}".`,
+            description: `Inquiry status updated to "${newStatus}".`,
         });
 
         fetchInquiries();
@@ -119,10 +134,13 @@ export default function InquiriesPage() {
             description: "Failed to update inquiry status.",
             variant: "destructive",
         });
+    } finally {
+        setConfirmationState(null);
     }
   };
   
   return (
+    <>
     <Card>
       <CardHeader>
         <CardTitle>Student Inquiries</CardTitle>
@@ -196,7 +214,7 @@ export default function InquiriesPage() {
                             <Button 
                             variant="outline" 
                             size="sm" 
-                            onClick={() => handleUpdateStatus(inquiry._id, 'Addressed')}
+                            onClick={() => openConfirmationModal(inquiry._id, 'Addressed')}
                             disabled={inquiry.status === 'Addressed' || inquiry.status === 'Dismissed'}
                             >
                             Mark as Addressed
@@ -204,7 +222,7 @@ export default function InquiriesPage() {
                             <Button 
                                 variant="destructive"
                                 size="sm"
-                                onClick={() => handleUpdateStatus(inquiry._id, 'Dismissed')}
+                                onClick={() => openConfirmationModal(inquiry._id, 'Dismissed')}
                                 disabled={inquiry.status === 'Addressed' || inquiry.status === 'Dismissed'}
                                 >
                                 Dismiss
@@ -249,6 +267,18 @@ export default function InquiriesPage() {
         </div>
       </CardFooter>
     </Card>
+    {confirmationState && (
+        <UpdateStatusConfirmationDialog
+            isOpen={confirmationState.isOpen}
+            onClose={() => setConfirmationState(null)}
+            onConfirm={handleUpdateStatus}
+            title={`Confirm Status Change to "${confirmationState.newStatus}"`}
+            description="Are you sure you want to update the status of this inquiry? This action will notify the student."
+            actionLabel={confirmationState.newStatus === 'Addressed' ? 'Mark as Addressed' : 'Dismiss Inquiry'}
+            isDestructive={confirmationState.newStatus === 'Dismissed'}
+        />
+    )}
+    </>
   );
 }
 
