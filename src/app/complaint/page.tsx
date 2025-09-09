@@ -114,9 +114,6 @@ export default function ComplaintPage() {
         <section className="w-full py-16 bg-secondary/50 border-b">
             <div className="container mx-auto px-4 md:px-6">
                 <div className="text-center space-y-4">
-                    <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-primary/10 text-primary mb-4">
-                        <HelpCircle className="h-8 w-8" />
-                    </div>
                     <h1 className="text-4xl md:text-5xl font-bold tracking-tighter font-headline">
                         Have an Issue? Let Us Know.
                     </h1>
