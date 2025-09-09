@@ -390,8 +390,24 @@ export default function Home() {
               <h2 className="text-3xl md:text-4xl font-bold font-headline">Our Prime Location</h2>
               <p className="mt-2 text-muted-foreground">Conveniently located to keep you connected to campus and the city.</p>
             </div>
-            <div className="rounded-lg overflow-hidden border-4 border-white shadow-2xl">
-              <Image src="https://picsum.photos/1200/400" data-ai-hint="city map" alt="Hostel Location Map" width={1200} height={400} className="w-full object-cover" />
+            <div className="rounded-lg overflow-hidden border-4 border-white shadow-2xl aspect-video">
+                {loadingLocation ? (
+                    <Skeleton className="w-full h-full" />
+                ) : location.mapLink ? (
+                    <iframe
+                        src={location.mapLink}
+                        width="100%"
+                        height="100%"
+                        style={{ border: 0 }}
+                        allowFullScreen={true}
+                        loading="lazy"
+                        referrerPolicy="no-referrer-when-downgrade"
+                    ></iframe>
+                ) : (
+                    <div className="w-full h-full bg-muted flex items-center justify-center">
+                        <p className="text-muted-foreground">Map link not available.</p>
+                    </div>
+                )}
             </div>
              <div className="text-center mt-8">
               {loadingLocation ? (
@@ -402,11 +418,13 @@ export default function Home() {
                 </>
               ) : (
                 <>
-                  <p className="font-semibold text-xl">{location.address}</p>
+                  <p className="font-semibold text-xl">{location.address || 'Address not set'}</p>
                   <p className="mt-2 max-w-2xl mx-auto text-muted-foreground">Just a 5-minute walk from the main university campus and a 10-minute bus ride from the city center. All essential services are within easy reach.</p>
-                  <Button asChild variant="link" className="mt-2 text-lg">
-                    <a href={location.mapLink} target="_blank" rel="noopener noreferrer">Get Directions on Google Maps</a>
-                  </Button>
+                  {location.mapLink && (
+                    <Button asChild variant="link" className="mt-2 text-lg">
+                        <a href={location.mapLink.replace('/embed','/view')} target="_blank" rel="noopener noreferrer">Get Directions on Google Maps</a>
+                    </Button>
+                  )}
                 </>
               )}
             </div>
