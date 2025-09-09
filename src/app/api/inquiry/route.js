@@ -14,7 +14,7 @@ export async function POST(req) {
       return NextResponse.json({ error: 'Subject and text are required.' }, { status: 400 });
     }
     
-    // Fetch available inventory items
+    // Fetch available inventory items directly from the model
     const inventory = await InventoryItemModel.find({ 
         status: 'In Stock',
         category: { $nin: ['Appliance', 'Safety'] }
