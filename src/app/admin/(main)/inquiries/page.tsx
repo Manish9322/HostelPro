@@ -48,7 +48,9 @@ const statusVariant = (status: string) => {
   };
 
 const categoryVariant = (category: string) => {
-    return category === 'Request' ? 'default' : 'secondary';
+    if (category === 'Item Request') return 'default';
+    if (category === 'Room Change Request') return 'destructive';
+    return 'secondary';
 }
 
 const ITEMS_PER_PAGE = 5;
@@ -196,12 +198,12 @@ export default function InquiriesPage() {
                             Mark as Addressed
                             </Button>
                             <Button 
-                            variant="destructive"
-                            size="sm"
-                            onClick={() => handleUpdateStatus(inquiry._id, 'Dismissed')}
-                            disabled={inquiry.status === 'Addressed' || inquiry.status === 'Dismissed'}
-                            >
-                            Dismiss
+                                variant="destructive"
+                                size="sm"
+                                onClick={() => handleUpdateStatus(inquiry._id, 'Dismissed')}
+                                disabled={inquiry.status === 'Addressed' || inquiry.status === 'Dismissed'}
+                                >
+                                Dismiss
                             </Button>
                         </div>
                     </div>

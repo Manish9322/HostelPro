@@ -8,10 +8,10 @@ import _db from '@/utils/db';
 export async function POST(req) {
   await _db();
   try {
-    const { studentId, studentName, subject, text } = await req.json();
+    const { studentId, studentName, subject, text, inquiryType, currentRoom } = await req.json();
 
-    if (!subject || !text) {
-      return NextResponse.json({ error: 'Subject and text are required.' }, { status: 400 });
+    if (!subject || !text || !inquiryType) {
+      return NextResponse.json({ error: 'Inquiry Type, Subject and text are required.' }, { status: 400 });
     }
     
     // Fetch available inventory items directly from the model
@@ -22,9 +22,11 @@ export async function POST(req) {
     const availableItems = inventory.map(item => item.name);
 
     const result = await processInquiry({ 
+        inquiryType,
         subject, 
         text,
         availableItems,
+        currentRoom
     });
     
     const newInquiry = new InquiryModel({

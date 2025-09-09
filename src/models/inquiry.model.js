@@ -16,7 +16,7 @@ const inquirySchema = new mongoose.Schema({
   summary: { type: String },
   category: {
     type: String,
-    enum: ['Question', 'Request'],
+    enum: ['Question', 'Item Request', 'Room Change Request'],
   },
   urgency: {
     type: String,

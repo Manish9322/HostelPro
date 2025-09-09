@@ -25,7 +25,7 @@ import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/
 
 
 interface AnalysisResult {
-    category: 'Question' | 'Request';
+    category: 'Question' | 'Item Request' | 'Room Change Request';
     urgency: 'High' | 'Medium' | 'Low';
     summary: string;
     requestedItem?: string;
@@ -41,6 +41,7 @@ const urgencyVariant = (urgency?: string) => {
 };
 
 export default function InquiryPage() {
+  const [inquiryType, setInquiryType] = useState<'Question' | 'Item Request' | 'Room Change Request' | ''>('');
   const [subject, setSubject] = useState("");
   const [text, setText] = useState("");
   const [isLoading, setIsLoading] = useState(false);
@@ -73,7 +74,7 @@ export default function InquiryPage() {
 
             // Filter for available items and set them
             const available = inventory
-                .filter(item => item.status === 'In Stock')
+                .filter(item => item.status === 'In Stock' && item.category !== 'Appliance' && item.category !== 'Safety')
                 .map(item => item.name);
             setAvailableItems(available);
 
@@ -87,8 +88,8 @@ export default function InquiryPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!student) {
-        toast({ title: "Login Required", description: "You must be logged in to submit an inquiry.", variant: "destructive"});
+    if (!student || !inquiryType) {
+        toast({ title: "Missing Information", description: "You must be logged in and select an inquiry type.", variant: "destructive"});
         return;
     }
 
@@ -103,8 +104,10 @@ export default function InquiryPage() {
           body: JSON.stringify({ 
               studentId: student.studentId,
               studentName: student.name,
-              subject: subject, 
-              text: text 
+              inquiryType,
+              subject, 
+              text,
+              currentRoom: student.roomNumber,
             }),
       });
 
@@ -119,6 +122,9 @@ export default function InquiryPage() {
       toast({ title: "Success!", description: "Your inquiry has been submitted and will be reviewed by the administration." });
       setSubject("");
       setText("");
+      setInquiryType('');
+      setAnalysisResult(null);
+
 
     } catch (err) {
       setError((err as Error).message);
@@ -127,13 +133,27 @@ export default function InquiryPage() {
       setIsLoading(false);
     }
   };
+  
+  const getPlaceholderText = () => {
+    switch (inquiryType) {
+        case 'Item Request':
+            return "Please be specific about which item you are requesting and for how long you need it.";
+        case 'Room Change Request':
+            return "Please provide a detailed reason for your room change request. Include any relevant details about your current situation.";
+        case 'Question':
+            return "Please type your question here.";
+        default:
+            return "Please select an inquiry type first.";
+    }
+  }
+
 
   return (
     <div className="space-y-8">
         <Card>
             <CardHeader>
                 <CardTitle className="font-headline text-3xl">Inquiry & Request Form</CardTitle>
-                <CardDescription>Ask a general question or request an available item from the hostel inventory.</CardDescription>
+                <CardDescription>Ask a general question, request an available item, or submit a request to change rooms.</CardDescription>
             </CardHeader>
             <CardContent>
                 {isClient && !student ? (
@@ -146,26 +166,46 @@ export default function InquiryPage() {
                     </Alert>
                 ) : (
                     <form onSubmit={handleSubmit} className="space-y-6">
+                        
                         <div>
-                            <Label htmlFor="subject">Subject</Label>
-                            <Input id="subject" value={subject} onChange={e => setSubject(e.target.value)} placeholder="e.g., Question about guest policy" required />
-                        </div>
-                        <div>
-                            <Label htmlFor="text">Details</Label>
-                            <Textarea id="text" value={text} onChange={e => setText(e.target.value)} placeholder="Please be as specific as possible. If you are requesting an item, mention it here." className="min-h-[150px]" required />
-                        </div>
-                        <div>
-                            <Label>Available Items for Request (Optional)</Label>
-                            <Select>
-                                <SelectTrigger><SelectValue placeholder="Browse available items..." /></SelectTrigger>
+                            <Label htmlFor="inquiryType">Inquiry Type</Label>
+                            <Select value={inquiryType} onValueChange={(value) => setInquiryType(value as any)} required>
+                                <SelectTrigger id="inquiryType"><SelectValue placeholder="Select the type of your inquiry..." /></SelectTrigger>
                                 <SelectContent>
-                                    {availableItems.length > 0 ? availableItems.map(item => (
-                                        <SelectItem key={item} value={item}>{item}</SelectItem>
-                                    )) : <SelectItem value="none" disabled>No items available for request</SelectItem>}
+                                    <SelectItem value="Question">General Question</SelectItem>
+                                    <SelectItem value="Item Request">Item Request</SelectItem>
+                                    <SelectItem value="Room Change Request">Room Change Request</SelectItem>
                                 </SelectContent>
                             </Select>
-                            <p className="text-xs text-muted-foreground mt-2">If requesting an item, please also describe your need in the details section above.</p>
                         </div>
+                        
+                        {inquiryType && (
+                            <>
+                                <div>
+                                    <Label htmlFor="subject">Subject</Label>
+                                    <Input id="subject" value={subject} onChange={e => setSubject(e.target.value)} placeholder="Enter a brief subject line" required />
+                                </div>
+                                <div>
+                                    <Label htmlFor="text">{inquiryType === 'Room Change Request' ? 'Reason for Change' : 'Details'}</Label>
+                                    <Textarea id="text" value={text} onChange={e => setText(e.target.value)} placeholder={getPlaceholderText()} className="min-h-[150px]" required />
+                                </div>
+                            </>
+                        )}
+                        
+                        {inquiryType === 'Item Request' && (
+                            <div>
+                                <Label>Available Items for Request</Label>
+                                <Select>
+                                    <SelectTrigger><SelectValue placeholder="Browse available items..." /></SelectTrigger>
+                                    <SelectContent>
+                                        {availableItems.length > 0 ? availableItems.map(item => (
+                                            <SelectItem key={item} value={item}>{item}</SelectItem>
+                                        )) : <SelectItem value="none" disabled>No items available for request</SelectItem>}
+                                    </SelectContent>
+                                </Select>
+                                <p className="text-xs text-muted-foreground mt-2">If requesting an item, please also describe your need in the details section above.</p>
+                            </div>
+                        )}
 
                         {analysisResult && (
                         <Alert>
@@ -185,7 +225,7 @@ export default function InquiryPage() {
                         )}
                         {error && <p className="text-sm text-destructive">{error}</p>}
                         
-                        <Button type="submit" className="w-full" size="lg" disabled={isLoading || !subject || !text}>
+                        <Button type="submit" className="w-full" size="lg" disabled={isLoading || !subject || !text || !inquiryType}>
                             {isLoading ? "Submitting..." : "Submit Inquiry"}
                         </Button>
                     </form>

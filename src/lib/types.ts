@@ -1,6 +1,7 @@
 
 
 
+
 export type Student = {
   _id: string;
   id: string;
@@ -127,7 +128,7 @@ export type Inquiry = {
   submittedAt: Date;
   status: 'Pending' | 'Addressed' | 'Dismissed';
   summary: string;
-  category: 'Question' | 'Request';
+  category: 'Question' | 'Item Request' | 'Room Change Request';
   urgency: 'High' | 'Medium' | 'Low';
   requestedItem?: string;
 };
