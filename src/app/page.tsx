@@ -21,6 +21,7 @@ import { Faq, GalleryImage, Feedback } from '@/lib/types';
 import { Skeleton } from '@/components/ui/skeleton';
 import { GalleryImageModal } from '@/components/modals/gallery-image-modal';
 import { FeedbackModal } from '@/components/modals/feedback-modal';
+import { cn } from '@/lib/utils';
 
 const SectionTag = ({ icon: Icon, children }: { icon: React.ElementType, children: React.ReactNode }) => (
   <div className="flex items-center justify-center gap-2 mb-8">
@@ -178,10 +179,15 @@ export default function Home() {
             ) : error ? (
                 <p className="text-destructive text-center">Could not load gallery images.</p>
             ) : (
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                <div className="grid grid-cols-2 md:grid-cols-4 auto-rows-[200px] gap-4">
                     {galleryImages.map((image, index) => (
-                        <div key={image._id} className="overflow-hidden rounded-lg shadow-md group cursor-pointer" onClick={() => setSelectedImage(image)}>
-                            <Image src={image.url} alt={image.alt} width={400} height={400} className="rounded-lg object-cover w-full h-full aspect-square transition-transform duration-500 group-hover:scale-110" />
+                        <div key={image._id} 
+                            className={cn("overflow-hidden rounded-lg shadow-md group cursor-pointer",
+                            index === 0 && "md:col-span-2 md:row-span-2",
+                            index === 5 && "md:col-span-2",
+                            )}
+                            onClick={() => setSelectedImage(image)}>
+                            <Image src={image.url} alt={image.alt} width={600} height={600} className="rounded-lg object-cover w-full h-full transition-transform duration-500 group-hover:scale-110" />
                         </div>
                     ))}
                 </div>
@@ -435,5 +441,3 @@ export default function Home() {
     </>
   );
 }
-
-    

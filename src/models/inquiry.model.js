@@ -12,12 +12,12 @@ const inquirySchema = new mongoose.Schema({
     enum: ['Pending', 'Addressed', 'Dismissed'],
     default: 'Pending',
   },
-  // AI-generated fields
-  summary: { type: String },
   category: {
     type: String,
     enum: ['Question', 'Item Request', 'Room Change Request'],
   },
+  // The following fields are no longer populated by AI
+  summary: { type: String },
   urgency: {
     type: String,
     enum: ['High', 'Medium', 'Low'],

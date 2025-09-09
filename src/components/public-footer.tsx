@@ -3,31 +3,24 @@
 
 import Link from 'next/link';
 import { University } from 'lucide-react';
-import { Button } from './ui/button';
 
 export default function PublicFooter() {
 
   return (
-    <footer className="bg-primary/90 text-primary-foreground py-8">
+    <footer className="bg-primary/90 text-primary-foreground py-6">
       <div className="container mx-auto px-4 md:px-6">
-        <div className="flex flex-col items-center text-center">
-            <div>
-                <div className="flex items-center justify-center gap-2 mb-4">
-                  <University className="w-6 h-6" />
-                  <span className="text-xl font-bold font-headline">HostelPro</span>
-                </div>
-                <nav className="flex flex-wrap gap-x-6 gap-y-2 text-sm justify-center">
-                  <Link href="/" className="font-medium hover:underline">Home</Link>
-                  <Link href="/apply" className="font-medium hover:underline">Apply</Link>
-                  <Link href="/notices" className="font-medium hover:underline">Notices</Link>
-                  <Link href="/privacy-policy" className="font-medium hover:underline">Privacy Policy</Link>
-                  <Link href="/terms-and-conditions" className="font-medium hover:underline">Terms & Conditions</Link>
-                </nav>
-            </div>
-        </div>
-
-        <div className="border-t border-primary-foreground/20 pt-6 mt-6 text-center text-sm text-primary-foreground/80">
-          <p>&copy; {new Date().getFullYear()} HostelPro. All rights reserved.</p>
+        <div className="flex flex-col md:flex-row items-center justify-between gap-4">
+            <Link href="/" className="flex items-center gap-2">
+              <University className="w-5 h-5" />
+              <span className="font-bold font-headline">HostelPro</span>
+            </Link>
+            <nav className="flex flex-wrap gap-x-4 sm:gap-x-6 gap-y-2 text-sm justify-center">
+              <Link href="/privacy-policy" className="font-medium hover:underline">Privacy</Link>
+              <Link href="/terms-and-conditions" className="font-medium hover:underline">Terms</Link>
+              <Link href="/#faq" className="font-medium hover:underline">FAQ</Link>
+              <Link href="/admin/login" className="font-medium hover:underline">Admin Portal</Link>
+            </nav>
+            <p className="text-sm text-primary-foreground/80">&copy; {new Date().getFullYear()} HostelPro</p>
         </div>
       </div>
     </footer>

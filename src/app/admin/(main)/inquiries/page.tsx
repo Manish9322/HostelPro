@@ -24,7 +24,8 @@ import {
   AccordionTrigger,
 } from "@/components/ui/accordion";
 
-const urgencyVariant = (urgency: string) => {
+const urgencyVariant = (urgency?: string) => {
+  if (!urgency) return 'outline';
   switch (urgency) {
     case 'High':
       return 'destructive';
@@ -124,9 +125,9 @@ export default function InquiriesPage() {
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Inquiry Inbox</CardTitle>
+        <CardTitle>Student Inquiries</CardTitle>
         <CardDescription>
-          Review and manage student questions and requests. Inquiries are automatically categorized by AI.
+          Review and manage student questions and requests.
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-6">
@@ -137,7 +138,6 @@ export default function InquiriesPage() {
                   <div className="flex items-center gap-2">
                     <Skeleton className="h-5 w-24 rounded-full" />
                     <Skeleton className="h-5 w-28 rounded-full" />
-                    <Skeleton className="h-5 w-20 rounded-full" />
                   </div>
                   <Skeleton className="h-4 w-32" />
                 </div>
@@ -173,15 +173,13 @@ export default function InquiriesPage() {
                       <div className="flex flex-col sm:flex-row justify-between sm:items-center">
                           <div className="flex items-center gap-2 flex-wrap">
                               <Badge variant={statusVariant(inquiry.status)}>{inquiry.status}</Badge>
-                              <Badge variant={urgencyVariant(inquiry.urgency)}>Urgency: {inquiry.urgency}</Badge>
                               <Badge variant={categoryVariant(inquiry.category)}>Type: {inquiry.category}</Badge>
-                              {inquiry.requestedItem && <Badge variant="outline">Item: {inquiry.requestedItem}</Badge>}
                           </div>
                           <p className="text-sm text-muted-foreground mt-2 sm:mt-0">
                               {format(new Date(inquiry.submittedAt), "PPP p")}
                           </p>
                       </div>
-                      <p className="font-semibold text-primary">{inquiry.summary}</p>
+                      <p className="font-semibold text-primary">{inquiry.subject}</p>
                    </div>
                 </AccordionTrigger>
                 <AccordionContent className="pt-4">
