@@ -86,15 +86,26 @@ export async function PUT(request) {
         if (body.status === 'Approved') {
             const existingStudent = await StudentModel.findOne({ studentId: updatedApplication.studentId });
             if (!existingStudent) {
+                // Generate password
+                const namePart = updatedApplication.name.split(' ')[0].toLowerCase();
+                const randomDigits = Math.floor(1000 + Math.random() * 9000);
+                const password = `${namePart}${randomDigits}`;
+
                 const newStudent = new StudentModel({
                     name: updatedApplication.name,
                     studentId: updatedApplication.studentId,
+                    password: password,
                     email: updatedApplication.email,
                     phone: updatedApplication.phone,
                     course: updatedApplication.course,
                     year: updatedApplication.year,
                     roomNumber: 'Unassigned',
-                    avatar: updatedApplication.profilePhoto
+                    avatar: updatedApplication.profilePhoto,
+                    dob: updatedApplication.dob,
+                    gender: updatedApplication.gender,
+                    address: updatedApplication.address,
+                    guardianName: updatedApplication.guardianName,
+                    guardianPhone: updatedApplication.guardianPhone,
                 });
                 await newStudent.save();
             }

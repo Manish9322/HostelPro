@@ -5,12 +5,18 @@ export type Student = {
   id: string;
   name: string;
   studentId: string;
+  password?: string;
   roomNumber: string;
   course: string;
   year: number;
   email: string;
   phone: string;
   avatar: string;
+  dob?: string;
+  gender?: string;
+  address?: string;
+  guardianName?: string;
+  guardianPhone?: string;
 };
 
 export type Complaint = {

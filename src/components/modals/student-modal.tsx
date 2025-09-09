@@ -21,6 +21,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { format } from "date-fns";
+import { Textarea } from "../ui/textarea";
 
 interface StudentModalProps {
   isOpen: boolean;
@@ -37,27 +39,60 @@ export function StudentModal({ isOpen, onClose, student, onSubmit }: StudentModa
   const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const formData = new FormData(e.currentTarget);
-    const studentData = Object.fromEntries(formData.entries()) as Omit<Student, 'id' | 'avatar' | '_id'>;
+    const studentData = Object.fromEntries(formData.entries()) as any;
     studentData.year = Number(studentData.year);
     onSubmit(studentData);
   };
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent>
+      <DialogContent className="sm:max-w-[625px]">
         <DialogHeader>
           <DialogTitle>{title}</DialogTitle>
           <DialogDescription>{description}</DialogDescription>
         </DialogHeader>
         <form onSubmit={handleSubmit}>
-          <div className="grid gap-4 py-4">
+          <div className="grid gap-4 py-4 max-h-[70vh] overflow-y-auto pr-4">
             <div className="grid grid-cols-4 items-center gap-4">
               <Label htmlFor="name" className="text-right">Name</Label>
               <Input id="name" name="name" defaultValue={student?.name || ''} className="col-span-3" />
             </div>
-            <div className="grid grid-cols-4 items-center gap-4">
+             <div className="grid grid-cols-4 items-center gap-4">
               <Label htmlFor="studentId" className="text-right">Student ID</Label>
-              <Input id="studentId" name="studentId" defaultValue={student?.studentId || ''} className="col-span-3" />
+              <Input id="studentId" name="studentId" defaultValue={student?.studentId || ''} className="col-span-3" readOnly/>
+            </div>
+            <div className="grid grid-cols-4 items-center gap-4">
+              <Label htmlFor="password" className="text-right">Password</Label>
+              <Input id="password" name="password" defaultValue={student?.password || ''} className="col-span-3" />
+            </div>
+            <div className="grid grid-cols-4 items-center gap-4">
+              <Label htmlFor="email" className="text-right">Email</Label>
+              <Input id="email" name="email" type="email" defaultValue={student?.email || ''} className="col-span-3" />
+            </div>
+            <div className="grid grid-cols-4 items-center gap-4">
+              <Label htmlFor="phone" className="text-right">Phone</Label>
+              <Input id="phone" name="phone" type="tel" defaultValue={student?.phone || ''} className="col-span-3" />
+            </div>
+             <div className="grid grid-cols-4 items-center gap-4">
+              <Label htmlFor="dob" className="text-right">Date of Birth</Label>
+              <Input id="dob" name="dob" type="date" defaultValue={student?.dob ? format(new Date(student.dob), 'yyyy-MM-dd') : ''} className="col-span-3"/>
+            </div>
+             <div className="grid grid-cols-4 items-center gap-4">
+              <Label htmlFor="gender" className="text-right">Gender</Label>
+              <Select name="gender" defaultValue={student?.gender || ''}>
+                <SelectTrigger className="col-span-3">
+                  <SelectValue placeholder="Select gender" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="Male">Male</SelectItem>
+                  <SelectItem value="Female">Female</SelectItem>
+                  <SelectItem value="Other">Other</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+             <div className="grid grid-cols-4 items-start gap-4">
+              <Label htmlFor="address" className="text-right pt-2">Address</Label>
+              <Textarea id="address" name="address" defaultValue={student?.address || ''} className="col-span-3" />
             </div>
             <div className="grid grid-cols-4 items-center gap-4">
               <Label htmlFor="roomNumber" className="text-right">Room No.</Label>
@@ -82,13 +117,13 @@ export function StudentModal({ isOpen, onClose, student, onSubmit }: StudentModa
                 </SelectContent>
               </Select>
             </div>
-            <div className="grid grid-cols-4 items-center gap-4">
-              <Label htmlFor="email" className="text-right">Email</Label>
-              <Input id="email" name="email" type="email" defaultValue={student?.email || ''} className="col-span-3" />
+             <div className="grid grid-cols-4 items-center gap-4">
+              <Label htmlFor="guardianName" className="text-right">Guardian</Label>
+              <Input id="guardianName" name="guardianName" defaultValue={student?.guardianName || ''} className="col-span-3" />
             </div>
             <div className="grid grid-cols-4 items-center gap-4">
-              <Label htmlFor="phone" className="text-right">Phone</Label>
-              <Input id="phone" name="phone" type="tel" defaultValue={student?.phone || ''} className="col-span-3" />
+              <Label htmlFor="guardianPhone" className="text-right">Guardian's Phone</Label>
+              <Input id="guardianPhone" name="guardianPhone" defaultValue={student?.guardianPhone || ''} className="col-span-3" />
             </div>
           </div>
           <DialogFooter>
