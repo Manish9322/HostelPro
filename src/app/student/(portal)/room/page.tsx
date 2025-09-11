@@ -11,10 +11,12 @@ import {
 } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Student, Room } from "@/lib/types";
-import { Bed, Users, Wifi, Wind, Bath, Thermometer, Wrench, ShieldCheck, AlertTriangle, RefreshCw } from "lucide-react";
+import { Bed, Users, Wifi, Wind, Bath, Thermometer, Wrench, ShieldCheck, AlertTriangle, RefreshCw, LogOut } from "lucide-react";
 import { Separator } from "@/components/ui/separator";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
+import { DeleteConfirmationDialog } from "@/components/modals/delete-confirmation-modal";
+import { useToast } from "@/hooks/use-toast";
 
 const roomStatusVariant = (status: string) => {
   switch (status) {
@@ -51,6 +53,8 @@ export default function StudentRoomPage() {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
     const [roommate, setRoommate] = useState<Student | null>(null);
+    const [isLeaveModalOpen, setLeaveModalOpen] = useState(false);
+    const { toast } = useToast();
 
     const fetchData = async () => {
         try {
@@ -98,6 +102,35 @@ export default function StudentRoomPage() {
     useEffect(() => {
         fetchData();
     }, []);
+
+    const handleLeaveRoom = async () => {
+        if (!student || !room) return;
+        try {
+            // Update student's room to unassigned
+            await fetch(`/api/students?id=${student._id}`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ roomNumber: 'Unassigned' }),
+            });
+
+            // Update room's occupancy and status
+            const newOccupancy = room.occupancy - 1;
+            await fetch(`/api/rooms?id=${room._id}`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ 
+                    occupancy: newOccupancy,
+                    status: newOccupancy < room.capacity ? 'Available' : 'Occupied',
+                 }),
+            });
+
+            toast({ title: "Success", description: "You have successfully left the room." });
+            fetchData();
+            setLeaveModalOpen(false);
+        } catch(err) {
+            toast({ title: "Error", description: "Failed to leave the room. Please try again.", variant: 'destructive'});
+        }
+    };
 
     if (loading) {
         return (
@@ -174,6 +207,7 @@ export default function StudentRoomPage() {
   }
 
   return (
+    <>
     <div className="grid gap-8 md:grid-cols-3">
         <Card className="md:col-span-2">
             <CardHeader>
@@ -225,6 +259,12 @@ export default function StudentRoomPage() {
                 </div>
 
             </CardContent>
+            <CardContent>
+                 <Button variant="destructive" className="w-full" onClick={() => setLeaveModalOpen(true)}>
+                    <LogOut className="mr-2 h-4 w-4" />
+                    Leave Room
+                </Button>
+            </CardContent>
         </Card>
         <div className="md:col-span-1 space-y-8">
             <Card>
@@ -259,5 +299,12 @@ export default function StudentRoomPage() {
         </div>
 
     </div>
+     <DeleteConfirmationDialog
+        isOpen={isLeaveModalOpen}
+        onClose={() => setLeaveModalOpen(false)}
+        onConfirm={handleLeaveRoom}
+        itemName={`your assignment to Room ${room.roomNumber}`}
+      />
+    </>
   );
 }
