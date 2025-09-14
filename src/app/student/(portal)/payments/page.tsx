@@ -111,77 +111,73 @@ export default function StudentPaymentsPage() {
         const data = await res.json();
         
         const options = {
-            key: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID,
-            amount: data.amount,
-            currency: data.currency,
-            name: "HostelPro",
-            description: `Payment for ${upcomingPayment.month}`,
-            order_id: data.id,
-            handler: async function (response: any) {
-                try {
-                    const verificationRes = await fetch("/api/razorpay", {
-                        method: "PUT",
-                        headers: { "Content-Type": "application/json" },
-                        body: JSON.stringify({
-                            razorpay_order_id: response.razorpay_order_id,
-                            razorpay_payment_id: response.razorpay_payment_id,
-                            razorpay_signature: response.razorpay_signature,
-                            paymentId: upcomingPayment._id
-                        }),
-                    });
+          key: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID,
+          amount: data.amount,
+          currency: data.currency,
+          name: "HostelPro",
+          description: `Payment for ${upcomingPayment.month}`,
+          order_id: data.id,
+          handler: async function (response: any) {
+            try {
+              const verificationRes = await fetch("/api/razorpay", {
+                method: "PUT",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                  razorpay_order_id: response.razorpay_order_id,
+                  razorpay_payment_id: response.razorpay_payment_id,
+                  razorpay_signature: response.razorpay_signature,
+                  paymentId: upcomingPayment._id
+                }),
+              });
 
-                    const verificationData = await verificationRes.json();
+              const verificationData = await verificationRes.json();
 
-                    if (verificationData.success) {
-                        toast({ title: "Payment Successful", description: `Your payment for ${upcomingPayment.month} has been received.` });
-                        fetchPaymentData();
-                    } else {
-                        toast({ title: "Payment Failed", description: "Your payment could not be verified.", variant: "destructive" });
-                    }
-                } catch(err) {
-                    toast({ title: "Error", description: "An error occurred during payment verification.", variant: "destructive" });
-                }
-            },
-            prefill: {
-                name: student?.name,
-                email: student?.email,
-                contact: student?.phone,
-            },
-            notes: {
-                address: "HostelPro Office",
-            },
-            theme: {
-                color: "#222222",
-            },
-            config: {
-                display: {
-                    blocks: {
-                        upi: {
-                            name: "Pay with UPI",
-                            instruments: [
-                                { method: "upi" },
-                                { method: "qr" },
-                            ],
-                        },
-                        card: {
-                            name: "Pay with Card",
-                            instruments: [
-                                { method: "card" },
-                            ]
-                        },
-                        netbanking: {
-                            name: "Netbanking"
-                        },
-                        wallet: {
-                            name: "Wallets"
-                        },
-                    },
-                    sequence: ["block.upi", "block.card", "block.netbanking", "block.wallet"],
-                    preferences: {
-                        show_default_blocks: false,
-                    },
+              if (verificationData.success) {
+                toast({ title: "Payment Successful", description: `Your payment for ${upcomingPayment.month} has been received.` });
+                fetchPaymentData();
+              } else {
+                toast({ title: "Payment Failed", description: "Your payment could not be verified.", variant: "destructive" });
+              }
+            } catch (err) {
+              toast({ title: "Error", description: "An error occurred during payment verification.", variant: "destructive" });
+            }
+          },
+          prefill: {
+            name: student?.name,
+            email: student?.email,
+            contact: student?.phone,
+          },
+          notes: {
+            address: "HostelPro Office",
+          },
+          theme: {
+            color: "#222222",
+          },
+          config: {
+            display: {
+              blocks: {
+                card: {
+                  name: "Pay with Card",
+                  instruments: [{ method: "card" }],
                 },
+                upi: {
+                  name: "Pay with UPI / QR",
+                  instruments: [
+                    { method: "upi" }, // enter UPI ID
+                    { method: "qr" },  // scan QR code
+                  ],
+                },
+                netbanking: {
+                  name: "Bank Transfer (Netbanking)",
+                  instruments: [{ method: "netbanking" }],
+                },
+              },
+              sequence: ["block.card", "block.upi", "block.netbanking"],
+              preferences: {
+                show_default_blocks: false,
+              },
             },
+          },
         };
 
         const paymentObject = new (window as any).Razorpay(options);
