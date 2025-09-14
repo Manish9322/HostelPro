@@ -96,61 +96,48 @@ export default function Home() {
         {/* Hero Section */}
         <section className="w-full py-16 md:py-24 lg:py-28 bg-secondary/50">
             <div className="container mx-auto px-4 md:px-6">
-                <div className="grid lg:grid-cols-2 gap-12 items-center">
-                    <div className="space-y-6 text-center lg:text-left">
-                        <span className="inline-block bg-primary text-primary-foreground text-xs font-semibold tracking-wider uppercase rounded-full px-3 py-1">
-                            Welcome to HostelPro
-                        </span>
-                        <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold tracking-tighter font-headline">
-                           Your New Home Away From Home.
-                        </h1>
-                        <p className="max-w-xl mx-auto lg:mx-0 text-lg text-muted-foreground md:text-xl">
-                            Experience the perfect blend of comfort, community, and convenience. Our modern facilities and streamlined digital services are designed to make your student life easier and more enjoyable.
-                        </p>
-                        <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start">
-                            <Button asChild size="lg" className="bg-primary hover:bg-primary/90 text-primary-foreground shadow-lg transform hover:scale-105 transition-transform">
-                                <Link href="/apply">Apply for a Room</Link>
-                            </Button>
-                            <Button asChild size="lg" variant="outline" className="transform hover:scale-105 transition-transform">
-                                <Link href="#features">Explore Features</Link>
-                            </Button>
-                        </div>
-                        <Separator className="my-6" />
-                        <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 text-sm">
-                            <div className="flex items-center gap-2">
-                                <CheckCircle className="w-5 h-5 text-primary" />
-                                <span className="font-medium">Modern Rooms</span>
-                            </div>
-                            <div className="flex items-center gap-2">
-                                <CheckCircle className="w-5 h-5 text-primary" />
-                                <span className="font-medium">Vibrant Community</span>
-                            </div>
-                            <div className="flex items-center gap-2">
-                                <CheckCircle className="w-5 h-5 text-primary" />
-                                <span className="font-medium">24/7 Security</span>
-                            </div>
-                        </div>
+                <div className="text-center space-y-6">
+                     <span className="inline-block bg-primary text-primary-foreground text-xs font-semibold tracking-wider uppercase rounded-full px-3 py-1">
+                        Welcome to HostelPro
+                    </span>
+                    <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold tracking-tighter font-headline">
+                       Your New Home Away From Home
+                    </h1>
+                    <p className="max-w-3xl mx-auto text-lg text-muted-foreground md:text-xl">
+                        Experience the perfect blend of comfort, community, and convenience. Our modern facilities and streamlined digital services are designed to make your student life easier and more enjoyable.
+                    </p>
+                    <div className="flex flex-col sm:flex-row gap-4 justify-center">
+                        <Button asChild size="lg" className="bg-accent hover:bg-accent/90 text-accent-foreground shadow-lg transform hover:scale-105 transition-transform">
+                            <Link href="/apply">Apply for a Room</Link>
+                        </Button>
+                        <Button asChild size="lg" variant="outline" className="transform hover:scale-105 transition-transform">
+                            <Link href="#features">Explore Features</Link>
+                        </Button>
                     </div>
-                    
-                    {loadingGallery ? (
-                        <div className="grid grid-cols-2 grid-rows-2 gap-4 h-96">
-                            <Skeleton className="col-span-2 row-span-1 rounded-xl" />
-                            <Skeleton className="col-span-1 row-span-1 rounded-xl" />
-                            <Skeleton className="col-span-1 row-span-1 rounded-xl" />
-                        </div>
+                </div>
+
+                <div className="mt-12">
+                     {loadingGallery ? (
+                        <Skeleton className="aspect-video w-full max-w-4xl mx-auto rounded-xl" />
                     ) : (
-                    <div className="grid grid-cols-2 grid-rows-2 gap-4">
-                        <div className="col-span-2 row-span-1 overflow-hidden rounded-xl shadow-lg">
-                            <Image src={galleryImages[0]?.url || "https://picsum.photos/seed/1/600/300"} alt={galleryImages[0]?.alt || "Hostel room view"} width={600} height={300} className="w-full h-full object-cover transition-transform hover:scale-105 duration-500" data-ai-hint="hostel room interior" />
-                        </div>
-                        <div className="col-span-1 row-span-1 overflow-hidden rounded-xl shadow-lg">
-                             <Image src={galleryImages[1]?.url || "https://picsum.photos/seed/2/300/300"} alt={galleryImages[1]?.alt || "Common area"} width={300} height={300} className="w-full h-full object-cover transition-transform hover:scale-105 duration-500" data-ai-hint="common area students" />
-                        </div>
-                        <div className="col-span-1 row-span-1 overflow-hidden rounded-xl shadow-lg">
-                            <Image src={galleryImages[2]?.url || "https://picsum.photos/seed/3/300/300"} alt={galleryImages[2]?.alt || "Study area"} width={300} height={300} className="w-full h-full object-cover transition-transform hover:scale-105 duration-500" data-ai-hint="study area library" />
-                        </div>
+                    <div className="max-w-4xl mx-auto overflow-hidden rounded-xl shadow-2xl">
+                         <Image src={galleryImages[0]?.url || "https://picsum.photos/seed/1/1200/600"} alt={galleryImages[0]?.alt || "Hostel main view"} width={1200} height={600} className="w-full h-full object-cover" data-ai-hint="hostel exterior modern" />
                     </div>
                     )}
+                     <div className="grid grid-cols-2 sm:grid-cols-3 gap-6 text-center max-w-4xl mx-auto mt-12">
+                        <div className="flex flex-col items-center gap-2">
+                            <BedDouble className="w-8 h-8 text-primary" />
+                            <span className="font-semibold">Modern Rooms</span>
+                        </div>
+                        <div className="flex flex-col items-center gap-2">
+                            <Users className="w-8 h-8 text-primary" />
+                            <span className="font-semibold">Vibrant Community</span>
+                        </div>
+                        <div className="flex flex-col items-center gap-2 col-span-2 sm:col-span-1">
+                            <ShieldCheck className="w-8 h-8 text-primary" />
+                            <span className="font-semibold">24/7 Security</span>
+                        </div>
+                    </div>
                 </div>
             </div>
         </section>
@@ -478,5 +465,3 @@ export default function Home() {
     </>
   );
 }
-
-    
