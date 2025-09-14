@@ -5,7 +5,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { BedDouble, Users, ShieldCheck, Wifi, Dumbbell, UtensilsCrossed, BookOpen, Tv, Star, University, FileCheck2, Building, Handshake, Smile, Shield, Trophy, PartyPopper, Lightbulb, Images, HeartHandshake, HelpCircle, MapPin, Sparkles, RefreshCw, AlertTriangle, MessageSquarePlus, CheckCircle } from 'lucide-react';
+import { BedDouble, Users, ShieldCheck, Wifi, Dumbbell, UtensilsCrossed, BookOpen, Tv, Star, University, FileCheck2, Building, Handshake, Smile, Shield, Trophy, PartyPopper, Lightbulb, Images, HeartHandshake, HelpCircle, MapPin, Sparkles, RefreshCw, AlertTriangle, MessageSquarePlus, CheckCircle, Award } from 'lucide-react';
 import PublicHeader from '@/components/public-header';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import {
@@ -22,6 +22,8 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { GalleryImageModal } from '@/components/modals/gallery-image-modal';
 import { FeedbackModal } from '@/components/modals/feedback-modal';
 import { cn } from '@/lib/utils';
+import { useInView } from 'react-intersection-observer';
+import { useSpring, animated } from '@react-spring/web';
 
 const SectionTag = ({ icon: Icon, children }: { icon: React.ElementType, children: React.ReactNode }) => (
   <div className="flex items-center justify-center gap-2 mb-8">
@@ -29,6 +31,18 @@ const SectionTag = ({ icon: Icon, children }: { icon: React.ElementType, childre
     <span className="text-sm font-medium text-primary tracking-widest uppercase">{children}</span>
   </div>
 )
+
+const AnimatedCounter = ({ end, duration = 2000 }: { end: number, duration?: number }) => {
+  const [ref, inView] = useInView({ triggerOnce: true, threshold: 0.5 });
+  const { number } = useSpring({
+    from: { number: 0 },
+    to: { number: inView ? end : 0 },
+    config: { duration },
+  });
+
+  return <animated.span ref={ref}>{number.to((n) => n.toFixed(0))}</animated.span>;
+};
+
 
 export default function Home() {
     const [faqs, setFaqs] = useState<Faq[]>([]);
@@ -94,9 +108,14 @@ export default function Home() {
       <PublicHeader />
       <main className="flex-1">
         {/* Hero Section */}
-        <section className="w-full py-20 md:py-28 lg:py-32 bg-secondary/50">
+        <section className="w-full py-20 md:py-28 lg:py-32 bg-secondary/50 overflow-hidden">
             <div className="container mx-auto px-4 md:px-6">
-                <div className="text-center space-y-6">
+                 <div className="text-center space-y-6">
+                    <div className="w-full text-center">
+                        <div className="inline-block bg-accent text-accent-foreground text-xs font-semibold tracking-wider uppercase rounded-full px-3 py-1 mb-4">
+                            Limited Spots Available for Fall 2024!
+                        </div>
+                    </div>
                      <span className="inline-block bg-primary text-primary-foreground text-xs font-semibold tracking-wider uppercase rounded-full px-3 py-1">
                         Welcome to HostelPro
                     </span>
@@ -108,28 +127,87 @@ export default function Home() {
                     </p>
                     <div className="flex flex-col sm:flex-row gap-4 justify-center">
                         <Button asChild size="lg" className="bg-accent hover:bg-accent/90 text-accent-foreground shadow-lg transform hover:scale-105 transition-transform">
-                            <Link href="/apply">Apply for a Room</Link>
+                            <Link href="/apply">Apply Now & Waive Application Fees</Link>
                         </Button>
                         <Button asChild size="lg" variant="outline" className="transform hover:scale-105 transition-transform">
                             <Link href="#features">Explore Features</Link>
                         </Button>
                     </div>
-                </div>
 
-                <div className="mt-16">
-                     <div className="grid grid-cols-2 sm:grid-cols-3 gap-6 text-center max-w-4xl mx-auto">
-                        <div className="flex flex-col items-center gap-2 p-4 rounded-lg bg-background/50">
-                            <BedDouble className="w-8 h-8 text-primary" />
-                            <span className="font-semibold">Modern Rooms</span>
+                    <div className="pt-8">
+                         <div className="grid grid-cols-2 sm:grid-cols-3 gap-6 text-center max-w-4xl mx-auto">
+                            <div className="flex flex-col items-center gap-2 p-4 rounded-lg bg-background/50">
+                                <BedDouble className="w-8 h-8 text-primary" />
+                                <span className="font-semibold">Modern Rooms</span>
+                            </div>
+                            <div className="flex flex-col items-center gap-2 p-4 rounded-lg bg-background/50">
+                                <Users className="w-8 h-8 text-primary" />
+                                <span className="font-semibold">Vibrant Community</span>
+                            </div>
+                            <div className="flex flex-col items-center gap-2 p-4 rounded-lg bg-background/50 col-span-2 sm:col-span-1">
+                                <ShieldCheck className="w-8 h-8 text-primary" />
+                                <span className="font-semibold">24/7 Security</span>
+                            </div>
                         </div>
-                        <div className="flex flex-col items-center gap-2 p-4 rounded-lg bg-background/50">
-                            <Users className="w-8 h-8 text-primary" />
-                            <span className="font-semibold">Vibrant Community</span>
+                    </div>
+
+                    <div className="pt-8">
+                      <div className="flex justify-center items-center gap-4">
+                          <div className="flex -space-x-2 overflow-hidden">
+                              <Avatar className="inline-block h-10 w-10 rounded-full ring-2 ring-background">
+                                  <AvatarImage src="https://picsum.photos/seed/1/40/40" data-ai-hint="person avatar" alt="User 1"/>
+                                  <AvatarFallback>U1</AvatarFallback>
+                              </Avatar>
+                               <Avatar className="inline-block h-10 w-10 rounded-full ring-2 ring-background">
+                                  <AvatarImage src="https://picsum.photos/seed/2/40/40" data-ai-hint="person avatar" alt="User 2"/>
+                                  <AvatarFallback>U2</AvatarFallback>
+                              </Avatar>
+                               <Avatar className="inline-block h-10 w-10 rounded-full ring-2 ring-background">
+                                  <AvatarImage src="https://picsum.photos/seed/3/40/40" data-ai-hint="person avatar" alt="User 3"/>
+                                  <AvatarFallback>U3</AvatarFallback>
+                              </Avatar>
+                          </div>
+                          <div className="flex flex-col items-start">
+                              <div className="flex items-center">
+                                  <Star className="w-5 h-5 fill-yellow-400 text-yellow-400" />
+                                  <Star className="w-5 h-5 fill-yellow-400 text-yellow-400" />
+                                  <Star className="w-5 h-5 fill-yellow-400 text-yellow-400" />
+                                  <Star className="w-5 h-5 fill-yellow-400 text-yellow-400" />
+                                  <Star className="w-5 h-5 fill-yellow-400 text-yellow-400" />
+                              </div>
+                              <p className="text-sm text-muted-foreground">"Best hostel experience ever!"</p>
+                          </div>
+                      </div>
+                    </div>
+                     <div className="pt-8 grid grid-cols-2 md:grid-cols-4 gap-4 max-w-4xl mx-auto">
+                        <div className="text-center p-4 bg-background/50 rounded-lg">
+                          <p className="text-3xl font-bold text-primary"><AnimatedCounter end={500} />+</p>
+                          <p className="text-sm text-muted-foreground">Happy Residents</p>
                         </div>
-                        <div className="flex flex-col items-center gap-2 p-4 rounded-lg bg-background/50 col-span-2 sm:col-span-1">
-                            <ShieldCheck className="w-8 h-8 text-primary" />
-                            <span className="font-semibold">24/7 Security</span>
+                        <div className="text-center p-4 bg-background/50 rounded-lg">
+                          <p className="text-3xl font-bold text-primary"><AnimatedCounter end={250} />+</p>
+                          <p className="text-sm text-muted-foreground">Rooms Secured</p>
                         </div>
+                        <div className="text-center p-4 bg-background/50 rounded-lg">
+                           <p className="text-3xl font-bold text-primary"><AnimatedCounter end={50} />+</p>
+                          <p className="text-sm text-muted-foreground">Events Hosted</p>
+                        </div>
+                         <div className="text-center p-4 bg-background/50 rounded-lg">
+                           <p className="text-3xl font-bold text-primary"><AnimatedCounter end={10} />+</p>
+                          <p className="text-sm text-muted-foreground">Years of Service</p>
+                        </div>
+                    </div>
+                    <div className="pt-8 max-w-2xl mx-auto">
+                        <Accordion type="single" collapsible className="w-full bg-background/50 rounded-lg p-4">
+                            <AccordionItem value="item-1">
+                                <AccordionTrigger>What are the room options?</AccordionTrigger>
+                                <AccordionContent>We offer single and shared occupancy rooms with various amenities.</AccordionContent>
+                            </AccordionItem>
+                             <AccordionItem value="item-2">
+                                <AccordionTrigger>Is there a deadline to apply?</AccordionTrigger>
+                                <AccordionContent>We accept applications on a rolling basis, but we recommend applying early as spots fill up quickly.</AccordionContent>
+                            </AccordionItem>
+                        </Accordion>
                     </div>
                 </div>
             </div>
@@ -458,5 +536,3 @@ export default function Home() {
     </>
   );
 }
-
-    
