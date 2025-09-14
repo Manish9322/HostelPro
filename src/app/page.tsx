@@ -136,6 +136,21 @@ export default function Home() {
                 </Button>
               </div>
 
+               <div className="pt-6 grid grid-cols-2 md:grid-cols-3 gap-4 max-w-4xl mx-auto">
+                <div className="flex items-center justify-center gap-2 p-3 bg-background/50 rounded-lg">
+                  <ShieldCheck className="h-5 w-5 text-primary"/>
+                  <span className="text-sm font-medium text-foreground">24/7 Security</span>
+                </div>
+                 <div className="flex items-center justify-center gap-2 p-3 bg-background/50 rounded-lg">
+                  <Users className="h-5 w-5 text-primary"/>
+                  <span className="text-sm font-medium text-foreground">Vibrant Community</span>
+                </div>
+                 <div className="flex items-center justify-center gap-2 p-3 bg-background/50 rounded-lg">
+                  <Wifi className="h-5 w-5 text-primary"/>
+                  <span className="text-sm font-medium text-foreground">All-Inclusive</span>
+                </div>
+              </div>
+
               <div className="pt-6 grid grid-cols-2 md:grid-cols-4 gap-4 max-w-4xl mx-auto">
                 <div className="text-center p-2 bg-background/50 rounded-lg">
                   <p className="text-2xl font-bold text-primary"><AnimatedCounter end={500} />+</p>
