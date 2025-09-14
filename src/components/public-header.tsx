@@ -1,3 +1,4 @@
+
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
@@ -13,6 +14,7 @@ const NavLink = ({ href, children }: { href: string; children: React.ReactNode }
 export default function PublicHeader() {
   const navItems = [
     { href: '/', label: 'Home' },
+    { href: '/about', label: 'About' },
     { href: '/apply', label: 'Apply' },
     { href: '/status', label: 'Check Status' },
     { href: '/notices', label: 'Notices' },
