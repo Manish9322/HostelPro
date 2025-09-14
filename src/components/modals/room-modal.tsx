@@ -134,7 +134,7 @@ export function RoomModal({ isOpen, onClose, room, onSubmit }: RoomModalProps) {
               <Input id="capacity" name="capacity" type="number" defaultValue={room?.capacity || ''} className="col-span-3" required/>
             </div>
             <div className="grid grid-cols-4 items-center gap-4">
-              <Label htmlFor="rent" className="text-right">Base Rent ($)</Label>
+              <Label htmlFor="rent" className="text-right">Base Rent (₹)</Label>
               <Input id="rent" name="rent" type="number" value={baseRent} onChange={(e) => setBaseRent(Number(e.target.value))} className="col-span-3" required/>
             </div>
             <div className="grid grid-cols-4 items-center gap-4">
@@ -185,7 +185,7 @@ export function RoomModal({ isOpen, onClose, room, onSubmit }: RoomModalProps) {
                                 checked={selectedUtilities.includes(util.name)}
                                 onCheckedChange={(checked) => handleUtilityChange(util.name, Boolean(checked))}
                              />
-                            <Label htmlFor={`util-${util._id}`} className="font-normal">{util.name} (+${util.price})</Label>
+                            <Label htmlFor={`util-${util._id}`} className="font-normal">{util.name} (+₹{util.price})</Label>
                         </div>
                       ))
                     )}
@@ -194,7 +194,7 @@ export function RoomModal({ isOpen, onClose, room, onSubmit }: RoomModalProps) {
             <Separator className="my-2"/>
              <div className="grid grid-cols-4 items-center gap-4 font-bold">
                  <Label className="text-right">Total Rent</Label>
-                 <div className="col-span-3 text-lg">${totalRent.toFixed(2)} / month</div>
+                 <div className="col-span-3 text-lg">₹{totalRent.toFixed(2)} / month</div>
             </div>
 
           </div>

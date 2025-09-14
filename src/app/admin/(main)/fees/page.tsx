@@ -164,7 +164,7 @@ export default function FeesPage() {
               <CircleDollarSign className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">${totalRevenue.toLocaleString()}</div>
+              <div className="text-2xl font-bold">₹{totalRevenue.toLocaleString()}</div>
               <p className="text-xs text-muted-foreground">Total fees collected so far</p>
             </CardContent>
           </Card>
@@ -174,7 +174,7 @@ export default function FeesPage() {
               <FileText className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">${outstandingFees.toLocaleString()}</div>
+              <div className="text-2xl font-bold">₹{outstandingFees.toLocaleString()}</div>
               <p className="text-xs text-muted-foreground">Total overdue payments</p>
             </CardContent>
           </Card>
@@ -280,7 +280,7 @@ export default function FeesPage() {
                       <TableCell>{payment.studentId}</TableCell>
                       <TableCell>{payment.month}</TableCell>
                       <TableCell>{format(new Date(payment.dueDate), 'PPP')}</TableCell>
-                      <TableCell>${payment.amount.toFixed(2)}</TableCell>
+                      <TableCell>₹{payment.amount.toFixed(2)}</TableCell>
                       <TableCell>
                         <Badge variant={statusVariant(payment.status)}>{payment.status}</Badge>
                       </TableCell>

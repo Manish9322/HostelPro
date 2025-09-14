@@ -180,7 +180,7 @@ export default function UtilitiesPage() {
                                         {editingId === utility._id ? (
                                              <Input type="number" value={editingPrice} onChange={e => setEditingPrice(e.target.value)} className="h-8"/>
                                         ) : (
-                                            `$${utility.price.toFixed(2)}`
+                                            `₹${utility.price.toFixed(2)}`
                                         )}
                                     </TableCell>
                                     <TableCell className="text-right">

@@ -4,6 +4,7 @@ import FeePaymentModel from "@/models/feePayment.model";
 import { NextResponse } from "next/server";
 import RoomModel from "@/models/room.model";
 import StudentModel from "@/models/student.model";
+import UtilityModel from "@/models/utility.model";
 import { format } from "date-fns";
 
 export async function GET(request) {
@@ -14,7 +15,6 @@ export async function GET(request) {
   const query = studentId ? { studentId } : {};
   
   if (studentId) {
-    // Generate a pending payment if one doesn't exist for the current month
     const today = new Date();
     const currentMonth = format(today, 'MMMM yyyy');
 
@@ -25,14 +25,21 @@ export async function GET(request) {
         
         if (student && student.roomNumber !== 'Unassigned') {
             const room = await RoomModel.findOne({ roomNumber: student.roomNumber });
+            const utilities = await UtilityModel.find({});
 
             if(room) {
+              const utilitiesTotal = room.utilities.reduce((total, utilityName) => {
+                  const utilityDetail = utilities.find(u => u.name === utilityName);
+                  return total + (utilityDetail ? utilityDetail.price : 0);
+              }, 0);
+              const totalRent = room.rent + utilitiesTotal;
+
               const newPayment = new FeePaymentModel({
                   studentName: student.name,
                   studentId: student.studentId,
                   month: currentMonth,
-                  amount: room.rent,
-                  dueDate: new Date(today.getFullYear(), today.getMonth(), 5), // Due on the 5th
+                  amount: totalRent,
+                  dueDate: new Date(today.getFullYear(), today.getMonth(), 5), 
                   status: 'Pending'
               });
               await newPayment.save();

@@ -45,7 +45,6 @@ export default function StudentPaymentsPage() {
     const [payments, setPayments] = useState<FeePayment[]>([]);
     const [upcomingPayment, setUpcomingPayment] = useState<FeePayment | null>(null);
     const [student, setStudent] = useState<Student | null>(null);
-    const [room, setRoom] = useState<Room | null>(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
     const { toast } = useToast();
@@ -72,14 +71,6 @@ export default function StudentPaymentsPage() {
                 
                 const upcoming = paymentsData.find(p => p.status === 'Pending' || p.status === 'Overdue');
                 setUpcomingPayment(upcoming || null);
-
-                if (currentStudent.roomNumber !== 'Unassigned') {
-                    const roomsRes = await fetch('/api/rooms');
-                    if (!roomsRes.ok) throw new Error("Failed to fetch room details");
-                    const allRooms: Room[] = await roomsRes.json();
-                    const currentRoom = allRooms.find(r => r.roomNumber === currentStudent.roomNumber);
-                    setRoom(currentRoom || null);
-                }
             } else {
                 throw new Error("Could not find your student profile.");
             }
@@ -153,31 +144,6 @@ export default function StudentPaymentsPage() {
           theme: {
             color: "#222222",
           },
-          config: {
-            display: {
-              blocks: {
-                card: {
-                  name: "Pay with Card",
-                  instruments: [{ method: "card" }],
-                },
-                upi: {
-                  name: "Pay with UPI / QR",
-                  instruments: [
-                    { method: "upi" }, // enter UPI ID
-                    { method: "qr" },  // scan QR code
-                  ],
-                },
-                netbanking: {
-                  name: "Bank Transfer (Netbanking)",
-                  instruments: [{ method: "netbanking" }],
-                },
-              },
-              sequence: ["block.card", "block.upi", "block.netbanking"],
-              preferences: {
-                show_default_blocks: false,
-              },
-            },
-          },
         };
 
         const paymentObject = new (window as any).Razorpay(options);
@@ -211,7 +177,7 @@ export default function StudentPaymentsPage() {
                 <CardContent className="flex flex-col sm:flex-row items-start sm:items-center justify-between p-6 bg-secondary/50 rounded-lg">
                     <div className="space-y-1">
                         <p className="text-sm text-muted-foreground">Due Date: <span className="font-semibold text-foreground">{format(new Date(upcomingPayment.dueDate), 'PPP')}</span></p>
-                        <p className="text-2xl font-bold tracking-tight flex items-center gap-2"><CircleDollarSign className="w-6 h-6"/>{upcomingPayment.amount.toFixed(2)}</p>
+                        <p className="text-2xl font-bold tracking-tight flex items-center gap-2"><CircleDollarSign className="w-6 h-6"/>₹{upcomingPayment.amount.toFixed(2)}</p>
                         <p className="text-sm text-muted-foreground">For the month of {upcomingPayment.month}</p>
                     </div>
                     <Button className="mt-4 sm:mt-0" onClick={makePayment}>
@@ -260,7 +226,7 @@ export default function StudentPaymentsPage() {
                         <TableRow key={payment._id}>
                             <TableCell className="font-medium">{payment._id.slice(-6).toUpperCase()}</TableCell>
                             <TableCell>{payment.month}</TableCell>
-                            <TableCell>${payment.amount.toFixed(2)}</TableCell>
+                            <TableCell>₹{payment.amount.toFixed(2)}</TableCell>
                             <TableCell><Badge variant={statusVariant(payment.status)}>{payment.status}</Badge></TableCell>
                             <TableCell>{payment.status === 'Paid' ? format(new Date(payment.dueDate), 'PPP') : 'N/A'}</TableCell>
                             <TableCell className="text-right">
