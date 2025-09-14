@@ -18,12 +18,16 @@ export async function GET() {
 export async function POST(request) {
   await _db();
   const body = await request.json();
-  // Use findOneAndUpdate with upsert:true to either update the existing settings
-  // document or create a new one if it doesn't exist.
-  const updatedSettings = await SettingModel.findOneAndUpdate(
-    {}, // An empty filter will match the first document found
-    { $set: body },
-    { new: true, upsert: true, runValidators: true }
-  );
-  return NextResponse.json(updatedSettings, { status: 200 });
+  try {
+    const updatedSettings = await SettingModel.findOneAndUpdate(
+      {}, // An empty filter will match the first document found
+      { $set: body },
+      { new: true, upsert: true, runValidators: true }
+    );
+    return NextResponse.json(updatedSettings, { status: 200 });
+  } catch (error) {
+     return NextResponse.json({ error: 'Failed to update settings', details: error.message }, { status: 500 });
+  }
 }
+
+    
