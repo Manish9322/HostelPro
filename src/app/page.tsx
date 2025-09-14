@@ -108,25 +108,22 @@ export default function Home() {
       <PublicHeader />
       <main className="flex-1">
         {/* Hero Section */}
-        <section className="w-full py-20 md:py-28 lg:py-32 bg-secondary/50 overflow-hidden">
+        <section className="w-full py-16 md:py-24 bg-secondary/50 overflow-hidden">
             <div className="container mx-auto px-4 md:px-6">
-                 <div className="text-center space-y-6">
+                 <div className="text-center space-y-4">
                     <div className="w-full text-center">
-                        <div className="inline-block bg-accent text-accent-foreground text-xs font-semibold tracking-wider uppercase rounded-full px-3 py-1 mb-4">
+                        <div className="inline-block bg-accent text-accent-foreground text-xs font-semibold tracking-wider uppercase rounded-full px-3 py-1 mb-2">
                             Limited Spots Available for Fall 2024!
                         </div>
                     </div>
-                     <span className="inline-block bg-primary text-primary-foreground text-xs font-semibold tracking-wider uppercase rounded-full px-3 py-1">
-                        Welcome to HostelPro
-                    </span>
                     <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold tracking-tighter font-headline">
                        Your New Home Away From Home
                     </h1>
                     <p className="max-w-3xl mx-auto text-lg text-muted-foreground md:text-xl">
                         Experience the perfect blend of comfort, community, and convenience. Our modern facilities and streamlined digital services are designed to make your student life easier and more enjoyable.
                     </p>
-                    <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                        <Button asChild size="lg" className="bg-accent hover:bg-accent/90 text-accent-foreground shadow-lg transform hover:scale-105 transition-transform">
+                    <div className="flex flex-col sm:flex-row gap-4 justify-center pt-2">
+                        <Button asChild size="lg" className="bg-primary hover:bg-primary/90 text-primary-foreground shadow-lg transform hover:scale-105 transition-transform">
                             <Link href="/apply">Apply Now & Waive Application Fees</Link>
                         </Button>
                         <Button asChild size="lg" variant="outline" className="transform hover:scale-105 transition-transform">
@@ -134,76 +131,76 @@ export default function Home() {
                         </Button>
                     </div>
 
-                    <div className="pt-8">
-                         <div className="grid grid-cols-2 sm:grid-cols-3 gap-6 text-center max-w-4xl mx-auto">
-                            <div className="flex flex-col items-center gap-2 p-4 rounded-lg bg-background/50">
-                                <BedDouble className="w-8 h-8 text-primary" />
-                                <span className="font-semibold">Modern Rooms</span>
+                    <div className="pt-6">
+                         <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 text-center max-w-2xl mx-auto">
+                            <div className="flex flex-col items-center gap-1 p-2 rounded-lg bg-background/50">
+                                <BedDouble className="w-6 h-6 text-primary" />
+                                <span className="font-semibold text-sm">Modern Rooms</span>
                             </div>
-                            <div className="flex flex-col items-center gap-2 p-4 rounded-lg bg-background/50">
-                                <Users className="w-8 h-8 text-primary" />
-                                <span className="font-semibold">Vibrant Community</span>
+                            <div className="flex flex-col items-center gap-1 p-2 rounded-lg bg-background/50">
+                                <Users className="w-6 h-6 text-primary" />
+                                <span className="font-semibold text-sm">Vibrant Community</span>
                             </div>
-                            <div className="flex flex-col items-center gap-2 p-4 rounded-lg bg-background/50 col-span-2 sm:col-span-1">
-                                <ShieldCheck className="w-8 h-8 text-primary" />
-                                <span className="font-semibold">24/7 Security</span>
+                            <div className="flex flex-col items-center gap-1 p-2 rounded-lg bg-background/50 col-span-2 sm:col-span-1">
+                                <ShieldCheck className="w-6 h-6 text-primary" />
+                                <span className="font-semibold text-sm">24/7 Security</span>
                             </div>
                         </div>
                     </div>
 
-                    <div className="pt-8">
+                    <div className="pt-6">
                       <div className="flex justify-center items-center gap-4">
                           <div className="flex -space-x-2 overflow-hidden">
-                              <Avatar className="inline-block h-10 w-10 rounded-full ring-2 ring-background">
+                              <Avatar className="inline-block h-8 w-8 rounded-full ring-2 ring-background">
                                   <AvatarImage src="https://picsum.photos/seed/1/40/40" data-ai-hint="person avatar" alt="User 1"/>
                                   <AvatarFallback>U1</AvatarFallback>
                               </Avatar>
-                               <Avatar className="inline-block h-10 w-10 rounded-full ring-2 ring-background">
+                               <Avatar className="inline-block h-8 w-8 rounded-full ring-2 ring-background">
                                   <AvatarImage src="https://picsum.photos/seed/2/40/40" data-ai-hint="person avatar" alt="User 2"/>
                                   <AvatarFallback>U2</AvatarFallback>
                               </Avatar>
-                               <Avatar className="inline-block h-10 w-10 rounded-full ring-2 ring-background">
+                               <Avatar className="inline-block h-8 w-8 rounded-full ring-2 ring-background">
                                   <AvatarImage src="https://picsum.photos/seed/3/40/40" data-ai-hint="person avatar" alt="User 3"/>
                                   <AvatarFallback>U3</AvatarFallback>
                               </Avatar>
                           </div>
                           <div className="flex flex-col items-start">
                               <div className="flex items-center">
-                                  <Star className="w-5 h-5 fill-yellow-400 text-yellow-400" />
-                                  <Star className="w-5 h-5 fill-yellow-400 text-yellow-400" />
-                                  <Star className="w-5 h-5 fill-yellow-400 text-yellow-400" />
-                                  <Star className="w-5 h-5 fill-yellow-400 text-yellow-400" />
-                                  <Star className="w-5 h-5 fill-yellow-400 text-yellow-400" />
+                                  <Star className="w-4 h-4 fill-yellow-400 text-yellow-400" />
+                                  <Star className="w-4 h-4 fill-yellow-400 text-yellow-400" />
+                                  <Star className="w-4 h-4 fill-yellow-400 text-yellow-400" />
+                                  <Star className="w-4 h-4 fill-yellow-400 text-yellow-400" />
+                                  <Star className="w-4 h-4 fill-yellow-400 text-yellow-400" />
                               </div>
-                              <p className="text-sm text-muted-foreground">"Best hostel experience ever!"</p>
+                              <p className="text-xs text-muted-foreground">"Best hostel experience ever!"</p>
                           </div>
                       </div>
                     </div>
-                     <div className="pt-8 grid grid-cols-2 md:grid-cols-4 gap-4 max-w-4xl mx-auto">
-                        <div className="text-center p-4 bg-background/50 rounded-lg">
-                          <p className="text-3xl font-bold text-primary"><AnimatedCounter end={500} />+</p>
-                          <p className="text-sm text-muted-foreground">Happy Residents</p>
+                     <div className="pt-6 grid grid-cols-2 md:grid-cols-4 gap-4 max-w-4xl mx-auto">
+                        <div className="text-center p-2 bg-background/50 rounded-lg">
+                          <p className="text-2xl font-bold text-primary"><AnimatedCounter end={500} />+</p>
+                          <p className="text-xs text-muted-foreground">Happy Residents</p>
                         </div>
-                        <div className="text-center p-4 bg-background/50 rounded-lg">
-                          <p className="text-3xl font-bold text-primary"><AnimatedCounter end={250} />+</p>
-                          <p className="text-sm text-muted-foreground">Rooms Secured</p>
+                        <div className="text-center p-2 bg-background/50 rounded-lg">
+                          <p className="text-2xl font-bold text-primary"><AnimatedCounter end={250} />+</p>
+                          <p className="text-xs text-muted-foreground">Rooms Secured</p>
                         </div>
-                        <div className="text-center p-4 bg-background/50 rounded-lg">
-                           <p className="text-3xl font-bold text-primary"><AnimatedCounter end={50} />+</p>
-                          <p className="text-sm text-muted-foreground">Events Hosted</p>
+                        <div className="text-center p-2 bg-background/50 rounded-lg">
+                           <p className="text-2xl font-bold text-primary"><AnimatedCounter end={50} />+</p>
+                          <p className="text-xs text-muted-foreground">Events Hosted</p>
                         </div>
-                         <div className="text-center p-4 bg-background/50 rounded-lg">
-                           <p className="text-3xl font-bold text-primary"><AnimatedCounter end={10} />+</p>
-                          <p className="text-sm text-muted-foreground">Years of Service</p>
+                         <div className="text-center p-2 bg-background/50 rounded-lg">
+                           <p className="text-2xl font-bold text-primary"><AnimatedCounter end={10} />+</p>
+                          <p className="text-xs text-muted-foreground">Years of Service</p>
                         </div>
                     </div>
-                    <div className="pt-8 max-w-2xl mx-auto">
-                        <Accordion type="single" collapsible className="w-full bg-background/50 rounded-lg p-4">
+                    <div className="pt-6 max-w-2xl mx-auto">
+                        <Accordion type="single" collapsible className="w-full bg-background/50 rounded-lg px-4">
                             <AccordionItem value="item-1">
                                 <AccordionTrigger>What are the room options?</AccordionTrigger>
                                 <AccordionContent>We offer single and shared occupancy rooms with various amenities.</AccordionContent>
                             </AccordionItem>
-                             <AccordionItem value="item-2">
+                             <AccordionItem value="item-2" className="border-b-0">
                                 <AccordionTrigger>Is there a deadline to apply?</AccordionTrigger>
                                 <AccordionContent>We accept applications on a rolling basis, but we recommend applying early as spots fill up quickly.</AccordionContent>
                             </AccordionItem>
