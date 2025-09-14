@@ -136,18 +136,27 @@ export default function Home() {
                 </Button>
               </div>
 
-               <div className="pt-6 grid grid-cols-2 md:grid-cols-3 gap-4 max-w-4xl mx-auto">
-                <div className="flex items-center justify-center gap-2 p-3 bg-background/50 rounded-lg">
-                  <ShieldCheck className="h-5 w-5 text-primary"/>
-                  <span className="text-sm font-medium text-foreground">24/7 Security</span>
+               <div className="pt-12 grid grid-cols-1 md:grid-cols-3 gap-6 max-w-4xl mx-auto">
+                <div className="flex flex-col items-center text-center gap-4 p-6 bg-background/50 rounded-lg shadow-sm hover:shadow-md transition-shadow">
+                  <div className="flex items-center justify-center w-16 h-16 rounded-full bg-primary/10">
+                    <ShieldCheck className="h-8 w-8 text-primary"/>
+                  </div>
+                  <h3 className="text-lg font-semibold">24/7 Security</h3>
+                  <p className="text-sm text-muted-foreground">Your safety is our top priority, with round-the-clock surveillance and secure access.</p>
                 </div>
-                 <div className="flex items-center justify-center gap-2 p-3 bg-background/50 rounded-lg">
-                  <Users className="h-5 w-5 text-primary"/>
-                  <span className="text-sm font-medium text-foreground">Vibrant Community</span>
+                 <div className="flex flex-col items-center text-center gap-4 p-6 bg-background/50 rounded-lg shadow-sm hover:shadow-md transition-shadow">
+                  <div className="flex items-center justify-center w-16 h-16 rounded-full bg-primary/10">
+                    <Users className="h-8 w-8 text-primary"/>
+                  </div>
+                  <h3 className="text-lg font-semibold">Vibrant Community</h3>
+                   <p className="text-sm text-muted-foreground">Connect with fellow students in our lively common areas and regular social events.</p>
                 </div>
-                 <div className="flex items-center justify-center gap-2 p-3 bg-background/50 rounded-lg">
-                  <Wifi className="h-5 w-5 text-primary"/>
-                  <span className="text-sm font-medium text-foreground">All-Inclusive</span>
+                 <div className="flex flex-col items-center text-center gap-4 p-6 bg-background/50 rounded-lg shadow-sm hover:shadow-md transition-shadow">
+                   <div className="flex items-center justify-center w-16 h-16 rounded-full bg-primary/10">
+                    <Wifi className="h-8 w-8 text-primary"/>
+                   </div>
+                  <h3 className="text-lg font-semibold">All-Inclusive</h3>
+                   <p className="text-sm text-muted-foreground">Enjoy high-speed Wi-Fi, laundry facilities, and all utilities included in your rent.</p>
                 </div>
               </div>
 
