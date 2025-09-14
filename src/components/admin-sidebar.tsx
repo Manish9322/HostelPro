@@ -14,7 +14,7 @@ import {
   SidebarFooter,
   useSidebar,
 } from '@/components/ui/sidebar';
-import { LayoutDashboard, Users, MessageSquareWarning, LogOut, University, Bell, Bed, UsersRound, ClipboardList, PanelLeft, CircleDollarSign, Box, KeyRound, BarChart, SlidersHorizontal, HelpCircle, MessageSquareQuote, FileQuestion } from 'lucide-react';
+import { LayoutDashboard, Users, MessageSquareWarning, LogOut, University, Bell, Bed, UsersRound, ClipboardList, PanelLeft, CircleDollarSign, Box, KeyRound, BarChart, SlidersHorizontal, HelpCircle, MessageSquareQuote, FileQuestion, Wrench } from 'lucide-react';
 import { useState } from 'react';
 import { LogoutConfirmationDialog } from './modals/logout-confirmation-modal';
 import { useRouter } from 'next/navigation';
@@ -34,6 +34,7 @@ const menuItems = [
   { href: '/admin/faqs', label: 'FAQs', icon: FileQuestion },
   { href: '/admin/board-members', label: 'Board Members', icon: UsersRound },
   { href: '/admin/reports', label: 'Reports', icon: BarChart },
+  { href: '/admin/utilities', label: 'Utilities', icon: Wrench },
   { href: '/admin/settings', label: 'Settings', icon: SlidersHorizontal },
 ];
 

@@ -1,4 +1,5 @@
 
+
 "use client";
 
 import {
@@ -27,6 +28,7 @@ import { Skeleton } from "../ui/skeleton";
 import { v4 as uuidv4 } from 'uuid';
 
 interface Utility {
+  _id: string;
   name: string;
   price: number;
 }
@@ -65,20 +67,20 @@ export function RoomModal({ isOpen, onClose, room, onSubmit }: RoomModalProps) {
         setBaseRent(room.rent)
       }
 
-      const fetchSettings = async () => {
+      const fetchUtilities = async () => {
         try {
           setLoadingUtilities(true);
-          const response = await fetch('/api/settings');
-          const settings = await response.json();
-          setAvailableUtilities(settings.roomUtilities || []);
+          const response = await fetch('/api/utilities');
+          const utilities = await response.json();
+          setAvailableUtilities(utilities || []);
         } catch (error) {
-          console.error("Failed to fetch settings", error);
+          console.error("Failed to fetch utilities", error);
           setAvailableUtilities([]);
         } finally {
           setLoadingUtilities(false);
         }
       };
-      fetchSettings();
+      fetchUtilities();
     }
   }, [isOpen, isEditMode, room]);
 
@@ -176,14 +178,14 @@ export function RoomModal({ isOpen, onClose, room, onSubmit }: RoomModalProps) {
                       </div>
                     ) : (
                       availableUtilities.map(util => (
-                        <div key={util.name} className="flex items-center space-x-2">
+                        <div key={util._id} className="flex items-center space-x-2">
                             <Checkbox 
-                                id={`util-${util.name}`} 
+                                id={`util-${util._id}`} 
                                 name={`util-${util.name}`} 
                                 checked={selectedUtilities.includes(util.name)}
                                 onCheckedChange={(checked) => handleUtilityChange(util.name, Boolean(checked))}
                              />
-                            <Label htmlFor={`util-${util.name}`} className="font-normal">{util.name} (+${util.price})</Label>
+                            <Label htmlFor={`util-${util._id}`} className="font-normal">{util.name} (+${util.price})</Label>
                         </div>
                       ))
                     )}
@@ -205,5 +207,3 @@ export function RoomModal({ isOpen, onClose, room, onSubmit }: RoomModalProps) {
     </Dialog>
   );
 }
-
-    

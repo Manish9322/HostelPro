@@ -4,7 +4,7 @@ import FeePaymentModel from "@/models/feePayment.model";
 import { NextResponse } from "next/server";
 import RoomModel from "@/models/room.model";
 import StudentModel from "@/models/student.model";
-import SettingModel from "@/models/setting.model";
+import UtilityModel from "@/models/utility.model";
 import { format } from "date-fns";
 
 export async function GET(request) {
@@ -25,11 +25,11 @@ export async function GET(request) {
         
         if (student && student.roomNumber !== 'Unassigned') {
             const room = await RoomModel.findOne({ roomNumber: student.roomNumber });
-            const settings = await SettingModel.findOne({});
+            const utilities = await UtilityModel.find({});
 
-            if(room && settings) {
+            if(room) {
               const utilitiesTotal = room.utilities.reduce((total, utilityName) => {
-                  const utilityDetail = settings.roomUtilities.find(u => u.name === utilityName);
+                  const utilityDetail = utilities.find(u => u.name === utilityName);
                   return total + (utilityDetail ? utilityDetail.price : 0);
               }, 0);
               const totalRent = room.rent + utilitiesTotal;
@@ -92,5 +92,3 @@ export async function DELETE(request) {
         return NextResponse.json({ error: error.message }, { status: 400 });
     }
 }
-
-    

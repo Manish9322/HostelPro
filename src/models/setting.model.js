@@ -1,14 +1,8 @@
 
 import mongoose from "mongoose";
 
-const utilitySchema = new mongoose.Schema({
-  name: { type: String, required: true },
-  price: { type: Number, required: true, default: 0 }
-});
-
 const settingSchema = new mongoose.Schema({
   roomConditions: { type: [String], default: ["Excellent", "Good", "Fair", "Poor"] },
-  roomUtilities: { type: [utilitySchema], default: [{name: "AC", price: 50}, {name: "Wi-Fi", price: 20}] },
   inventoryCategories: { type: [String], default: ["Furniture", "Appliance", "Gym Equipment", "Safety", "Other"] },
   inventoryConditions: { type: [String], default: ["New", "Good", "Used", "Damaged"] },
   inventoryStatus: { type: [String], default: ["In Stock", "In Use", "Under Repair"] },
@@ -21,5 +15,3 @@ const settingSchema = new mongoose.Schema({
 const SettingModel = mongoose.models.Setting || mongoose.model("Setting", settingSchema);
 
 export default SettingModel;
-
-    
