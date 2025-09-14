@@ -87,4 +87,8 @@
   body {
     @apply bg-background text-foreground;
   }
+  .bg-dot-pattern {
+    background-image: radial-gradient(circle at 1px 1px, hsl(var(--border)) 1px, transparent 0);
+    background-size: 1rem 1rem;
+  }
 }

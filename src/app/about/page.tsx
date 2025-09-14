@@ -5,7 +5,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Award, Building, Calendar, Eye, Handshake, Heart, Home, Lightbulb, MapPin, ShieldCheck, Smile, Sparkles, Trophy, Users, Wifi } from 'lucide-react';
+import { Award, Building, Calendar, Eye, Handshake, Heart, Home, Lightbulb, MapPin, ShieldCheck, Smile, Sparkles, Trophy, Users, Wifi, UserPlus, CalendarClock, PartyPopper, Star } from 'lucide-react';
 import PublicHeader from '@/components/public-header';
 import PublicFooter from '@/components/public-footer';
 import { Separator } from '@/components/ui/separator';
@@ -198,29 +198,34 @@ export default function AboutPage() {
         </section>
 
         {/* 7. By the Numbers */}
-        <section className="w-full py-12 md:py-20 bg-secondary">
-          <div className="container mx-auto px-4 md:px-6">
+        <section className="relative w-full py-12 md:py-20 bg-secondary overflow-hidden">
+          <div className="absolute inset-0 bg-dot-pattern opacity-10" aria-hidden="true"></div>
+          <div className="container relative mx-auto px-4 md:px-6">
             <SectionTag icon={Trophy}>Our Achievements</SectionTag>
             <div className="text-center mb-12">
               <h2 className="text-3xl md:text-4xl font-bold font-headline">Impact in Numbers</h2>
             </div>
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-8 max-w-5xl mx-auto">
-              <div className="text-center p-4 bg-card rounded-lg shadow">
-                  <p className="text-4xl font-bold text-primary"><AnimatedCounter end={500} />+</p>
-                  <p className="text-sm text-muted-foreground mt-1">Happy Residents</p>
-              </div>
-              <div className="text-center p-4 bg-card rounded-lg shadow">
-                  <p className="text-4xl font-bold text-primary"><AnimatedCounter end={10} />+</p>
-                  <p className="text-sm text-muted-foreground mt-1">Years of Service</p>
-              </div>
-              <div className="text-center p-4 bg-card rounded-lg shadow">
-                  <p className="text-4xl font-bold text-primary"><AnimatedCounter end={50} />+</p>
-                  <p className="text-sm text-muted-foreground mt-1">Events Hosted</p>
-              </div>
-               <div className="text-center p-4 bg-card rounded-lg shadow">
-                  <p className="text-4xl font-bold text-primary"><AnimatedCounter end={98} />%</p>
-                  <p className="text-sm text-muted-foreground mt-1">Satisfaction Rate</p>
-              </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 max-w-6xl mx-auto">
+              <Card className="flex flex-col items-center justify-center p-6 bg-card/80 backdrop-blur-sm shadow-lg transition-transform transform hover:-translate-y-2 hover:shadow-xl">
+                  <UserPlus className="h-10 w-10 text-primary mb-4"/>
+                  <p className="text-5xl font-bold text-primary"><AnimatedCounter end={500} />+</p>
+                  <p className="text-lg font-medium text-muted-foreground mt-2">Happy Residents</p>
+              </Card>
+              <Card className="flex flex-col items-center justify-center p-6 bg-card/80 backdrop-blur-sm shadow-lg transition-transform transform hover:-translate-y-2 hover:shadow-xl">
+                  <CalendarClock className="h-10 w-10 text-primary mb-4"/>
+                  <p className="text-5xl font-bold text-primary"><AnimatedCounter end={10} />+</p>
+                  <p className="text-lg font-medium text-muted-foreground mt-2">Years of Service</p>
+              </Card>
+              <Card className="flex flex-col items-center justify-center p-6 bg-card/80 backdrop-blur-sm shadow-lg transition-transform transform hover:-translate-y-2 hover:shadow-xl">
+                  <PartyPopper className="h-10 w-10 text-primary mb-4"/>
+                  <p className="text-5xl font-bold text-primary"><AnimatedCounter end={50} />+</p>
+                  <p className="text-lg font-medium text-muted-foreground mt-2">Events Hosted</p>
+              </Card>
+               <Card className="flex flex-col items-center justify-center p-6 bg-card/80 backdrop-blur-sm shadow-lg transition-transform transform hover:-translate-y-2 hover:shadow-xl">
+                  <Star className="h-10 w-10 text-primary mb-4"/>
+                  <p className="text-5xl font-bold text-primary"><AnimatedCounter end={98} />%</p>
+                  <p className="text-lg font-medium text-muted-foreground mt-2">Satisfaction Rate</p>
+              </Card>
             </div>
           </div>
         </section>
