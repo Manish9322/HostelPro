@@ -127,15 +127,15 @@ export default function AboutPage() {
               <h2 className="text-3xl md:text-4xl font-bold font-headline">A Legacy of Student Care</h2>
             </div>
             <div className="relative">
-              <div className="absolute left-1/2 top-0 bottom-0 w-0.5 bg-border -translate-x-1/2 hidden md:block"></div>
+              <div className="absolute left-1/2 top-0 bottom-0 w-0.5 bg-border -translate-x-1/2 hidden md:block" aria-hidden="true"></div>
               {timelineEvents.map((event, index) => (
-                <div key={event.year} className={cn("mb-12 flex items-center w-full", index % 2 === 0 ? "md:flex-row-reverse" : "")}>
+                <div key={event.year} className={cn("mb-12 flex items-center w-full", index % 2 === 0 ? "md:flex-row-reverse" : "md:flex-row")}>
                   <div className="hidden md:flex w-5/12"></div>
-                  <div className="z-10 flex items-center justify-center w-12 h-12 rounded-full bg-primary text-primary-foreground shadow-lg">
+                  <div className="z-10 flex items-center justify-center w-12 h-12 rounded-full bg-primary text-primary-foreground shadow-lg shrink-0">
                     <event.icon className="w-6 h-6" />
                   </div>
-                  <div className="w-full md:w-5/12 p-4">
-                    <Card className="p-6 hover:shadow-xl transition-shadow">
+                  <div className="w-full md:w-5/12 px-4 py-2">
+                    <Card className="p-6 hover:shadow-xl transition-shadow duration-300 transform md:hover:-translate-y-1">
                       <p className="text-primary font-bold text-lg mb-1">{event.year}</p>
                       <h3 className="font-semibold text-xl mb-2">{event.title}</h3>
                       <p className="text-muted-foreground">{event.description}</p>
