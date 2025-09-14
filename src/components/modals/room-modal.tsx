@@ -26,6 +26,11 @@ import { useEffect, useRef, useState } from "react";
 import { Skeleton } from "../ui/skeleton";
 import { v4 as uuidv4 } from 'uuid';
 
+interface Utility {
+  name: string;
+  price: number;
+}
+
 interface RoomModalProps {
   isOpen: boolean;
   onClose: () => void;
@@ -40,19 +45,24 @@ export function RoomModal({ isOpen, onClose, room, onSubmit }: RoomModalProps) {
   const formRef = useRef<HTMLFormElement>(null);
   
   const [roomNumber, setRoomNumber] = useState('');
-  const [availableUtilities, setAvailableUtilities] = useState<string[]>([]);
+  const [baseRent, setBaseRent] = useState(room?.rent || 500);
+  const [selectedUtilities, setSelectedUtilities] = useState<string[]>(room?.utilities || []);
+  const [totalRent, setTotalRent] = useState(0);
+
+  const [availableUtilities, setAvailableUtilities] = useState<Utility[]>([]);
   const [loadingUtilities, setLoadingUtilities] = useState(true);
 
   useEffect(() => {
     if (isOpen) {
       if (!isEditMode) {
-         // Generate a new random room number for new rooms
         const block = ['A', 'B', 'C'][Math.floor(Math.random() * 3)];
         const floor = Math.floor(Math.random() * 3) + 1;
         const num = Math.floor(Math.random() * 10) + 1;
         setRoomNumber(`${block}-${floor}0${num}`);
       } else if (room) {
         setRoomNumber(room.roomNumber);
+        setSelectedUtilities(room.utilities);
+        setBaseRent(room.rent)
       }
 
       const fetchSettings = async () => {
@@ -63,7 +73,7 @@ export function RoomModal({ isOpen, onClose, room, onSubmit }: RoomModalProps) {
           setAvailableUtilities(settings.roomUtilities || []);
         } catch (error) {
           console.error("Failed to fetch settings", error);
-          setAvailableUtilities(["AC", "Wi-Fi", "Attached Bathroom"]);
+          setAvailableUtilities([]);
         } finally {
           setLoadingUtilities(false);
         }
@@ -72,12 +82,25 @@ export function RoomModal({ isOpen, onClose, room, onSubmit }: RoomModalProps) {
     }
   }, [isOpen, isEditMode, room]);
 
+  useEffect(() => {
+    const utilityCost = selectedUtilities.reduce((acc, utilName) => {
+        const utility = availableUtilities.find(u => u.name === utilName);
+        return acc + (utility ? utility.price : 0);
+    }, 0);
+    setTotalRent(Number(baseRent) + utilityCost);
+  }, [baseRent, selectedUtilities, availableUtilities]);
+
+
+  const handleUtilityChange = (utilityName: string, checked: boolean) => {
+      setSelectedUtilities(prev => 
+          checked ? [...prev, utilityName] : prev.filter(name => name !== utilityName)
+      );
+  };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!formRef.current) return;
     const formData = new FormData(formRef.current);
-    const utilities = availableUtilities.filter(util => formData.get(`util-${util}`) === 'on');
     
     const data = {
         roomNumber: roomNumber,
@@ -85,13 +108,11 @@ export function RoomModal({ isOpen, onClose, room, onSubmit }: RoomModalProps) {
         rent: Number(formData.get('rent')),
         status: formData.get('status'),
         condition: formData.get('condition'),
-        utilities,
+        utilities: selectedUtilities,
     };
     
     onSubmit(data);
   };
-
-  const defaultUtilities = room?.utilities || [];
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
@@ -111,12 +132,12 @@ export function RoomModal({ isOpen, onClose, room, onSubmit }: RoomModalProps) {
               <Input id="capacity" name="capacity" type="number" defaultValue={room?.capacity || ''} className="col-span-3" required/>
             </div>
             <div className="grid grid-cols-4 items-center gap-4">
-              <Label htmlFor="rent" className="text-right">Rent ($)</Label>
-              <Input id="rent" name="rent" type="number" defaultValue={room?.rent || '500'} className="col-span-3" required/>
+              <Label htmlFor="rent" className="text-right">Base Rent ($)</Label>
+              <Input id="rent" name="rent" type="number" value={baseRent} onChange={(e) => setBaseRent(Number(e.target.value))} className="col-span-3" required/>
             </div>
             <div className="grid grid-cols-4 items-center gap-4">
               <Label htmlFor="status" className="text-right">Status</Label>
-              <Select name="status" defaultValue={room?.status}>
+              <Select name="status" defaultValue={room?.status || "Available"}>
                 <SelectTrigger className="col-span-3">
                   <SelectValue placeholder="Select status" />
                 </SelectTrigger>
@@ -129,7 +150,7 @@ export function RoomModal({ isOpen, onClose, room, onSubmit }: RoomModalProps) {
             </div>
             <div className="grid grid-cols-4 items-center gap-4">
               <Label htmlFor="condition" className="text-right">Condition</Label>
-              <Select name="condition" defaultValue={room?.condition}>
+              <Select name="condition" defaultValue={room?.condition || "Good"}>
                 <SelectTrigger className="col-span-3">
                   <SelectValue placeholder="Select condition" />
                 </SelectTrigger>
@@ -155,13 +176,23 @@ export function RoomModal({ isOpen, onClose, room, onSubmit }: RoomModalProps) {
                       </div>
                     ) : (
                       availableUtilities.map(util => (
-                        <div key={util} className="flex items-center space-x-2">
-                            <Checkbox id={`util-${util}`} name={`util-${util}`} defaultChecked={defaultUtilities.includes(util)} />
-                            <Label htmlFor={`util-${util}`} className="font-normal">{util}</Label>
+                        <div key={util.name} className="flex items-center space-x-2">
+                            <Checkbox 
+                                id={`util-${util.name}`} 
+                                name={`util-${util.name}`} 
+                                checked={selectedUtilities.includes(util.name)}
+                                onCheckedChange={(checked) => handleUtilityChange(util.name, Boolean(checked))}
+                             />
+                            <Label htmlFor={`util-${util.name}`} className="font-normal">{util.name} (+${util.price})</Label>
                         </div>
                       ))
                     )}
                 </div>
+            </div>
+            <Separator className="my-2"/>
+             <div className="grid grid-cols-4 items-center gap-4 font-bold">
+                 <Label className="text-right">Total Rent</Label>
+                 <div className="col-span-3 text-lg">${totalRent.toFixed(2)} / month</div>
             </div>
 
           </div>
@@ -174,3 +205,5 @@ export function RoomModal({ isOpen, onClose, room, onSubmit }: RoomModalProps) {
     </Dialog>
   );
 }
+
+    

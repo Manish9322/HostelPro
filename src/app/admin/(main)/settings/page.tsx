@@ -26,10 +26,16 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Label } from "@/components/ui/label";
 import Image from "next/image";
 
+interface Utility {
+  _id: string;
+  name: string;
+  price: number;
+}
+
 interface SettingsData {
   _id: string;
   roomConditions: string[];
-  roomUtilities: string[];
+  roomUtilities: Utility[];
   inventoryCategories: string[];
   inventoryConditions: string[];
   inventoryStatus: string[];
@@ -45,6 +51,152 @@ interface GalleryImage {
   url: string;
   alt: string;
 }
+
+const UtilitySettingsSection = ({
+    title,
+    description,
+    items,
+    onUpdate,
+    loading
+}: {
+    title: string,
+    description: string,
+    items: Utility[],
+    onUpdate: (newItems: Utility[]) => void,
+    loading: boolean
+}) => {
+    const [newItemName, setNewItemName] = useState("");
+    const [newItemPrice, setNewItemPrice] = useState("");
+    const [editingIndex, setEditingIndex] = useState<number | null>(null);
+    const [editingName, setEditingName] = useState("");
+    const [editingPrice, setEditingPrice] = useState("");
+
+    const handleAdd = () => {
+        if (newItemName.trim() && newItemPrice.trim() && !items.find(item => item.name === newItemName.trim())) {
+            const updatedItems = [...items, { name: newItemName.trim(), price: parseFloat(newItemPrice) } as Utility];
+            onUpdate(updatedItems);
+            setNewItemName("");
+            setNewItemPrice("");
+        }
+    };
+
+    const handleDelete = (itemToDelete: Utility) => {
+        const updatedItems = items.filter(item => item.name !== itemToDelete.name);
+        onUpdate(updatedItems);
+    };
+    
+    const startEditing = (index: number, value: Utility) => {
+        setEditingIndex(index);
+        setEditingName(value.name);
+        setEditingPrice(value.price.toString());
+    };
+
+    const cancelEditing = () => {
+        setEditingIndex(null);
+        setEditingName("");
+        setEditingPrice("");
+    };
+
+    const saveEdit = (index: number) => {
+        if(editingName.trim() && editingPrice.trim()){
+            const newItems = [...items];
+            newItems[index] = { ...newItems[index], name: editingName.trim(), price: parseFloat(editingPrice) };
+            onUpdate(newItems);
+            cancelEditing();
+        }
+    };
+
+    return (
+        <Card>
+            <CardHeader>
+                <CardTitle>{title}</CardTitle>
+                <CardDescription>{description}</CardDescription>
+            </CardHeader>
+            <CardContent>
+                <div className="flex gap-2 mb-4">
+                    <Input 
+                        placeholder="Utility name"
+                        value={newItemName}
+                        onChange={(e) => setNewItemName(e.target.value)} 
+                        disabled={loading}
+                    />
+                    <Input 
+                        type="number"
+                        placeholder="Price"
+                        value={newItemPrice}
+                        onChange={(e) => setNewItemPrice(e.target.value)} 
+                        disabled={loading}
+                        className="w-24"
+                    />
+                    <Button size="icon" onClick={handleAdd} disabled={loading || !newItemName.trim() || !newItemPrice.trim()}>
+                        <PlusCircle className="h-4 w-4" />
+                    </Button>
+                </div>
+                <div className="rounded-md border">
+                    <Table>
+                        <TableBody>
+                            {loading ? Array.from({length: 3}).map((_, i) => (
+                                <TableRow key={i}>
+                                    <TableCell><Skeleton className="h-5 w-3/4"/></TableCell>
+                                    <TableCell className="text-right"><Skeleton className="h-8 w-24 ml-auto"/></TableCell>
+                                </TableRow>
+                            )) : items.length > 0 ? items.map((item, index) => (
+                            <TableRow key={item.name}>
+                                <TableCell className="font-medium align-middle">
+                                  {editingIndex === index ? (
+                                    <div className="flex gap-2 items-center">
+                                      <Input 
+                                        value={editingName}
+                                        onChange={(e) => setEditingName(e.target.value)}
+                                        className="h-8"
+                                        autoFocus
+                                      />
+                                      <Input 
+                                        type="number"
+                                        value={editingPrice}
+                                        onChange={(e) => setEditingPrice(e.target.value)}
+                                        className="h-8 w-24"
+                                      />
+                                    </div>
+                                  ) : (
+                                    `${item.name} ($${item.price})`
+                                  )}
+                                </TableCell>
+                                <TableCell className="text-right">
+                                  {editingIndex === index ? (
+                                    <div className="flex justify-end gap-1">
+                                       <Button variant="ghost" size="icon" onClick={() => saveEdit(index)} disabled={loading}>
+                                          <Check className="h-4 w-4 text-green-600" />
+                                       </Button>
+                                       <Button variant="ghost" size="icon" onClick={cancelEditing} disabled={loading}>
+                                          <X className="h-4 w-4 text-destructive" />
+                                       </Button>
+                                    </div>
+                                  ) : (
+                                    <div className="flex justify-end gap-1">
+                                      <Button variant="ghost" size="icon" onClick={() => startEditing(index, item)} disabled={loading}>
+                                        <Pen className="h-4 w-4" />
+                                      </Button>
+                                      <Button variant="ghost" size="icon" onClick={() => handleDelete(item)} disabled={loading}>
+                                        <Trash2 className="h-4 w-4 text-destructive" />
+                                      </Button>
+                                    </div>
+                                  )}
+                                </TableCell>
+                            </TableRow>
+                            )) : (
+                                <TableRow>
+                                    <TableCell className="text-center text-muted-foreground py-4">No items yet.</TableCell>
+                                </TableRow>
+                            )}
+                        </TableBody>
+                    </Table>
+                </div>
+            </CardContent>
+        </Card>
+    );
+};
+
 
 const CategorySettingsSection = ({ 
     title, 
@@ -229,8 +381,9 @@ export default function SettingsPage() {
         if (!settings) return;
         
         const originalSettings = {...settings};
-        
-        setSettings(prev => prev ? { ...prev, ...updateData } : null);
+        const updatedSettings = { ...settings, ...updateData };
+
+        setSettings(updatedSettings);
 
         try {
             const response = await fetch('/api/settings', {
@@ -238,10 +391,13 @@ export default function SettingsPage() {
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(updateData),
             });
-            if (!response.ok) throw new Error("Failed to update settings");
+            if (!response.ok) {
+                 const errorData = await response.json();
+                 throw new Error(errorData.details || "Failed to update settings");
+            }
             toast({ title: "Success", description: "Settings updated successfully." });
         } catch (error) {
-            toast({ title: "Error", description: "Failed to update settings.", variant: "destructive" });
+            toast({ title: "Error", description: (error as Error).message, variant: "destructive" });
             setSettings(originalSettings);
         }
     };
@@ -286,7 +442,6 @@ export default function SettingsPage() {
 
   const categorySettingSections = [
     { key: 'roomConditions', title: 'Room Conditions', description: 'Manage the condition options for rooms (e.g., Excellent, Good).' },
-    { key: 'roomUtilities', title: 'Room Utilities', description: 'Manage the available utilities for rooms (e.g., AC, Wi-Fi).' },
     { key: 'inventoryCategories', title: 'Inventory Categories', description: 'Manage categories for inventory items.' },
     { key: 'inventoryConditions', title: 'Inventory Conditions', description: 'Manage condition options for inventory items.' },
     { key: 'complaintCategories', title: 'Complaint Categories', description: 'Manage categories for student complaints.' },
@@ -324,6 +479,15 @@ export default function SettingsPage() {
         </TabsList>
         <TabsContent value="general" className="mt-6">
             <div className="grid gap-8 grid-cols-1 xl:grid-cols-2">
+                {settings && (
+                    <UtilitySettingsSection 
+                        title="Room Utilities"
+                        description="Manage amenities and their monthly price for rooms."
+                        items={settings.roomUtilities}
+                        onUpdate={(items) => handleUpdateSettings({ roomUtilities: items })}
+                        loading={loading}
+                    />
+                )}
                 {categorySettingSections.map(section => (
                     settings && settings[section.key] && (
                         <CategorySettingsSection 
