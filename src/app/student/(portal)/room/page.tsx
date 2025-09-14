@@ -206,6 +206,16 @@ export default function StudentRoomPage() {
       )
   }
 
+  const iconMap: { [key: string]: React.ElementType } = {
+    'AC': Wind,
+    'Wi-Fi': Wifi,
+    'Attached Bathroom': Bath,
+    'Common Bathroom': Bath
+  };
+
+  const allUtilities = [...room.utilities, 'Hot Water Supply', '24/7 Security'];
+
+
   return (
     <>
     <div className="grid gap-8 md:grid-cols-3">
@@ -233,18 +243,10 @@ export default function StudentRoomPage() {
                 <div>
                     <h4 className="font-semibold mb-4 text-primary">Utilities & Amenities</h4>
                     <div className="grid grid-cols-2 gap-4">
-                        {room.utilities.map(util => {
-                            const iconMap: { [key: string]: React.ElementType } = {
-                                'AC': Wind,
-                                'Wi-Fi': Wifi,
-                                'Attached Bathroom': Bath,
-                                'Common Bathroom': Bath
-                            };
-                            const Icon = iconMap[util];
-                            return Icon ? <div key={util} className="flex items-center gap-2"><Icon className="w-5 h-5 text-primary"/>{util}</div> : null
+                        {allUtilities.map(util => {
+                           const Icon = iconMap[util] || (util === 'Hot Water Supply' ? Thermometer : util === '24/7 Security' ? ShieldCheck : null);
+                           return Icon ? <div key={util} className="flex items-center gap-2"><Icon className="w-5 h-5 text-primary"/>{util}</div> : null;
                         })}
-                        <div className="flex items-center gap-2"><Thermometer className="w-5 h-5 text-primary"/>Hot Water Supply</div>
-                        <div className="flex items-center gap-2"><ShieldCheck className="w-5 h-5 text-primary"/>24/7 Security</div>
                     </div>
                 </div>
 
