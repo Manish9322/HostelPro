@@ -151,7 +151,7 @@ export default function StudentPaymentsPage() {
                 address: "HostelPro Office",
             },
             theme: {
-                color: "#667eea",
+                color: "#222222",
             },
             config: {
                 display: {
