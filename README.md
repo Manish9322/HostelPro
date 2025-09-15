@@ -2,6 +2,8 @@
 
 Welcome to HostelPro, a full-stack Next.js 15 application designed for modern hostel management. This repository contains a comprehensive solution for both residents and administrators.
 
+![HostelPro](./public/images/HostelPro.png)
+
 ## What's inside?
 
 This project includes a suite of features to manage a hostel efficiently:
