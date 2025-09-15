@@ -86,7 +86,8 @@ export default function StudentDirectoryPage() {
             <TableRow>
               <TableHead>Name</TableHead>
               <TableHead>Course</TableHead>
-              <TableHead>Year</TableHead>
+              <TableHead>Email</TableHead>
+              <TableHead>Phone</TableHead>
               <TableHead>Room No.</TableHead>
             </TableRow>
           </TableHeader>
@@ -99,13 +100,14 @@ export default function StudentDirectoryPage() {
                             <Skeleton className="h-4 w-32" />
                         </TableCell>
                         <TableCell><Skeleton className="h-4 w-40" /></TableCell>
-                        <TableCell><Skeleton className="h-4 w-12" /></TableCell>
+                        <TableCell><Skeleton className="h-4 w-48" /></TableCell>
+                        <TableCell><Skeleton className="h-4 w-24" /></TableCell>
                         <TableCell><Skeleton className="h-4 w-16" /></TableCell>
                     </TableRow>
                 ))
             ) : error ? (
                 <TableRow>
-                    <TableCell colSpan={4} className="text-center py-16 text-destructive">
+                    <TableCell colSpan={5} className="text-center py-16 text-destructive">
                         <AlertTriangle className="mx-auto h-8 w-8 mb-2"/>
                         <p>{error}</p>
                         <Button onClick={fetchStudents} variant="outline" size="sm" className="mt-4">
@@ -127,13 +129,14 @@ export default function StudentDirectoryPage() {
                         </div>
                         </TableCell>
                         <TableCell>{student.course}</TableCell>
-                        <TableCell>{student.year}</TableCell>
+                        <TableCell>{student.email}</TableCell>
+                        <TableCell>{student.phone}</TableCell>
                         <TableCell>{student.roomNumber}</TableCell>
                     </TableRow>
                 ))
             ) : (
                  <TableRow>
-                    <TableCell colSpan={4} className="text-center py-16 text-muted-foreground">
+                    <TableCell colSpan={5} className="text-center py-16 text-muted-foreground">
                         {searchQuery ? (
                             <>
                                 <Search className="mx-auto h-8 w-8 mb-2"/>
