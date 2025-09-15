@@ -5,7 +5,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Award, Building, Calendar, Eye, Handshake, Heart, Home, Lightbulb, MapPin, ShieldCheck, Smile, Sparkles, Trophy, Users, Wifi, UserPlus, CalendarClock, PartyPopper, Star } from 'lucide-react';
+import { Award, Building, Calendar, Eye, Handshake, Heart, Home, Lightbulb, MapPin, ShieldCheck, Smile, Sparkles, Trophy, Users, Wifi, UserPlus, CalendarClock, PartyPopper, Star, Linkedin, Twitter, Mail } from 'lucide-react';
 import PublicHeader from '@/components/public-header';
 import PublicFooter from '@/components/public-footer';
 import { Separator } from '@/components/ui/separator';
@@ -35,9 +35,9 @@ const AnimatedCounter = ({ end, duration = 2000 }: { end: number, duration?: num
 
 export default function AboutPage() {
     const teamMembers = [
-        { name: "Dr. Alisha Verma", position: "Chief Warden", avatar: "https://placehold.co/100x100", dataAiHint: "person" },
-        { name: "Rajesh Kumar", position: "Head of Operations", avatar: "https://placehold.co/100x100", dataAiHint: "person" },
-        { name: "Priya Singh", position: "Student Life Coordinator", avatar: "https://placehold.co/100x100", dataAiHint: "person" },
+        { name: "Dr. Alisha Verma", position: "Chief Warden", avatar: "https://placehold.co/100x100", dataAiHint: "person", bio: "Dedicated to creating a safe and supportive environment for all students.", social: { linkedin: "#", twitter: "#", mail: "#"} },
+        { name: "Rajesh Kumar", position: "Head of Operations", avatar: "https://placehold.co/100x100", dataAiHint: "person", bio: "Ensuring all hostel facilities run smoothly and efficiently day-to-day.", social: { linkedin: "#", twitter: "#", mail: "#"} },
+        { name: "Priya Singh", position: "Student Life Coordinator", avatar: "https://placehold.co/100x100", dataAiHint: "person", bio: "Passionate about fostering a vibrant and inclusive hostel community.", social: { linkedin: "#", twitter: "#", mail: "#"} },
     ];
 
     const timelineEvents = [
@@ -157,13 +157,23 @@ export default function AboutPage() {
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
               {teamMembers.map(member => (
-                <Card key={member.name} className="text-center p-6 bg-card border-2 border-transparent hover:border-primary transition-all duration-300 transform hover:-translate-y-2 group">
-                  <Avatar className="w-24 h-24 mx-auto mb-4 border-4 border-primary/10 group-hover:border-primary/30 transition-colors">
-                    <AvatarImage src={member.avatar} data-ai-hint={member.dataAiHint} />
-                    <AvatarFallback>{member.name.split(' ').map(n => n[0]).join('')}</AvatarFallback>
-                  </Avatar>
-                  <h3 className="text-xl font-bold">{member.name}</h3>
-                  <p className="text-primary font-medium">{member.position}</p>
+                <Card key={member.name} className="relative group overflow-hidden bg-card border-2 border-transparent hover:border-primary/20 transition-all duration-300 transform hover:-translate-y-2 hover:shadow-2xl">
+                  <div className="absolute top-0 left-0 w-full h-24 bg-primary/10"></div>
+                  <CardContent className="text-center p-6 pt-16 relative">
+                    <Avatar className="w-28 h-28 mx-auto mb-4 border-4 border-background bg-background shadow-lg transition-transform group-hover:scale-105">
+                      <AvatarImage src={member.avatar} data-ai-hint={member.dataAiHint} />
+                      <AvatarFallback>{member.name.split(' ').map(n => n[0]).join('')}</AvatarFallback>
+                    </Avatar>
+                    <h3 className="text-xl font-bold">{member.name}</h3>
+                    <p className="text-primary font-medium">{member.position}</p>
+                    <p className="text-muted-foreground text-sm mt-4 min-h-[40px]">{member.bio}</p>
+                    <Separator className="my-4"/>
+                    <div className="flex justify-center gap-4">
+                        <a href={member.social.linkedin} target="_blank" rel="noopener noreferrer" className="text-muted-foreground hover:text-primary transition-colors"><Linkedin className="w-5 h-5"/></a>
+                        <a href={member.social.twitter} target="_blank" rel="noopener noreferrer" className="text-muted-foreground hover:text-primary transition-colors"><Twitter className="w-5 h-5"/></a>
+                        <a href={`mailto:${member.social.mail}`} className="text-muted-foreground hover:text-primary transition-colors"><Mail className="w-5 h-5"/></a>
+                    </div>
+                  </CardContent>
                 </Card>
               ))}
             </div>
