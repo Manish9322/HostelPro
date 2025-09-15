@@ -94,26 +94,34 @@ export default function AboutPage() {
             <div className="text-center mb-12">
               <h2 className="text-3xl md:text-4xl font-bold font-headline">Facilities Built for Student Success</h2>
             </div>
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
-              <Card className="text-center items-center p-6 bg-card border-2 border-transparent hover:border-primary hover:shadow-lg transition-all duration-300 transform hover:-translate-y-2">
-                <ShieldCheck className="h-10 w-10 mx-auto text-primary mb-4"/>
-                <h3 className="font-semibold text-lg">24/7 Security</h3>
-                <p className="text-sm text-muted-foreground mt-1">Monitored premises and secure access for your peace of mind.</p>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
+              <Card className="text-center items-center p-6 bg-card border-2 border-transparent hover:border-primary/20 transition-all duration-300 transform hover:-translate-y-2 hover:shadow-2xl group">
+                <div className="flex items-center justify-center w-20 h-20 rounded-full bg-primary/10 mx-auto mb-6 transition-transform group-hover:scale-110">
+                    <ShieldCheck className="h-10 w-10 text-primary"/>
+                </div>
+                <h3 className="font-semibold text-xl mb-2">24/7 Security</h3>
+                <p className="text-sm text-muted-foreground min-h-[60px]">Monitored premises and secure access for your peace of mind.</p>
               </Card>
-              <Card className="text-center items-center p-6 bg-card border-2 border-transparent hover:border-primary hover:shadow-lg transition-all duration-300 transform hover:-translate-y-2">
-                <Wifi className="h-10 w-10 mx-auto text-primary mb-4"/>
-                <h3 className="font-semibold text-lg">High-Speed Wi-Fi</h3>
-                <p className="text-sm text-muted-foreground mt-1">Reliable internet coverage for all your study and leisure needs.</p>
+              <Card className="text-center items-center p-6 bg-card border-2 border-transparent hover:border-primary/20 transition-all duration-300 transform hover:-translate-y-2 hover:shadow-2xl group">
+                <div className="flex items-center justify-center w-20 h-20 rounded-full bg-primary/10 mx-auto mb-6 transition-transform group-hover:scale-110">
+                    <Wifi className="h-10 w-10 text-primary"/>
+                </div>
+                <h3 className="font-semibold text-xl mb-2">High-Speed Wi-Fi</h3>
+                <p className="text-sm text-muted-foreground min-h-[60px]">Reliable internet coverage for all your study and leisure needs across the campus.</p>
               </Card>
-              <Card className="text-center items-center p-6 bg-card border-2 border-transparent hover:border-primary hover:shadow-lg transition-all duration-300 transform hover:-translate-y-2">
-                <Users className="h-10 w-10 mx-auto text-primary mb-4"/>
-                <h3 className="font-semibold text-lg">Community Events</h3>
-                <p className="text-sm text-muted-foreground mt-1">Regular social and academic gatherings to foster connections.</p>
+              <Card className="text-center items-center p-6 bg-card border-2 border-transparent hover:border-primary/20 transition-all duration-300 transform hover:-translate-y-2 hover:shadow-2xl group">
+                 <div className="flex items-center justify-center w-20 h-20 rounded-full bg-primary/10 mx-auto mb-6 transition-transform group-hover:scale-110">
+                    <Users className="h-10 w-10 text-primary"/>
+                 </div>
+                <h3 className="font-semibold text-xl mb-2">Community Events</h3>
+                <p className="text-sm text-muted-foreground min-h-[60px]">Regular social and academic gatherings to foster connections and a sense of belonging.</p>
               </Card>
-              <Card className="text-center items-center p-6 bg-card border-2 border-transparent hover:border-primary hover:shadow-lg transition-all duration-300 transform hover:-translate-y-2">
-                <Sparkles className="h-10 w-10 mx-auto text-primary mb-4"/>
-                <h3 className="font-semibold text-lg">Modern Amenities</h3>
-                <p className="text-sm text-muted-foreground mt-1">Includes a gym, laundry, study rooms, and recreation areas.</p>
+              <Card className="text-center items-center p-6 bg-card border-2 border-transparent hover:border-primary/20 transition-all duration-300 transform hover:-translate-y-2 hover:shadow-2xl group">
+                <div className="flex items-center justify-center w-20 h-20 rounded-full bg-primary/10 mx-auto mb-6 transition-transform group-hover:scale-110">
+                    <Sparkles className="h-10 w-10 text-primary"/>
+                </div>
+                <h3 className="font-semibold text-xl mb-2">Modern Amenities</h3>
+                <p className="text-sm text-muted-foreground min-h-[60px]">Includes a modern gym, laundry services, study rooms, and recreation areas.</p>
               </Card>
             </div>
           </div>
