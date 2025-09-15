@@ -1,3 +1,4 @@
+
 import type {Config} from 'tailwindcss';
 
 export default {
@@ -104,13 +105,19 @@ export default {
           '0%': { opacity: '0', transform: 'scale(0.95) rotate(-1deg)' },
           '100%': { opacity: '1', transform: 'scale(1) rotate(0deg)' },
         },
+        'pulse-slow': {
+          '50%': { opacity: '0.7' },
+        },
       },
       animation: {
         'accordion-down': 'accordion-down 0.2s ease-out',
         'accordion-up': 'accordion-up 0.2s ease-out',
         'modal-show': 'modal-show 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards',
+        'pulse-slow': 'pulse-slow 3s cubic-bezier(0.4, 0, 0.6, 1) infinite',
       },
     },
   },
   plugins: [require('tailwindcss-animate')],
 } satisfies Config;
+
+    
