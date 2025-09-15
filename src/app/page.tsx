@@ -1,5 +1,4 @@
 
-
 "use client";
 
 import Image from 'next/image';
@@ -26,20 +25,12 @@ import { cn } from '@/lib/utils';
 import { useInView } from 'react-intersection-observer';
 import { useSpring, animated } from '@react-spring/web';
 
-const SectionTag = ({ icon: Icon, children, variant = 'default' }: { icon: React.ElementType, children: React.ReactNode, variant?: 'default' | 'inverse' }) => {
-  const variantClasses = {
-    default: 'text-primary',
-    inverse: 'text-primary-foreground'
-  };
-
-  return (
-    <div className={cn("flex items-center justify-center gap-2 mb-4", variantClasses[variant])}>
-      <Icon className="w-5 h-5" />
-      <span className="text-sm font-medium tracking-widest uppercase">{children}</span>
-    </div>
-  );
-};
-
+const SectionTag = ({ icon: Icon, children }: { icon: React.ElementType, children: React.ReactNode }) => (
+  <div className="flex items-center justify-center gap-2 mb-8">
+    <Icon className="w-5 h-5 text-primary" />
+    <span className="text-sm font-medium text-primary tracking-widest uppercase">{children}</span>
+  </div>
+)
 
 const AnimatedCounter = ({ end, duration = 2000 }: { end: number, duration?: number }) => {
   const [ref, inView] = useInView({ triggerOnce: true, threshold: 0.5 });
@@ -117,76 +108,67 @@ export default function Home() {
       <PublicHeader />
       <main className="flex-1">
         {/* Hero Section */}
-        <section className="w-full py-12 md:py-20 bg-secondary/50 overflow-hidden">
-          <div className="container mx-auto px-4 md:px-6">
-            <div className="text-center space-y-4">
-              <SectionTag icon={University}>WELCOME TO HOSTELPRO</SectionTag>
-              <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold tracking-tighter font-headline">
-                Your New Home Away From Home
-              </h1>
-              <p className="max-w-3xl mx-auto text-lg text-muted-foreground md:text-xl">
-                Experience the perfect blend of comfort, community, and convenience. Our modern facilities and streamlined digital services are designed to make your student life easier and more enjoyable.
-              </p>
-              <div className="flex flex-col sm:flex-row gap-4 justify-center pt-2">
-                <Button asChild size="lg" className="bg-primary hover:bg-primary/90 text-primary-foreground shadow-lg transform hover:scale-105 transition-transform">
-                  <Link href="/apply">Apply Now & Waive Application Fees</Link>
-                </Button>
-                <Button asChild size="lg" variant="outline" className="transform hover:scale-105 transition-transform">
-                  <Link href="#features">Explore Features</Link>
-                </Button>
-              </div>
-
-               <div className="pt-12 grid grid-cols-1 md:grid-cols-3 gap-8 max-w-5xl mx-auto">
-                    <div className="flex items-start gap-4 p-4 rounded-lg transition-colors group">
-                      <div className="flex items-center justify-center w-12 h-12 rounded-full bg-primary/10 flex-shrink-0">
-                        <ShieldCheck className="h-6 w-6 text-primary"/>
-                      </div>
-                      <div>
-                        <h3 className="text-lg font-semibold">24/7 Security</h3>
-                        <p className="text-sm text-muted-foreground">Round-the-clock surveillance and secure building access.</p>
-                      </div>
+        <section className="w-full py-16 md:py-24 bg-secondary/50 overflow-hidden">
+            <div className="container mx-auto px-4 md:px-6">
+                 <div className="text-center space-y-4">
+                    <div className="w-full text-center">
+                    
+                    <SectionTag icon={University}>WELCOME TO HOSTELPRO</SectionTag>
                     </div>
-                     <div className="flex items-start gap-4 p-4 rounded-lg transition-colors group">
-                      <div className="flex items-center justify-center w-12 h-12 rounded-full bg-primary/10 flex-shrink-0">
-                        <Users className="h-6 w-6 text-primary"/>
-                      </div>
-                      <div>
-                        <h3 className="text-lg font-semibold">Vibrant Community</h3>
-                        <p className="text-sm text-muted-foreground">Lively common areas and regular social events.</p>
-                      </div>
+                    <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold tracking-tighter font-headline">
+                       Your New Home Away From Home
+                    </h1>
+                    <p className="max-w-3xl mx-auto text-lg text-muted-foreground md:text-xl">
+                        Experience the perfect blend of comfort, community, and convenience. Our modern facilities and streamlined digital services are designed to make your student life easier and more enjoyable.
+                    </p>
+                    <div className="flex flex-col sm:flex-row gap-4 justify-center pt-2">
+                        <Button asChild size="lg" className="bg-primary hover:bg-primary/90 text-primary-foreground shadow-lg transform hover:scale-105 transition-transform">
+                            <Link href="/apply">Apply Now & Waive Application Fees</Link>
+                        </Button>
+                        <Button asChild size="lg" variant="outline" className="transform hover:scale-105 transition-transform">
+                            <Link href="#features">Explore Features</Link>
+                        </Button>
                     </div>
-                     <div className="flex items-start gap-4 p-4 rounded-lg transition-colors group">
-                       <div className="flex items-center justify-center w-12 h-12 rounded-full bg-primary/10 flex-shrink-0">
-                        <Wifi className="h-6 w-6 text-primary"/>
-                       </div>
-                       <div>
-                        <h3 className="text-lg font-semibold">All-Inclusive</h3>
-                        <p className="text-sm text-muted-foreground">High-speed Wi-Fi, laundry facilities, and utilities included.</p>
-                       </div>
+
+                    <div className="pt-6">
+                         <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 text-center max-w-2xl mx-auto">
+                            <div className="flex flex-col items-center gap-1 p-2 rounded-lg bg-background/50">
+                                <BedDouble className="w-6 h-6 text-primary" />
+                                <span className="font-semibold text-sm">Modern Rooms</span>
+                            </div>
+                            <div className="flex flex-col items-center gap-1 p-2 rounded-lg bg-background/50">
+                                <Users className="w-6 h-6 text-primary" />
+                                <span className="font-semibold text-sm">Vibrant Community</span>
+                            </div>
+                            <div className="flex flex-col items-center gap-1 p-2 rounded-lg bg-background/50 col-span-2 sm:col-span-1">
+                                <ShieldCheck className="w-6 h-6 text-primary" />
+                                <span className="font-semibold text-sm">24/7 Security</span>
+                            </div>
+                        </div>
                     </div>
-                </div>
 
-              <div className="pt-6 grid grid-cols-2 md:grid-cols-4 gap-4 max-w-4xl mx-auto">
-                <div className="text-center p-2 bg-background/50 rounded-lg">
-                  <p className="text-2xl font-bold text-primary"><AnimatedCounter end={500} />+</p>
-                  <p className="text-xs text-muted-foreground">Happy Residents</p>
-                </div>
-                <div className="text-center p-2 bg-background/50 rounded-lg">
-                  <p className="text-2xl font-bold text-primary"><AnimatedCounter end={250} />+</p>
-                  <p className="text-xs text-muted-foreground">Rooms Secured</p>
-                </div>
-                <div className="text-center p-2 bg-background/50 rounded-lg">
-                  <p className="text-2xl font-bold text-primary"><AnimatedCounter end={50} />+</p>
-                  <p className="text-xs text-muted-foreground">Events Hosted</p>
-                </div>
-                <div className="text-center p-2 bg-background/50 rounded-lg">
-                  <p className="text-2xl font-bold text-primary"><AnimatedCounter end={10} />+</p>
-                  <p className="text-xs text-muted-foreground">Years of Service</p>
-                </div>
-              </div>
 
+                     <div className="pt-6 grid grid-cols-2 md:grid-cols-4 gap-4 max-w-4xl mx-auto">
+                        <div className="text-center p-2 bg-background/50 rounded-lg">
+                          <p className="text-2xl font-bold text-primary"><AnimatedCounter end={500} />+</p>
+                          <p className="text-xs text-muted-foreground">Happy Residents</p>
+                        </div>
+                        <div className="text-center p-2 bg-background/50 rounded-lg">
+                          <p className="text-2xl font-bold text-primary"><AnimatedCounter end={250} />+</p>
+                          <p className="text-xs text-muted-foreground">Rooms Secured</p>
+                        </div>
+                        <div className="text-center p-2 bg-background/50 rounded-lg">
+                           <p className="text-2xl font-bold text-primary"><AnimatedCounter end={50} />+</p>
+                          <p className="text-xs text-muted-foreground">Events Hosted</p>
+                        </div>
+                         <div className="text-center p-2 bg-background/50 rounded-lg">
+                           <p className="text-2xl font-bold text-primary"><AnimatedCounter end={10} />+</p>
+                          <p className="text-xs text-muted-foreground">Years of Service</p>
+                        </div>
+                    </div>
+
+                </div>
             </div>
-          </div>
         </section>
 
         {/* Features Section */}
@@ -480,7 +462,10 @@ export default function Home() {
         {/* Final CTA */}
         <section className="w-full py-12 md:py-16 lg:py-20 bg-primary text-primary-foreground">
           <div className="container mx-auto grid items-center justify-center gap-4 px-4 text-center md:px-6">
-            <SectionTag icon={HeartHandshake} variant="inverse">JOIN OUR COMMUNITY</SectionTag>
+          <div className="text-white">
+          <SectionTag icon={HeartHandshake}>JOIN OUR COMMUNITY</SectionTag>
+
+            </div>
 
             <div className="space-y-3">
               <h2 className="text-3xl font-bold tracking-tighter md:text-4xl/tight font-headline">
@@ -514,5 +499,3 @@ export default function Home() {
     </>
   );
 }
-
-    
