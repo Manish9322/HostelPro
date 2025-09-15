@@ -26,7 +26,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
-import { MoreHorizontal, PlusCircle, AlertTriangle, FileWarning, RefreshCw, Search } from "lucide-react";
+import { MoreHorizontal, PlusCircle, AlertTriangle, FileWarning, RefreshCw, Search, Users, UserCheck, UserPlus } from "lucide-react";
 import { StudentModal } from "@/components/modals/student-modal";
 import { DeleteConfirmationDialog } from "@/components/modals/delete-confirmation-modal";
 import { Student } from "@/lib/types";
@@ -69,6 +69,14 @@ export default function StudentsPage() {
   useEffect(() => {
     fetchStudents();
   }, []);
+
+  const stats = useMemo(() => {
+    return {
+        total: allStudents.length,
+        assigned: allStudents.filter(s => s.roomNumber !== 'Unassigned').length,
+        unassigned: allStudents.filter(s => s.roomNumber === 'Unassigned').length,
+    }
+  }, [allStudents]);
 
   const filteredStudents = useMemo(() => {
     return allStudents.filter(student => {
@@ -158,6 +166,39 @@ export default function StudentsPage() {
 
   return (
     <>
+    <div className="space-y-8">
+        <div className="grid gap-4 md:grid-cols-3">
+            <Card>
+                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-sm font-medium">Total Students</CardTitle>
+                <Users className="h-4 w-4 text-muted-foreground" />
+                </CardHeader>
+                <CardContent>
+                <div className="text-2xl font-bold">{stats.total}</div>
+                <p className="text-xs text-muted-foreground">All students in the system</p>
+                </CardContent>
+            </Card>
+            <Card>
+                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-sm font-medium">Room Assigned</CardTitle>
+                <UserCheck className="h-4 w-4 text-muted-foreground" />
+                </CardHeader>
+                <CardContent>
+                <div className="text-2xl font-bold">{stats.assigned}</div>
+                <p className="text-xs text-muted-foreground">Students with an allocated room</p>
+                </CardContent>
+            </Card>
+            <Card>
+                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-sm font-medium">Unassigned</CardTitle>
+                <UserPlus className="h-4 w-4 text-muted-foreground" />
+                </CardHeader>
+                <CardContent>
+                <div className="text-2xl font-bold">{stats.unassigned}</div>
+                <p className="text-xs text-muted-foreground">Students waiting for a room</p>
+                </CardContent>
+            </Card>
+        </div>
       <Card>
         <CardHeader>
           <CardTitle>Student Management</CardTitle>
@@ -279,6 +320,7 @@ export default function StudentsPage() {
           </div>
         </CardFooter>
       </Card>
+    </div>
 
       <StudentModal
         isOpen={isModalOpen}
