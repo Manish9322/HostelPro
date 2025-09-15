@@ -232,26 +232,26 @@ export default function AboutPage() {
               <h2 className="text-3xl md:text-4xl font-bold font-headline">Impact in Numbers</h2>
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 max-w-6xl mx-auto">
-              <Card className="flex flex-col items-center justify-center p-6 bg-card/80 backdrop-blur-sm shadow-lg transition-transform transform hover:-translate-y-2 hover:shadow-xl">
-                  <UserPlus className="h-10 w-10 text-primary mb-4"/>
-                  <p className="text-5xl font-bold text-primary"><AnimatedCounter end={500} />+</p>
-                  <p className="text-lg font-medium text-muted-foreground mt-2">Happy Residents</p>
-              </Card>
-              <Card className="flex flex-col items-center justify-center p-6 bg-card/80 backdrop-blur-sm shadow-lg transition-transform transform hover:-translate-y-2 hover:shadow-xl">
-                  <CalendarClock className="h-10 w-10 text-primary mb-4"/>
-                  <p className="text-5xl font-bold text-primary"><AnimatedCounter end={10} />+</p>
-                  <p className="text-lg font-medium text-muted-foreground mt-2">Years of Service</p>
-              </Card>
-              <Card className="flex flex-col items-center justify-center p-6 bg-card/80 backdrop-blur-sm shadow-lg transition-transform transform hover:-translate-y-2 hover:shadow-xl">
-                  <PartyPopper className="h-10 w-10 text-primary mb-4"/>
-                  <p className="text-5xl font-bold text-primary"><AnimatedCounter end={50} />+</p>
-                  <p className="text-lg font-medium text-muted-foreground mt-2">Events Hosted</p>
-              </Card>
-               <Card className="flex flex-col items-center justify-center p-6 bg-card/80 backdrop-blur-sm shadow-lg transition-transform transform hover:-translate-y-2 hover:shadow-xl">
-                  <Star className="h-10 w-10 text-primary mb-4"/>
-                  <p className="text-5xl font-bold text-primary"><AnimatedCounter end={98} />%</p>
-                  <p className="text-lg font-medium text-muted-foreground mt-2">Satisfaction Rate</p>
-              </Card>
+              {[
+                { icon: UserPlus, value: 500, suffix: '+', label: 'Happy Residents' },
+                { icon: CalendarClock, value: 10, suffix: '+', label: 'Years of Service' },
+                { icon: PartyPopper, value: 50, suffix: '+', label: 'Events Hosted' },
+                { icon: Star, value: 98, suffix: '%', label: 'Satisfaction Rate' },
+              ].map((stat, i) => (
+                <div key={i} className="relative group p-1 rounded-xl bg-gradient-to-b from-primary/20 to-primary/5 hover:[&>div]:!bg-primary/5 transition-all duration-300">
+                  <div className="absolute inset-0.5 -z-10 rounded-[10px] bg-gradient-to-b from-primary/20 via-transparent to-primary/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300 animate-pulse-slow" />
+                  <div className="relative pt-12 pb-6 px-6 text-center bg-card/80 backdrop-blur-sm rounded-lg shadow-lg group-hover:-translate-y-1 transition-transform duration-300">
+                    <div className="absolute -top-8 left-1/2 -translate-x-1/2 flex items-center justify-center h-16 w-16 rounded-full bg-primary text-primary-foreground border-4 border-secondary shadow-lg">
+                      <stat.icon className="h-8 w-8" />
+                    </div>
+                    <p className="text-5xl font-bold text-primary">
+                      <AnimatedCounter end={stat.value} />
+                      {stat.suffix}
+                    </p>
+                    <p className="text-lg font-medium text-muted-foreground mt-2">{stat.label}</p>
+                  </div>
+                </div>
+              ))}
             </div>
           </div>
         </section>
@@ -318,5 +318,3 @@ export default function AboutPage() {
     </div>
   );
 }
-
-    
