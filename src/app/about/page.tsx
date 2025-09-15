@@ -35,9 +35,9 @@ const AnimatedCounter = ({ end, duration = 2000 }: { end: number, duration?: num
 
 export default function AboutPage() {
     const teamMembers = [
-        { name: "Dr. Alisha Verma", position: "Chief Warden", avatar: "https://picsum.photos/seed/person1/100/100", dataAiHint: "person" },
-        { name: "Rajesh Kumar", position: "Head of Operations", avatar: "https://picsum.photos/seed/person2/100/100", dataAiHint: "person" },
-        { name: "Priya Singh", position: "Student Life Coordinator", avatar: "https://picsum.photos/seed/person3/100/100", dataAiHint: "person" },
+        { name: "Dr. Alisha Verma", position: "Chief Warden", avatar: "https://placehold.co/100x100", dataAiHint: "person" },
+        { name: "Rajesh Kumar", position: "Head of Operations", avatar: "https://placehold.co/100x100", dataAiHint: "person" },
+        { name: "Priya Singh", position: "Student Life Coordinator", avatar: "https://placehold.co/100x100", dataAiHint: "person" },
     ];
 
     const timelineEvents = [
@@ -71,7 +71,7 @@ export default function AboutPage() {
             <div className="container mx-auto px-4 md:px-6">
                 <div className="grid md:grid-cols-2 gap-12 items-center">
                     <div>
-                        <Image src="https://picsum.photos/seed/hostel-mission/800/600" alt="Students collaborating in a common area" width={800} height={600} className="rounded-lg shadow-lg" data-ai-hint="hostel common area" />
+                        <Image src="https://placehold.co/800x600" alt="Students collaborating in a common area" width={800} height={600} className="rounded-lg shadow-lg" data-ai-hint="hostel common area" />
                     </div>
                     <div className="space-y-4">
                         <SectionTag icon={Heart}>Our Mission</SectionTag>
@@ -95,25 +95,25 @@ export default function AboutPage() {
               <h2 className="text-3xl md:text-4xl font-bold font-headline">Facilities Built for Student Success</h2>
             </div>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
-              <Card className="text-center items-center p-6 bg-card hover:shadow-lg transition-shadow">
+              <Card className="text-center items-center p-6 bg-card border-2 border-transparent hover:border-primary hover:shadow-lg transition-all duration-300 transform hover:-translate-y-2">
                 <ShieldCheck className="h-10 w-10 mx-auto text-primary mb-4"/>
                 <h3 className="font-semibold text-lg">24/7 Security</h3>
-                <p className="text-sm text-muted-foreground mt-1">Monitored premises and secure access.</p>
+                <p className="text-sm text-muted-foreground mt-1">Monitored premises and secure access for your peace of mind.</p>
               </Card>
-              <Card className="text-center items-center p-6 bg-card hover:shadow-lg transition-shadow">
+              <Card className="text-center items-center p-6 bg-card border-2 border-transparent hover:border-primary hover:shadow-lg transition-all duration-300 transform hover:-translate-y-2">
                 <Wifi className="h-10 w-10 mx-auto text-primary mb-4"/>
                 <h3 className="font-semibold text-lg">High-Speed Wi-Fi</h3>
-                <p className="text-sm text-muted-foreground mt-1">Reliable internet for study and leisure.</p>
+                <p className="text-sm text-muted-foreground mt-1">Reliable internet coverage for all your study and leisure needs.</p>
               </Card>
-              <Card className="text-center items-center p-6 bg-card hover:shadow-lg transition-shadow">
+              <Card className="text-center items-center p-6 bg-card border-2 border-transparent hover:border-primary hover:shadow-lg transition-all duration-300 transform hover:-translate-y-2">
                 <Users className="h-10 w-10 mx-auto text-primary mb-4"/>
                 <h3 className="font-semibold text-lg">Community Events</h3>
-                <p className="text-sm text-muted-foreground mt-1">Regular social and academic gatherings.</p>
+                <p className="text-sm text-muted-foreground mt-1">Regular social and academic gatherings to foster connections.</p>
               </Card>
-              <Card className="text-center items-center p-6 bg-card hover:shadow-lg transition-shadow">
+              <Card className="text-center items-center p-6 bg-card border-2 border-transparent hover:border-primary hover:shadow-lg transition-all duration-300 transform hover:-translate-y-2">
                 <Sparkles className="h-10 w-10 mx-auto text-primary mb-4"/>
                 <h3 className="font-semibold text-lg">Modern Amenities</h3>
-                <p className="text-sm text-muted-foreground mt-1">Gym, laundry, study rooms, and more.</p>
+                <p className="text-sm text-muted-foreground mt-1">Includes a gym, laundry, study rooms, and recreation areas.</p>
               </Card>
             </div>
           </div>
@@ -157,8 +157,8 @@ export default function AboutPage() {
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
               {teamMembers.map(member => (
-                <Card key={member.name} className="text-center p-6 bg-card transition-transform transform hover:-translate-y-2">
-                  <Avatar className="w-24 h-24 mx-auto mb-4 border-4 border-primary/20">
+                <Card key={member.name} className="text-center p-6 bg-card border-2 border-transparent hover:border-primary transition-all duration-300 transform hover:-translate-y-2 group">
+                  <Avatar className="w-24 h-24 mx-auto mb-4 border-4 border-primary/10 group-hover:border-primary/30 transition-colors">
                     <AvatarImage src={member.avatar} data-ai-hint={member.dataAiHint} />
                     <AvatarFallback>{member.name.split(' ').map(n => n[0]).join('')}</AvatarFallback>
                   </Avatar>
@@ -252,19 +252,19 @@ export default function AboutPage() {
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
               <div className="relative group overflow-hidden rounded-lg">
-                <Image src="https://picsum.photos/seed/space1/600/400" alt="Modern study lounge" width={600} height={400} className="w-full h-full object-cover transition-transform group-hover:scale-105" data-ai-hint="study lounge" />
+                <Image src="https://placehold.co/600x400" alt="Modern study lounge" width={600} height={400} className="w-full h-full object-cover transition-transform group-hover:scale-105" data-ai-hint="study lounge" />
                 <div className="absolute inset-0 bg-black/50 flex items-end p-4">
                   <h3 className="text-white font-bold text-lg">The Study Lounge</h3>
                 </div>
               </div>
                <div className="relative group overflow-hidden rounded-lg">
-                <Image src="https://picsum.photos/seed/space2/600/400" alt="Outdoor courtyard" width={600} height={400} className="w-full h-full object-cover transition-transform group-hover:scale-105" data-ai-hint="hostel courtyard" />
+                <Image src="https://placehold.co/600x400" alt="Outdoor courtyard" width={600} height={400} className="w-full h-full object-cover transition-transform group-hover:scale-105" data-ai-hint="hostel courtyard" />
                 <div className="absolute inset-0 bg-black/50 flex items-end p-4">
                   <h3 className="text-white font-bold text-lg">The Courtyard</h3>
                 </div>
               </div>
                <div className="relative group overflow-hidden rounded-lg">
-                <Image src="https://picsum.photos/seed/space3/600/400" alt="Recreation room with games" width={600} height={400} className="w-full h-full object-cover transition-transform group-hover:scale-105" data-ai-hint="recreation room" />
+                <Image src="https://placehold.co/600x400" alt="Recreation room with games" width={600} height={400} className="w-full h-full object-cover transition-transform group-hover:scale-105" data-ai-hint="recreation room" />
                 <div className="absolute inset-0 bg-black/50 flex items-end p-4">
                   <h3 className="text-white font-bold text-lg">The Rec Room</h3>
                 </div>
