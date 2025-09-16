@@ -184,8 +184,8 @@ export default function AboutPage() {
               <p className="mt-2 text-muted-foreground max-w-2xl mx-auto">Our dedicated board members are committed to making your stay comfortable and memorable.</p>
             </div>
             {loading ? (
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
-                    {Array.from({length: 3}).map((_, i) => (
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
+                    {Array.from({length: 4}).map((_, i) => (
                         <Card key={i}><CardContent className="p-6"><Skeleton className="h-64"/></CardContent></Card>
                     ))}
                 </div>
@@ -198,7 +198,7 @@ export default function AboutPage() {
                     </Button>
                 </div>
             ) : (
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
                 {boardMembers.map(member => (
                     <Card key={member.name} className="relative group overflow-hidden bg-card border-2 border-transparent hover:border-primary/20 transition-all duration-300 transform hover:-translate-y-2 hover:shadow-2xl">
                     <div className="absolute top-0 left-0 w-full h-24 bg-primary/10"></div>
@@ -346,4 +346,3 @@ export default function AboutPage() {
     </div>
   );
 }
-
