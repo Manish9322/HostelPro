@@ -346,7 +346,7 @@ export default function SettingsPage() {
         </TabsContent>
 
         <TabsContent value="designations" className="mt-6">
-            {settings && settings.boardMemberDesignations && (
+            {settings && settings.boardMemberDesignations ? (
                 <CategorySettingsSection
                     title="Board Member Designations"
                     description="Manage the positions available for board members (e.g., Chairperson, Treasurer)."
@@ -355,6 +355,15 @@ export default function SettingsPage() {
                     onUpdate={(key, items) => handleUpdateSettings({ [key]: items })}
                     loading={loading}
                 />
+            ) : (
+                <Card>
+                    <CardHeader>
+                        <CardTitle>Board Member Designations</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                        <Skeleton className="h-40 w-full" />
+                    </CardContent>
+                </Card>
             )}
         </TabsContent>
 
@@ -436,3 +445,5 @@ export default function SettingsPage() {
     </div>
   );
 }
+
+    
