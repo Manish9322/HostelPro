@@ -89,12 +89,12 @@ export default function AboutPage() {
         {/* 2. About This Hostel (Our Mission) */}
         <section className="w-full py-12 md:py-20">
             <div className="container mx-auto px-4 md:px-6">
-                <SectionTag icon={Heart}>Our Mission</SectionTag>
                 <div className="grid md:grid-cols-2 gap-12 items-center">
                     <div>
                         <Image src="https://picsum.photos/seed/hostel-mission/800/600" alt="Students collaborating in a common area" width={800} height={600} className="rounded-lg shadow-lg" data-ai-hint="hostel common area" />
                     </div>
                     <div className="space-y-4">
+                      <SectionTag icon={Heart}>Our Mission</SectionTag>
                         <h2 className="text-3xl md:text-4xl font-bold font-headline">More Than Just a Place to Stay</h2>
                         <p className="text-lg text-muted-foreground">
                             At HostelPro, our mission is to provide a secure, comfortable, and enriching environment that empowers students to achieve their academic and personal goals. We believe a good hostel is a cornerstone of a successful university life, and we are dedicated to fostering a community where students can learn, grow, and thrive together.
@@ -275,7 +275,7 @@ export default function AboutPage() {
                 <div className="absolute inset-0 bg-gradient-to-br from-primary/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
                 <div className="relative z-10">
                   <div className="flex items-center justify-center w-16 h-16 rounded-full bg-primary/10 mb-6 mx-auto transition-all duration-300 group-hover:bg-primary/20 group-hover:scale-110">
-                    <ShieldCheck className="h-8 w-8 text-destructive"/>
+                    <ShieldCheck className="h-8 w-8 text-primary"/>
                   </div>
                   <h3 className="text-2xl font-semibold mb-2">Safety</h3>
                   <p className="text-muted-foreground">Providing a secure and protected environment is non-negotiable. It's the foundation upon which a positive student experience is built.</p>
@@ -315,10 +315,38 @@ export default function AboutPage() {
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 max-w-6xl mx-auto">
               {[
-                { icon: UserPlus, value: 500, suffix: '+', label: 'Happy Residents' },
-                { icon: CalendarClock, value: 10, suffix: '+', label: 'Years of Service' },
-                { icon: PartyPopper, value: 50, suffix: '+', label: 'Events Hosted' },
-                { icon: Star, value: 98, suffix: '%', label: 'Satisfaction Rate' },
+                { 
+                  icon: UserPlus, 
+                  value: 500, 
+                  suffix: '+', 
+                  label: 'Happy Residents',
+                  description: 'Students who call HostelPro home',
+                  details: 'From diverse backgrounds and academic disciplines'
+                },
+                { 
+                  icon: CalendarClock, 
+                  value: 10, 
+                  suffix: '+', 
+                  label: 'Years of Service',
+                  description: 'Dedicated to student excellence',
+                  details: 'Building trust and community since 2014'
+                },
+                { 
+                  icon: PartyPopper, 
+                  value: 50, 
+                  suffix: '+', 
+                  label: 'Events Hosted',
+                  description: 'Annual celebrations and activities',
+                  details: 'Cultural festivals, workshops, and social gatherings'
+                },
+                { 
+                  icon: Star, 
+                  value: 98, 
+                  suffix: '%', 
+                  label: 'Satisfaction Rate',
+                  description: 'Based on resident feedback',
+                  details: 'Consistently rated for quality and service'
+                },
               ].map((stat, i) => (
                 <Card key={i} className="relative flex flex-col text-center p-6 bg-gradient-to-br from-card to-card/50 backdrop-blur-sm border border-border/50 hover:border-primary/30 focus:border-primary/50 transition-all duration-300 transform hover:-translate-y-2 hover:shadow-xl focus:shadow-lg group outline-none overflow-hidden">
                   <div className="absolute inset-0 bg-gradient-to-br from-primary/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
@@ -330,7 +358,9 @@ export default function AboutPage() {
                       <AnimatedCounter end={stat.value} />
                       {stat.suffix}
                     </p>
-                    <p className="text-lg font-medium text-muted-foreground">{stat.label}</p>
+                    <h3 className="text-lg font-bold text-foreground mb-2">{stat.label}</h3>
+                    <p className="text-sm font-medium text-primary/80 mb-2">{stat.description}</p>
+                    <p className="text-xs text-muted-foreground leading-relaxed">{stat.details}</p>
                   </div>
                 </Card>
               ))}
@@ -340,15 +370,106 @@ export default function AboutPage() {
         
         {/* 8. A Day in the Life */}
         <section className="w-full py-12 md:py-20">
-            <div className="container mx-auto px-4 md:px-6 max-w-4xl">
+            <div className="container mx-auto px-4 md:px-6">
                 <SectionTag icon={Eye}>A Day at HostelPro</SectionTag>
                 <div className="text-center mb-12">
                   <h2 className="text-3xl md:text-4xl font-bold font-headline">Experience Life With Us</h2>
+                  <p className="mt-2 text-muted-foreground max-w-2xl mx-auto">
+                    Discover what makes every day at HostelPro special - from morning routines to evening gatherings, your journey here is filled with opportunities to learn, grow, and connect.
+                  </p>
                 </div>
-                <Card className="relative flex flex-col text-center p-6 bg-gradient-to-br from-card to-card/50 backdrop-blur-sm border border-border/50 hover:border-primary/30 focus:border-primary/50 transition-all duration-300 transform hover:-translate-y-2 hover:shadow-xl focus:shadow-lg group outline-none overflow-hidden">
+                
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
+                  {/* Morning Routine Card */}
+                  <Card className="relative flex flex-col text-left p-6 bg-gradient-to-br from-card to-card/50 backdrop-blur-sm border border-border/50 hover:border-primary/30 focus:border-primary/50 transition-all duration-300 transform hover:-translate-y-2 hover:shadow-xl focus:shadow-lg group outline-none overflow-hidden">
+                    <div className="absolute inset-0 bg-gradient-to-br from-primary/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                    <div className="relative z-10">
+                      <div className="flex items-center justify-center w-16 h-16 rounded-full bg-primary/10 mb-6 transition-all duration-300 group-hover:bg-primary/20 group-hover:scale-110">
+                        <Smile className="h-8 w-8 text-primary" />
+                      </div>
+                      <h3 className="font-semibold text-xl mb-3">Morning Routine</h3>
+                      <p className="text-muted-foreground mb-4">
+                        Start your day right in your comfortable, well-furnished room. Head to our modern cafeteria for a hearty breakfast with fellow residents, then settle into one of our quiet study lounges for productive morning sessions.
+                      </p>
+                      <div className="flex flex-wrap gap-2">
+                        <span className="text-xs px-3 py-1 bg-primary/10 text-primary rounded-full">Comfortable Rooms</span>
+                        <span className="text-xs px-3 py-1 bg-primary/10 text-primary rounded-full">Fresh Breakfast</span>
+                        <span className="text-xs px-3 py-1 bg-primary/10 text-primary rounded-full">Study Spaces</span>
+                      </div>
+                    </div>
+                  </Card>
+
+                  {/* Afternoon Activities Card */}
+                  <Card className="relative flex flex-col text-left p-6 bg-gradient-to-br from-card to-card/50 backdrop-blur-sm border border-border/50 hover:border-primary/30 focus:border-primary/50 transition-all duration-300 transform hover:-translate-y-2 hover:shadow-xl focus:shadow-lg group outline-none overflow-hidden">
+                    <div className="absolute inset-0 bg-gradient-to-br from-primary/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                    <div className="relative z-10">
+                      <div className="flex items-center justify-center w-16 h-16 rounded-full bg-primary/10 mb-6 transition-all duration-300 group-hover:bg-primary/20 group-hover:scale-110">
+                        <Users className="h-8 w-8 text-primary" />
+                      </div>
+                      <h3 className="font-semibold text-xl mb-3">Afternoon Connections</h3>
+                      <p className="text-muted-foreground mb-4">
+                        Collaborate on group projects in our common areas, join a game of badminton in the courtyard, or hit the gym for a workout session. Build lasting friendships through shared activities and study groups.
+                      </p>
+                      <div className="flex flex-wrap gap-2">
+                        <span className="text-xs px-3 py-1 bg-primary/10 text-primary rounded-full">Group Projects</span>
+                        <span className="text-xs px-3 py-1 bg-primary/10 text-primary rounded-full">Sports & Games</span>
+                        <span className="text-xs px-3 py-1 bg-primary/10 text-primary rounded-full">Fitness Center</span>
+                      </div>
+                    </div>
+                  </Card>
+                </div>
+
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
+                  {/* Evening Relaxation Card */}
+                  <Card className="relative flex flex-col text-left p-6 bg-gradient-to-br from-card to-card/50 backdrop-blur-sm border border-border/50 hover:border-primary/30 focus:border-primary/50 transition-all duration-300 transform hover:-translate-y-2 hover:shadow-xl focus:shadow-lg group outline-none overflow-hidden">
+                    <div className="absolute inset-0 bg-gradient-to-br from-primary/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                    <div className="relative z-10">
+                      <div className="flex items-center justify-center w-16 h-16 rounded-full bg-primary/10 mb-6 transition-all duration-300 group-hover:bg-primary/20 group-hover:scale-110">
+                        <Heart className="h-8 w-8 text-primary" />
+                      </div>
+                      <h3 className="font-semibold text-xl mb-3">Evening Relaxation</h3>
+                      <p className="text-muted-foreground mb-4">
+                        Unwind in the recreation room with board games, movie nights, or casual conversations. Our comfortable common areas provide the perfect setting for relaxation and building community bonds.
+                      </p>
+                      <div className="flex flex-wrap gap-2">
+                        <span className="text-xs px-3 py-1 bg-primary/10 text-primary rounded-full">Movie Nights</span>
+                        <span className="text-xs px-3 py-1 bg-primary/10 text-primary rounded-full">Board Games</span>
+                        <span className="text-xs px-3 py-1 bg-primary/10 text-primary rounded-full">Social Time</span>
+                      </div>
+                    </div>
+                  </Card>
+
+                  {/* Community Events Card */}
+                  <Card className="relative flex flex-col text-left p-6 bg-gradient-to-br from-card to-card/50 backdrop-blur-sm border border-border/50 hover:border-primary/30 focus:border-primary/50 transition-all duration-300 transform hover:-translate-y-2 hover:shadow-xl focus:shadow-lg group outline-none overflow-hidden">
+                    <div className="absolute inset-0 bg-gradient-to-br from-primary/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                    <div className="relative z-10">
+                      <div className="flex items-center justify-center w-16 h-16 rounded-full bg-primary/10 mb-6 transition-all duration-300 group-hover:bg-primary/20 group-hover:scale-110">
+                        <PartyPopper className="h-8 w-8 text-primary" />
+                      </div>
+                      <h3 className="font-semibold text-xl mb-3">Community Events</h3>
+                      <p className="text-muted-foreground mb-4">
+                        Participate in regular cultural celebrations, academic workshops, talent shows, and seasonal festivals. These events create memorable experiences and strengthen our hostel community.
+                      </p>
+                      <div className="flex flex-wrap gap-2">
+                        <span className="text-xs px-3 py-1 bg-primary/10 text-primary rounded-full">Cultural Events</span>
+                        <span className="text-xs px-3 py-1 bg-primary/10 text-primary rounded-full">Workshops</span>
+                        <span className="text-xs px-3 py-1 bg-primary/10 text-primary rounded-full">Festivals</span>
+                      </div>
+                    </div>
+                  </Card>
+                </div>
+
+                {/* Summary Card */}
+                <Card className="relative flex flex-col text-center p-8 bg-gradient-to-br from-card to-card/50 backdrop-blur-sm border border-border/50 hover:border-primary/30 focus:border-primary/50 transition-all duration-300 transform hover:-translate-y-2 hover:shadow-xl focus:shadow-lg group outline-none overflow-hidden">
                   <div className="absolute inset-0 bg-gradient-to-br from-primary/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
                   <div className="relative z-10">
-                    <p className="text-lg text-muted-foreground">Imagine waking up in a comfortable room, grabbing a coffee from the cafeteria, and heading to a quiet study lounge for your morning session. In the afternoon, you join a game of badminton in the courtyard, followed by a collaborative project meeting in a common area. Evenings are for relaxing with friends in the rec room or attending a fun community event. This is the vibrant, balanced life that awaits you at HostelPro.</p>
+                    <div className="flex items-center justify-center w-20 h-20 rounded-full bg-primary/10 mb-6 mx-auto transition-all duration-300 group-hover:bg-primary/20 group-hover:scale-110">
+                      <Home className="h-10 w-10 text-primary" />
+                    </div>
+                    <h3 className="font-semibold text-2xl mb-4">Your Home Away From Home</h3>
+                    <p className="text-lg text-muted-foreground max-w-3xl mx-auto">
+                      This is the vibrant, balanced life that awaits you at HostelPro. Every day brings new opportunities to learn, grow, and create lasting memories with friends who become family. Join our community and discover what makes student life truly extraordinary.
+                    </p>
                   </div>
                 </Card>
             </div>
