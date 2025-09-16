@@ -89,12 +89,12 @@ export default function AboutPage() {
         {/* 2. About This Hostel (Our Mission) */}
         <section className="w-full py-12 md:py-20">
             <div className="container mx-auto px-4 md:px-6">
+                <SectionTag icon={Heart}>Our Mission</SectionTag>
                 <div className="grid md:grid-cols-2 gap-12 items-center">
                     <div>
                         <Image src="https://picsum.photos/seed/hostel-mission/800/600" alt="Students collaborating in a common area" width={800} height={600} className="rounded-lg shadow-lg" data-ai-hint="hostel common area" />
                     </div>
                     <div className="space-y-4">
-                        <SectionTag icon={Heart}>Our Mission</SectionTag>
                         <h2 className="text-3xl md:text-4xl font-bold font-headline">More Than Just a Place to Stay</h2>
                         <p className="text-lg text-muted-foreground">
                             At HostelPro, our mission is to provide a secure, comfortable, and enriching environment that empowers students to achieve their academic and personal goals. We believe a good hostel is a cornerstone of a successful university life, and we are dedicated to fostering a community where students can learn, grow, and thrive together.
@@ -115,33 +115,69 @@ export default function AboutPage() {
               <h2 className="text-3xl md:text-4xl font-bold font-headline">Facilities Built for Student Success</h2>
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
-              <Card className="flex flex-col text-left p-6 bg-card border-2 border-transparent hover:border-primary/20 transition-all duration-300 transform hover:-translate-y-2 hover:shadow-2xl group">
-                  <div className="flex items-center justify-center w-16 h-16 rounded-full bg-primary/10 mb-6 transition-transform group-hover:scale-110 self-start">
-                      <ShieldCheck className="h-8 w-8 text-primary"/>
+              {/* Card 1: Security */}
+              <Card
+                tabIndex={0}
+                aria-label="24/7 Security: Monitored premises and secure access for your peace of mind."
+                className="relative flex flex-col text-left p-6 bg-gradient-to-br from-card to-card/50 backdrop-blur-sm border border-border/50 hover:border-primary/30 focus:border-primary/50 transition-all duration-300 transform hover:-translate-y-2 hover:shadow-xl focus:shadow-lg group outline-none overflow-hidden"
+              >
+                <div className="absolute inset-0 bg-gradient-to-br from-primary/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                <div className="relative z-10">
+                  <div className="flex items-center justify-center w-16 h-16 rounded-full bg-primary/10 mb-6 transition-all duration-300 group-hover:bg-primary/20 group-hover:scale-110">
+                    <ShieldCheck className="h-8 w-8 text-primary" />
                   </div>
-                  <h3 className="font-semibold text-xl mb-2">24/7 Security</h3>
-                  <p className="text-sm text-muted-foreground flex-grow">Monitored premises and secure access for your peace of mind.</p>
+                  <h3 className="font-semibold text-xl mb-1">24/7 Security</h3>
+                  <span className="text-xs font-medium text-primary/80 tracking-wide uppercase">Peace of Mind</span>
+                  <p className="text-sm text-muted-foreground mt-3 flex-grow">Monitored premises and secure access for your peace of mind.</p>
+                </div>
               </Card>
-              <Card className="flex flex-col text-left p-6 bg-card border-2 border-transparent hover:border-primary/20 transition-all duration-300 transform hover:-translate-y-2 hover:shadow-2xl group">
-                 <div className="flex items-center justify-center w-16 h-16 rounded-full bg-primary/10 mb-6 transition-transform group-hover:scale-110 self-start">
-                      <Wifi className="h-8 w-8 text-primary"/>
+              {/* Card 2: Wi-Fi */}
+              <Card
+                tabIndex={0}
+                aria-label="High-Speed Wi-Fi: Reliable internet coverage for all your study and leisure needs across the campus."
+                className="relative flex flex-col text-left p-6 bg-gradient-to-br from-card to-card/50 backdrop-blur-sm border border-border/50 hover:border-primary/30 focus:border-primary/50 transition-all duration-300 transform hover:-translate-y-2 hover:shadow-xl focus:shadow-lg group outline-none overflow-hidden"
+              >
+                <div className="absolute inset-0 bg-gradient-to-br from-primary/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                <div className="relative z-10">
+                  <div className="flex items-center justify-center w-16 h-16 rounded-full bg-primary/10 mb-6 transition-all duration-300 group-hover:bg-primary/20 group-hover:scale-110">
+                    <Wifi className="h-8 w-8 text-primary" />
                   </div>
-                  <h3 className="font-semibold text-xl mb-2">High-Speed Wi-Fi</h3>
-                  <p className="text-sm text-muted-foreground flex-grow">Reliable internet coverage for all your study and leisure needs across the campus.</p>
+                  <h3 className="font-semibold text-xl mb-1">High-Speed Wi-Fi</h3>
+                  <span className="text-xs font-medium text-primary/80 tracking-wide uppercase">Always Connected</span>
+                  <p className="text-sm text-muted-foreground mt-3 flex-grow">Reliable internet coverage for all your study and leisure needs across the campus.</p>
+                </div>
               </Card>
-              <Card className="flex flex-col text-left p-6 bg-card border-2 border-transparent hover:border-primary/20 transition-all duration-300 transform hover:-translate-y-2 hover:shadow-2xl group">
-                   <div className="flex items-center justify-center w-16 h-16 rounded-full bg-primary/10 mb-6 transition-transform group-hover:scale-110 self-start">
-                      <Users className="h-8 w-8 text-primary"/>
-                   </div>
-                  <h3 className="font-semibold text-xl mb-2">Community Events</h3>
-                  <p className="text-sm text-muted-foreground flex-grow">Regular social and academic gatherings to foster connections and a sense of belonging.</p>
-              </Card>
-              <Card className="flex flex-col text-left p-6 bg-card border-2 border-transparent hover:border-primary/20 transition-all duration-300 transform hover:-translate-y-2 hover:shadow-2xl group">
-                 <div className="flex items-center justify-center w-16 h-16 rounded-full bg-primary/10 mb-6 transition-transform group-hover:scale-110 self-start">
-                      <Sparkles className="h-8 w-8 text-primary"/>
+              {/* Card 3: Community Events */}
+              <Card
+                tabIndex={0}
+                aria-label="Community Events: Regular social and academic gatherings to foster connections and a sense of belonging."
+                className="relative flex flex-col text-left p-6 bg-gradient-to-br from-card to-card/50 backdrop-blur-sm border border-border/50 hover:border-primary/30 focus:border-primary/50 transition-all duration-300 transform hover:-translate-y-2 hover:shadow-xl focus:shadow-lg group outline-none overflow-hidden"
+              >
+                <div className="absolute inset-0 bg-gradient-to-br from-primary/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                <div className="relative z-10">
+                  <div className="flex items-center justify-center w-16 h-16 rounded-full bg-primary/10 mb-6 transition-all duration-300 group-hover:bg-primary/20 group-hover:scale-110">
+                    <Users className="h-8 w-8 text-primary" />
                   </div>
-                  <h3 className="font-semibold text-xl mb-2">Modern Amenities</h3>
-                  <p className="text-sm text-muted-foreground flex-grow">Includes a modern gym, laundry services, study rooms, and recreation areas.</p>
+                  <h3 className="font-semibold text-xl mb-1">Community Events</h3>
+                  <span className="text-xs font-medium text-primary/80 tracking-wide uppercase">Get Involved</span>
+                  <p className="text-sm text-muted-foreground mt-3 flex-grow">Regular social and academic gatherings to foster connections and a sense of belonging.</p>
+                </div>
+              </Card>
+              {/* Card 4: Modern Amenities */}
+              <Card
+                tabIndex={0}
+                aria-label="Modern Amenities: Includes a modern gym, laundry services, study rooms, and recreation areas."
+                className="relative flex flex-col text-left p-6 bg-gradient-to-br from-card to-card/50 backdrop-blur-sm border border-border/50 hover:border-primary/30 focus:border-primary/50 transition-all duration-300 transform hover:-translate-y-2 hover:shadow-xl focus:shadow-lg group outline-none overflow-hidden"
+              >
+                <div className="absolute inset-0 bg-gradient-to-br from-primary/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                <div className="relative z-10">
+                  <div className="flex items-center justify-center w-16 h-16 rounded-full bg-primary/10 mb-6 transition-all duration-300 group-hover:bg-primary/20 group-hover:scale-110">
+                    <Sparkles className="h-8 w-8 text-primary" />
+                  </div>
+                  <h3 className="font-semibold text-xl mb-1">Modern Amenities</h3>
+                  <span className="text-xs font-medium text-primary/80 tracking-wide uppercase">All You Need</span>
+                  <p className="text-sm text-muted-foreground mt-3 flex-grow">Includes a modern gym, laundry services, study rooms, and recreation areas.</p>
+                </div>
               </Card>
             </div>
           </div>
@@ -163,10 +199,13 @@ export default function AboutPage() {
                     <event.icon className="w-6 h-6" />
                   </div>
                   <div className="w-full md:w-5/12 px-4 py-2">
-                    <Card className="p-6 hover:shadow-xl transition-shadow duration-300 transform md:hover:-translate-y-1">
-                      <p className="text-primary font-bold text-lg mb-1">{event.year}</p>
-                      <h3 className="font-semibold text-xl mb-2">{event.title}</h3>
-                      <p className="text-muted-foreground">{event.description}</p>
+                    <Card className="relative flex flex-col text-left p-6 bg-gradient-to-br from-card to-card/50 backdrop-blur-sm border border-border/50 hover:border-primary/30 focus:border-primary/50 transition-all duration-300 transform hover:-translate-y-2 hover:shadow-xl focus:shadow-lg group outline-none overflow-hidden">
+                      <div className="absolute inset-0 bg-gradient-to-br from-primary/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                      <div className="relative z-10">
+                        <p className="text-primary font-bold text-lg mb-1">{event.year}</p>
+                        <h3 className="font-semibold text-xl mb-2">{event.title}</h3>
+                        <p className="text-muted-foreground">{event.description}</p>
+                      </div>
                     </Card>
                   </div>
                 </div>
@@ -184,8 +223,8 @@ export default function AboutPage() {
               <p className="mt-2 text-muted-foreground max-w-2xl mx-auto">Our dedicated board members are committed to making your stay comfortable and memorable.</p>
             </div>
             {loading ? (
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
-                    {Array.from({length: 3}).map((_, i) => (
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
+                    {Array.from({length: 4}).map((_, i) => (
                         <Card key={i}><CardContent className="p-6"><Skeleton className="h-64"/></CardContent></Card>
                     ))}
                 </div>
@@ -198,11 +237,11 @@ export default function AboutPage() {
                     </Button>
                 </div>
             ) : (
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
                 {boardMembers.map(member => (
-                    <Card key={member.name} className="relative group overflow-hidden bg-card border-2 border-transparent hover:border-primary/20 transition-all duration-300 transform hover:-translate-y-2 hover:shadow-2xl">
-                    <div className="absolute top-0 left-0 w-full h-24 bg-primary/10"></div>
-                    <CardContent className="text-center p-6 pt-16 relative">
+                    <Card key={member.name} className="relative flex flex-col text-center p-6 bg-gradient-to-br from-card to-card/50 backdrop-blur-sm border border-border/50 hover:border-primary/30 focus:border-primary/50 transition-all duration-300 transform hover:-translate-y-2 hover:shadow-xl focus:shadow-lg group outline-none overflow-hidden">
+                    <div className="absolute inset-0 bg-gradient-to-br from-primary/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                    <div className="relative z-10">
                         <Avatar className="w-28 h-28 mx-auto mb-4 border-4 border-background bg-background shadow-lg transition-transform group-hover:scale-105">
                         <AvatarImage src={member.avatar} data-ai-hint="person avatar" />
                         <AvatarFallback>{member.name.split(' ').map(n => n[0]).join('')}</AvatarFallback>
@@ -216,7 +255,7 @@ export default function AboutPage() {
                             <a href="#" target="_blank" rel="noopener noreferrer" className="text-muted-foreground hover:text-primary transition-colors"><Twitter className="w-5 h-5"/></a>
                             <a href={`mailto:${member.email}`} className="text-muted-foreground hover:text-primary transition-colors"><Mail className="w-5 h-5"/></a>
                         </div>
-                    </CardContent>
+                    </div>
                     </Card>
                 ))}
                 </div>
@@ -231,22 +270,37 @@ export default function AboutPage() {
             <div className="text-center mb-12">
               <h2 className="text-3xl md:text-4xl font-bold font-headline">Three Pillars of a Great Hostel Life</h2>
             </div>
-            <div className="grid md:grid-cols-3 gap-8 text-center">
-              <div className="p-6">
-                  <ShieldCheck className="h-12 w-12 mx-auto text-destructive mb-4"/>
+            <div className="grid md:grid-cols-3 gap-8">
+              <Card className="relative flex flex-col text-center p-6 bg-gradient-to-br from-card to-card/50 backdrop-blur-sm border border-border/50 hover:border-primary/30 focus:border-primary/50 transition-all duration-300 transform hover:-translate-y-2 hover:shadow-xl focus:shadow-lg group outline-none overflow-hidden">
+                <div className="absolute inset-0 bg-gradient-to-br from-primary/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                <div className="relative z-10">
+                  <div className="flex items-center justify-center w-16 h-16 rounded-full bg-primary/10 mb-6 mx-auto transition-all duration-300 group-hover:bg-primary/20 group-hover:scale-110">
+                    <ShieldCheck className="h-8 w-8 text-destructive"/>
+                  </div>
                   <h3 className="text-2xl font-semibold mb-2">Safety</h3>
                   <p className="text-muted-foreground">Providing a secure and protected environment is non-negotiable. It's the foundation upon which a positive student experience is built.</p>
-              </div>
-               <div className="p-6">
-                  <Users className="h-12 w-12 mx-auto text-primary mb-4"/>
+                </div>
+              </Card>
+              <Card className="relative flex flex-col text-center p-6 bg-gradient-to-br from-card to-card/50 backdrop-blur-sm border border-border/50 hover:border-primary/30 focus:border-primary/50 transition-all duration-300 transform hover:-translate-y-2 hover:shadow-xl focus:shadow-lg group outline-none overflow-hidden">
+                <div className="absolute inset-0 bg-gradient-to-br from-primary/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                <div className="relative z-10">
+                  <div className="flex items-center justify-center w-16 h-16 rounded-full bg-primary/10 mb-6 mx-auto transition-all duration-300 group-hover:bg-primary/20 group-hover:scale-110">
+                    <Users className="h-8 w-8 text-primary"/>
+                  </div>
                   <h3 className="text-2xl font-semibold mb-2">Community</h3>
                   <p className="text-muted-foreground">We believe in the power of connection. We foster a vibrant community where students can form friendships and support networks.</p>
-              </div>
-               <div className="p-6">
-                  <Sparkles className="h-12 w-12 mx-auto text-accent-foreground mb-4"/>
+                </div>
+              </Card>
+              <Card className="relative flex flex-col text-center p-6 bg-gradient-to-br from-card to-card/50 backdrop-blur-sm border border-border/50 hover:border-primary/30 focus:border-primary/50 transition-all duration-300 transform hover:-translate-y-2 hover:shadow-xl focus:shadow-lg group outline-none overflow-hidden">
+                <div className="absolute inset-0 bg-gradient-to-br from-primary/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                <div className="relative z-10">
+                  <div className="flex items-center justify-center w-16 h-16 rounded-full bg-primary/10 mb-6 mx-auto transition-all duration-300 group-hover:bg-primary/20 group-hover:scale-110">
+                    <Sparkles className="h-8 w-8 text-accent-foreground"/>
+                  </div>
                   <h3 className="text-2xl font-semibold mb-2">Learning</h3>
                   <p className="text-muted-foreground">Our environment is designed to support academic pursuits, providing quiet study spaces and resources for success.</p>
-              </div>
+                </div>
+              </Card>
             </div>
           </div>
         </section>
@@ -266,19 +320,19 @@ export default function AboutPage() {
                 { icon: PartyPopper, value: 50, suffix: '+', label: 'Events Hosted' },
                 { icon: Star, value: 98, suffix: '%', label: 'Satisfaction Rate' },
               ].map((stat, i) => (
-                <div key={i} className="relative group p-1 rounded-xl bg-gradient-to-b from-primary/20 to-primary/5 hover:[&>div]:!bg-primary/5 transition-all duration-300">
-                  <div className="absolute inset-0.5 -z-10 rounded-[10px] bg-gradient-to-b from-primary/20 via-transparent to-primary/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300 animate-pulse-slow" />
-                  <div className="relative pt-12 pb-6 px-6 text-center bg-card/80 backdrop-blur-sm rounded-lg shadow-lg group-hover:-translate-y-1 transition-transform duration-300">
-                    <div className="absolute -top-8 left-1/2 -translate-x-1/2 flex items-center justify-center h-16 w-16 rounded-full bg-primary text-primary-foreground border-4 border-secondary shadow-lg">
-                      <stat.icon className="h-8 w-8" />
+                <Card key={i} className="relative flex flex-col text-center p-6 bg-gradient-to-br from-card to-card/50 backdrop-blur-sm border border-border/50 hover:border-primary/30 focus:border-primary/50 transition-all duration-300 transform hover:-translate-y-2 hover:shadow-xl focus:shadow-lg group outline-none overflow-hidden">
+                  <div className="absolute inset-0 bg-gradient-to-br from-primary/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                  <div className="relative z-10">
+                    <div className="flex items-center justify-center w-16 h-16 rounded-full bg-primary/10 mb-6 mx-auto transition-all duration-300 group-hover:bg-primary/20 group-hover:scale-110">
+                      <stat.icon className="h-8 w-8 text-primary" />
                     </div>
-                    <p className="text-5xl font-bold text-primary">
+                    <p className="text-5xl font-bold text-primary mb-2">
                       <AnimatedCounter end={stat.value} />
                       {stat.suffix}
                     </p>
-                    <p className="text-lg font-medium text-muted-foreground mt-2">{stat.label}</p>
+                    <p className="text-lg font-medium text-muted-foreground">{stat.label}</p>
                   </div>
-                </div>
+                </Card>
               ))}
             </div>
           </div>
@@ -291,9 +345,12 @@ export default function AboutPage() {
                 <div className="text-center mb-12">
                   <h2 className="text-3xl md:text-4xl font-bold font-headline">Experience Life With Us</h2>
                 </div>
-                <div className="space-y-6">
-                    <p className="text-center text-lg text-muted-foreground">Imagine waking up in a comfortable room, grabbing a coffee from the cafeteria, and heading to a quiet study lounge for your morning session. In the afternoon, you join a game of badminton in the courtyard, followed by a collaborative project meeting in a common area. Evenings are for relaxing with friends in the rec room or attending a fun community event. This is the vibrant, balanced life that awaits you at HostelPro.</p>
-                </div>
+                <Card className="relative flex flex-col text-center p-6 bg-gradient-to-br from-card to-card/50 backdrop-blur-sm border border-border/50 hover:border-primary/30 focus:border-primary/50 transition-all duration-300 transform hover:-translate-y-2 hover:shadow-xl focus:shadow-lg group outline-none overflow-hidden">
+                  <div className="absolute inset-0 bg-gradient-to-br from-primary/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                  <div className="relative z-10">
+                    <p className="text-lg text-muted-foreground">Imagine waking up in a comfortable room, grabbing a coffee from the cafeteria, and heading to a quiet study lounge for your morning session. In the afternoon, you join a game of badminton in the courtyard, followed by a collaborative project meeting in a common area. Evenings are for relaxing with friends in the rec room or attending a fun community event. This is the vibrant, balanced life that awaits you at HostelPro.</p>
+                  </div>
+                </Card>
             </div>
         </section>
 
@@ -305,24 +362,33 @@ export default function AboutPage() {
               <h2 className="text-3xl md:text-4xl font-bold font-headline">Designed for Comfort & Community</h2>
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-              <div className="relative group overflow-hidden rounded-lg">
-                <Image src="https://picsum.photos/seed/study-lounge/600/400" alt="Modern study lounge" width={600} height={400} className="w-full h-full object-cover transition-transform group-hover:scale-105" data-ai-hint="study lounge" />
-                <div className="absolute inset-0 bg-black/50 flex items-end p-4">
-                  <h3 className="text-white font-bold text-lg">The Study Lounge</h3>
+              <Card className="relative flex flex-col p-0 bg-gradient-to-br from-card to-card/50 backdrop-blur-sm border border-border/50 hover:border-primary/30 focus:border-primary/50 transition-all duration-300 transform hover:-translate-y-2 hover:shadow-xl focus:shadow-lg group outline-none overflow-hidden">
+                <div className="absolute inset-0 bg-gradient-to-br from-primary/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                <div className="relative z-10 overflow-hidden rounded-lg">
+                  <Image src="https://picsum.photos/seed/study-lounge/600/400" alt="Modern study lounge" width={600} height={400} className="w-full h-full object-cover transition-transform group-hover:scale-105" data-ai-hint="study lounge" />
+                  <div className="absolute inset-0 bg-black/50 flex items-end p-4">
+                    <h3 className="text-white font-bold text-lg">The Study Lounge</h3>
+                  </div>
                 </div>
-              </div>
-               <div className="relative group overflow-hidden rounded-lg">
-                <Image src="https://picsum.photos/seed/courtyard/600/400" alt="Outdoor courtyard" width={600} height={400} className="w-full h-full object-cover transition-transform group-hover:scale-105" data-ai-hint="hostel courtyard" />
-                <div className="absolute inset-0 bg-black/50 flex items-end p-4">
-                  <h3 className="text-white font-bold text-lg">The Courtyard</h3>
+              </Card>
+              <Card className="relative flex flex-col p-0 bg-gradient-to-br from-card to-card/50 backdrop-blur-sm border border-border/50 hover:border-primary/30 focus:border-primary/50 transition-all duration-300 transform hover:-translate-y-2 hover:shadow-xl focus:shadow-lg group outline-none overflow-hidden">
+                <div className="absolute inset-0 bg-gradient-to-br from-primary/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                <div className="relative z-10 overflow-hidden rounded-lg">
+                  <Image src="https://picsum.photos/seed/courtyard/600/400" alt="Outdoor courtyard" width={600} height={400} className="w-full h-full object-cover transition-transform group-hover:scale-105" data-ai-hint="hostel courtyard" />
+                  <div className="absolute inset-0 bg-black/50 flex items-end p-4">
+                    <h3 className="text-white font-bold text-lg">The Courtyard</h3>
+                  </div>
                 </div>
-              </div>
-               <div className="relative group overflow-hidden rounded-lg">
-                <Image src="https://picsum.photos/seed/rec-room/600/400" alt="Recreation room with games" width={600} height={400} className="w-full h-full object-cover transition-transform group-hover:scale-105" data-ai-hint="recreation room" />
-                <div className="absolute inset-0 bg-black/50 flex items-end p-4">
-                  <h3 className="text-white font-bold text-lg">The Rec Room</h3>
+              </Card>
+              <Card className="relative flex flex-col p-0 bg-gradient-to-br from-card to-card/50 backdrop-blur-sm border border-border/50 hover:border-primary/30 focus:border-primary/50 transition-all duration-300 transform hover:-translate-y-2 hover:shadow-xl focus:shadow-lg group outline-none overflow-hidden">
+                <div className="absolute inset-0 bg-gradient-to-br from-primary/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                <div className="relative z-10 overflow-hidden rounded-lg">
+                  <Image src="https://picsum.photos/seed/rec-room/600/400" alt="Recreation room with games" width={600} height={400} className="w-full h-full object-cover transition-transform group-hover:scale-105" data-ai-hint="recreation room" />
+                  <div className="absolute inset-0 bg-black/50 flex items-end p-4">
+                    <h3 className="text-white font-bold text-lg">The Rec Room</h3>
+                  </div>
                 </div>
-              </div>
+              </Card>
             </div>
           </div>
         </section>
