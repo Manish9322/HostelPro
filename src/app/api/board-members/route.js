@@ -26,7 +26,8 @@ export async function POST(request) {
 
   const memberData = { name, position, email, phone, bio };
 
-  if (avatarFile && avatarFile.size > 0) {
+  // Check if avatarFile is a File and has a size greater than 0
+  if (avatarFile && typeof avatarFile === 'object' && avatarFile.size > 0) {
       try {
           const imagePath = await saveImage(avatarFile, 'avatars');
           memberData.avatar = imagePath;
@@ -48,7 +49,7 @@ export async function PUT(request) {
     let updateData = {};
     const contentType = request.headers.get("content-type");
 
-    if (contentType.includes('multipart/form-data')) {
+    if (contentType && contentType.includes('multipart/form-data')) {
       const formData = await request.formData();
       // Use .get() for all fields from FormData
       const name = formData.get('name');
@@ -61,8 +62,8 @@ export async function PUT(request) {
       // Construct the update object from form fields
       updateData = { name, position, email, phone, bio };
       
-      // Only process image if a new one is uploaded
-      if (avatarFile && avatarFile.size > 0) {
+      // Check if avatarFile is a File and has a size greater than 0
+      if (avatarFile && typeof avatarFile === 'object' && avatarFile.size > 0) {
           try {
               const imagePath = await saveImage(avatarFile, 'avatars');
               updateData.avatar = imagePath;
