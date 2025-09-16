@@ -50,6 +50,7 @@ export async function PUT(request) {
 
     if (contentType.includes('multipart/form-data')) {
       const formData = await request.formData();
+      // Use .get() for all fields from FormData
       const name = formData.get('name');
       const position = formData.get('position');
       const email = formData.get('email');
@@ -57,8 +58,10 @@ export async function PUT(request) {
       const bio = formData.get('bio');
       const avatarFile = formData.get('avatar');
 
+      // Construct the update object from form fields
       updateData = { name, position, email, phone, bio };
-
+      
+      // Only process image if a new one is uploaded
       if (avatarFile && avatarFile.size > 0) {
           try {
               const imagePath = await saveImage(avatarFile, 'avatars');
@@ -68,6 +71,7 @@ export async function PUT(request) {
           }
       }
     } else {
+        // Handle JSON updates (like visibility toggle)
         updateData = await request.json();
     }
 
@@ -98,3 +102,5 @@ export async function DELETE(request) {
         return NextResponse.json({ error: error.message }, { status: 400 });
     }
 }
+
+    
