@@ -13,15 +13,18 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { BoardMember } from "@/lib/types";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../ui/select";
+import { Textarea } from "../ui/textarea";
 
 interface BoardMemberModalProps {
   isOpen: boolean;
   onClose: () => void;
   member: BoardMember | null;
   onSubmit: (data: FormData) => void;
+  designations: string[];
 }
 
-export function BoardMemberModal({ isOpen, onClose, member, onSubmit }: BoardMemberModalProps) {
+export function BoardMemberModal({ isOpen, onClose, member, onSubmit, designations }: BoardMemberModalProps) {
   const isEditMode = !!member;
   const title = isEditMode ? "Edit Board Member" : "Add New Board Member";
   const description = isEditMode ? "Update the details of the board member." : "Enter the details for the new board member.";
@@ -47,7 +50,18 @@ export function BoardMemberModal({ isOpen, onClose, member, onSubmit }: BoardMem
             </div>
             <div className="grid grid-cols-4 items-center gap-4">
               <Label htmlFor="position" className="text-right">Position</Label>
-              <Input id="position" name="position" defaultValue={member?.position || ''} className="col-span-3" required />
+              <Select name="position" defaultValue={member?.position}>
+                <SelectTrigger className="col-span-3">
+                  <SelectValue placeholder="Select a designation" />
+                </SelectTrigger>
+                <SelectContent>
+                  {designations.map((d, i) => <SelectItem key={i} value={d}>{d}</SelectItem>)}
+                </SelectContent>
+              </Select>
+            </div>
+             <div className="grid grid-cols-4 items-start gap-4">
+              <Label htmlFor="bio" className="text-right pt-2">Bio</Label>
+              <Textarea id="bio" name="bio" defaultValue={member?.bio || ''} className="col-span-3" placeholder="A short bio about the member."/>
             </div>
             <div className="grid grid-cols-4 items-center gap-4">
               <Label htmlFor="email" className="text-right">Email</Label>

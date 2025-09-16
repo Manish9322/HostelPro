@@ -34,6 +34,7 @@ import { DeleteConfirmationDialog } from "@/components/modals/delete-confirmatio
 import { useToast } from "@/hooks/use-toast";
 import { BoardMember } from "@/lib/types";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Switch } from "@/components/ui/switch";
 
 
 const ITEMS_PER_PAGE = 5;
@@ -47,15 +48,25 @@ export default function BoardMembersPage() {
   const [isDeleteModalOpen, setDeleteModalOpen] = useState(false);
   const [selectedMember, setSelectedMember] = useState<BoardMember | null>(null);
   const { toast } = useToast();
+  const [designations, setDesignations] = useState<string[]>([]);
 
   const fetchMembers = async () => {
     try {
       setLoading(true);
       setError(null);
-      const response = await fetch('/api/board-members');
-      if (!response.ok) throw new Error("Failed to fetch board members");
-      const data = await response.json();
+      const [membersRes, settingsRes] = await Promise.all([
+        fetch('/api/board-members'),
+        fetch('/api/settings')
+      ]);
+
+      if (!membersRes.ok) throw new Error("Failed to fetch board members");
+      const data = await membersRes.json();
       setMembers(data);
+
+      if (!settingsRes.ok) throw new Error("Failed to fetch settings");
+      const settingsData = await settingsRes.json();
+      setDesignations(settingsData.boardMemberDesignations || []);
+
     } catch (error) {
       setError("Failed to load board members. Please try again.");
       console.error(error);
@@ -122,6 +133,23 @@ export default function BoardMembersPage() {
     }
   };
   
+  const handleVisibilityChange = async (member: BoardMember, newVisibility: boolean) => {
+    const originalMembers = [...members];
+    setMembers(members.map(m => m._id === member._id ? {...m, visible: newVisibility} : m));
+
+    try {
+        const response = await fetch(`/api/board-members?id=${member._id}`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ visible: newVisibility }),
+        });
+        if (!response.ok) throw new Error('Failed to update visibility');
+        toast({ title: "Success", description: `Visibility updated.` });
+    } catch (error) {
+        setMembers(originalMembers);
+        toast({ title: "Error", description: "Failed to update visibility.", variant: "destructive" });
+    }
+  };
 
   return (
     <>
@@ -146,8 +174,8 @@ export default function BoardMembersPage() {
               <TableRow>
                 <TableHead>Name</TableHead>
                 <TableHead>Position</TableHead>
-                <TableHead>Contact</TableHead>
                 <TableHead>Joined On</TableHead>
+                <TableHead>Visible</TableHead>
                 <TableHead className="text-right">Actions</TableHead>
               </TableRow>
             </TableHeader>
@@ -157,8 +185,8 @@ export default function BoardMembersPage() {
                   <TableRow key={i}>
                     <TableCell className="flex items-center gap-3"><Skeleton className="h-9 w-9 rounded-full" /><Skeleton className="h-4 w-32" /></TableCell>
                     <TableCell><Skeleton className="h-4 w-24" /></TableCell>
-                    <TableCell><Skeleton className="h-4 w-40" /></TableCell>
                     <TableCell><Skeleton className="h-4 w-24" /></TableCell>
+                    <TableCell><Skeleton className="h-6 w-12" /></TableCell>
                     <TableCell className="text-right"><Skeleton className="h-8 w-8 ml-auto" /></TableCell>
                   </TableRow>
                 ))
@@ -187,15 +215,18 @@ export default function BoardMembersPage() {
                         </Avatar>
                         <div>
                           <p className="font-medium">{member.name}</p>
+                          <p className="text-xs text-muted-foreground">{member.email}</p>
                         </div>
                       </div>
                     </TableCell>
                     <TableCell>{member.position}</TableCell>
-                    <TableCell>
-                      <div className="text-sm">{member.email}</div>
-                      <div className="text-xs text-muted-foreground">{member.phone}</div>
-                    </TableCell>
                     <TableCell>{format(new Date(member.joinedAt), 'PPP')}</TableCell>
+                    <TableCell>
+                      <Switch
+                        checked={member.visible}
+                        onCheckedChange={(checked) => handleVisibilityChange(member, checked)}
+                      />
+                    </TableCell>
                     <TableCell className="text-right">
                       <DropdownMenu>
                         <DropdownMenuTrigger asChild>
@@ -258,6 +289,7 @@ export default function BoardMembersPage() {
         onClose={() => setModalOpen(false)}
         member={selectedMember}
         onSubmit={handleFormSubmit}
+        designations={designations}
       />
       <DeleteConfirmationDialog
         isOpen={isDeleteModalOpen}

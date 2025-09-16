@@ -1,3 +1,4 @@
+
 import mongoose from "mongoose";
 
 const boardMemberSchema = new mongoose.Schema({
@@ -6,7 +7,9 @@ const boardMemberSchema = new mongoose.Schema({
   email: { type: String, required: true, unique: true, trim: true, lowercase: true },
   phone: { type: String, required: true, trim: true },
   joinedAt: { type: Date, default: Date.now },
-  avatar: { type: String, default: null }
+  avatar: { type: String, default: null },
+  visible: { type: Boolean, default: true },
+  bio: { type: String, trim: true }
 }, { timestamps: true });
 
 const BoardMemberModel = mongoose.models.BoardMember || mongoose.model("BoardMember", boardMemberSchema);

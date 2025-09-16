@@ -1,5 +1,4 @@
 
-
 export type Student = {
   _id: string;
   id: string;
@@ -73,6 +72,8 @@ export type BoardMember = {
   phone: string;
   joinedAt: Date;
   avatar: string;
+  visible: boolean;
+  bio?: string;
 };
 
 export type Room = {
@@ -154,5 +155,3 @@ export interface Feedback {
     rating: number;
     createdAt: Date;
 }
-
-    

@@ -34,6 +34,7 @@ interface SettingsData {
   inventoryStatus: string[];
   complaintCategories: string[];
   noticeCategories: string[];
+  boardMemberDesignations: string[];
   locationAddress: string;
   locationMapLink: string;
   [key: string]: any; 
@@ -293,6 +294,7 @@ export default function SettingsPage() {
     { key: 'inventoryConditions', title: 'Inventory Conditions', description: 'Manage condition options for inventory items.' },
     { key: 'complaintCategories', title: 'Complaint Categories', description: 'Manage categories for student complaints.' },
     { key: 'noticeCategories', title: 'Notice Categories', description: 'Manage categories for public notices.' },
+    { key: 'boardMemberDesignations', title: 'Board Member Designations', description: 'Manage the positions for board members (e.g., Chairperson).' },
   ] as const;
 
   if (error && !settings) {
