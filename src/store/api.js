@@ -544,5 +544,3 @@ export const inquiriesApi = api.injectEndpoints({
 });
 
 export const { useGetInquiriesQuery, useAddInquiryMutation, useUpdateInquiryMutation } = inquiriesApi;
-
-    

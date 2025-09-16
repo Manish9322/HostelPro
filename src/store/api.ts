@@ -1,25 +1,4 @@
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
-import { Application, Student, Room, FeePayment, InventoryItem, Complaint, Notice, BoardMember, Faq, GalleryImage, Feedback, Inquiry } from '@/lib/types';
-
-interface SettingsData {
-    _id: string;
-    roomConditions: string[];
-    inventoryCategories: string[];
-    inventoryConditions: string[];
-    inventoryStatus: string[];
-    complaintCategories: string[];
-    noticeCategories: string[];
-    boardMemberDesignations: string[];
-    locationAddress: string;
-    locationMapLink: string;
-    [key: string]: any; 
-}
-
-interface Utility {
-    _id: string;
-    name: string;
-    price: number;
-}
 
 // Define a single API slice object
 export const api = createApi({
@@ -46,11 +25,11 @@ export const api = createApi({
 
 export const applicationsApi = api.injectEndpoints({
     endpoints: (builder) => ({
-        getApplications: builder.query<Application[], void>({
+        getApplications: builder.query({
           query: () => 'applications',
-          providesTags: (result) => result ? [...result.map(({ _id }) => ({ type: 'Applications' as const, id: _id })), { type: 'Applications', id: 'LIST' }] : [{ type: 'Applications', id: 'LIST' }],
+          providesTags: (result) => result ? [...result.map(({ _id }) => ({ type: 'Applications', id: _id })), { type: 'Applications', id: 'LIST' }] : [{ type: 'Applications', id: 'LIST' }],
         }),
-        addApplication: builder.mutation<Application, FormData>({
+        addApplication: builder.mutation({
           query: (body) => ({
             url: 'applications',
             method: 'POST',
@@ -58,7 +37,7 @@ export const applicationsApi = api.injectEndpoints({
           }),
           invalidatesTags: [{ type: 'Applications', id: 'LIST' }],
         }),
-        updateApplicationStatus: builder.mutation<Application, { id: string; status: 'Approved' | 'Rejected' }>({
+        updateApplicationStatus: builder.mutation({
           query: ({ id, status }) => ({
             url: `applications?id=${id}`,
             method: 'PUT',
@@ -77,11 +56,11 @@ export const {
 
 export const studentsApi = api.injectEndpoints({
     endpoints: (builder) => ({
-        getStudents: builder.query<Student[], void>({
+        getStudents: builder.query({
           query: () => 'students',
-          providesTags: (result) => result ? [...result.map(({ _id }) => ({ type: 'Students' as const, id: _id })), { type: 'Students', id: 'LIST' }] : [{ type: 'Students', id: 'LIST' }],
+          providesTags: (result) => result ? [...result.map(({ _id }) => ({ type: 'Students', id: _id })), { type: 'Students', id: 'LIST' }] : [{ type: 'Students', id: 'LIST' }],
         }),
-        addStudent: builder.mutation<Student, Partial<Student>>({
+        addStudent: builder.mutation({
           query: (body) => ({
             url: 'students',
             method: 'POST',
@@ -89,7 +68,7 @@ export const studentsApi = api.injectEndpoints({
           }),
           invalidatesTags: [{ type: 'Students', id: 'LIST' }],
         }),
-        updateStudent: builder.mutation<Student, { id: string; body: Partial<Student> }>({
+        updateStudent: builder.mutation({
           query: ({ id, body }) => ({
             url: `students?id=${id}`,
             method: 'PUT',
@@ -97,7 +76,7 @@ export const studentsApi = api.injectEndpoints({
           }),
           invalidatesTags: (result, error, { id }) => [{ type: 'Students', id }],
         }),
-        deleteStudent: builder.mutation<{ success: boolean; id: string }, string>({
+        deleteStudent: builder.mutation({
           query: (id) => ({
             url: `students?id=${id}`,
             method: 'DELETE',
@@ -116,11 +95,11 @@ export const {
 
 export const roomsApi = api.injectEndpoints({
     endpoints: (builder) => ({
-        getRooms: builder.query<Room[], void>({
+        getRooms: builder.query({
           query: () => 'rooms',
-          providesTags: (result) => result ? [...result.map(({ _id }) => ({ type: 'Rooms' as const, id: _id })), { type: 'Rooms', id: 'LIST' }] : [{ type: 'Rooms', id: 'LIST' }],
+          providesTags: (result) => result ? [...result.map(({ _id }) => ({ type: 'Rooms', id: _id })), { type: 'Rooms', id: 'LIST' }] : [{ type: 'Rooms', id: 'LIST' }],
         }),
-        addRoom: builder.mutation<Room, Partial<Room>>({
+        addRoom: builder.mutation({
           query: (body) => ({
             url: 'rooms',
             method: 'POST',
@@ -128,7 +107,7 @@ export const roomsApi = api.injectEndpoints({
           }),
           invalidatesTags: [{ type: 'Rooms', id: 'LIST' }],
         }),
-        updateRoom: builder.mutation<Room, { id: string; body: Partial<Room> }>({
+        updateRoom: builder.mutation({
           query: ({ id, body }) => ({
             url: `rooms?id=${id}`,
             method: 'PUT',
@@ -136,14 +115,14 @@ export const roomsApi = api.injectEndpoints({
           }),
           invalidatesTags: (result, error, { id }) => [{ type: 'Rooms', id }],
         }),
-        deleteRoom: builder.mutation<{ success: boolean; id: string }, string>({
+        deleteRoom: builder.mutation({
           query: (id) => ({
             url: `rooms?id=${id}`,
             method: 'DELETE',
           }),
           invalidatesTags: [{ type: 'Rooms', id: 'LIST' }],
         }),
-        allocateRooms: builder.mutation<{allocatedCount: number, waitingListCount: number}, {priority: string, matchGender: boolean, matchPreferences: boolean}>({
+        allocateRooms: builder.mutation({
             query: (body) => ({
                 url: 'rooms/allocate',
                 method: 'POST',
@@ -165,11 +144,11 @@ export const {
 
 export const feesApi = api.injectEndpoints({
     endpoints: (builder) => ({
-        getFeePayments: builder.query<FeePayment[], string | void>({
+        getFeePayments: builder.query({
           query: (studentId) => (studentId ? `fees?studentId=${studentId}` : 'fees'),
-          providesTags: (result) => result ? [...result.map(({ _id }) => ({ type: 'Fees' as const, id: _id })), { type: 'Fees', id: 'LIST' }] : [{ type: 'Fees', id: 'LIST' }],
+          providesTags: (result) => result ? [...result.map(({ _id }) => ({ type: 'Fees', id: _id })), { type: 'Fees', id: 'LIST' }] : [{ type: 'Fees', id: 'LIST' }],
         }),
-        addFeePayment: builder.mutation<FeePayment, Partial<FeePayment>>({
+        addFeePayment: builder.mutation({
           query: (body) => ({
             url: 'fees',
             method: 'POST',
@@ -177,7 +156,7 @@ export const feesApi = api.injectEndpoints({
           }),
           invalidatesTags: [{ type: 'Fees', id: 'LIST' }],
         }),
-        updateFeePayment: builder.mutation<FeePayment, { id: string; body: Partial<FeePayment> }>({
+        updateFeePayment: builder.mutation({
           query: ({ id, body }) => ({
             url: `fees?id=${id}`,
             method: 'PUT',
@@ -185,7 +164,7 @@ export const feesApi = api.injectEndpoints({
           }),
           invalidatesTags: (result, error, { id }) => [{ type: 'Fees', id }],
         }),
-        deleteFeePayment: builder.mutation<{ success: boolean; id: string }, string>({
+        deleteFeePayment: builder.mutation({
           query: (id) => ({
             url: `fees?id=${id}`,
             method: 'DELETE',
@@ -204,11 +183,11 @@ export const {
 
 export const inventoryApi = api.injectEndpoints({
     endpoints: (builder) => ({
-        getInventory: builder.query<InventoryItem[], void>({
+        getInventory: builder.query({
           query: () => 'inventory',
-          providesTags: (result) => result ? [...result.map(({ _id }) => ({ type: 'Inventory' as const, id: _id })), { type: 'Inventory', id: 'LIST' }] : [{ type: 'Inventory', id: 'LIST' }],
+          providesTags: (result) => result ? [...result.map(({ _id }) => ({ type: 'Inventory', id: _id })), { type: 'Inventory', id: 'LIST' }] : [{ type: 'Inventory', id: 'LIST' }],
         }),
-        addInventoryItem: builder.mutation<InventoryItem, Partial<InventoryItem>>({
+        addInventoryItem: builder.mutation({
           query: (body) => ({
             url: 'inventory',
             method: 'POST',
@@ -216,7 +195,7 @@ export const inventoryApi = api.injectEndpoints({
           }),
           invalidatesTags: [{ type: 'Inventory', id: 'LIST' }],
         }),
-        updateInventoryItem: builder.mutation<InventoryItem, { id: string; body: Partial<InventoryItem> }>({
+        updateInventoryItem: builder.mutation({
           query: ({ id, body }) => ({
             url: `inventory?id=${id}`,
             method: 'PUT',
@@ -224,7 +203,7 @@ export const inventoryApi = api.injectEndpoints({
           }),
           invalidatesTags: (result, error, { id }) => [{ type: 'Inventory', id }],
         }),
-        deleteInventoryItem: builder.mutation<{ success: boolean; id: string }, string>({
+        deleteInventoryItem: builder.mutation({
           query: (id) => ({
             url: `inventory?id=${id}`,
             method: 'DELETE',
@@ -244,11 +223,11 @@ export const {
 
 export const complaintsApi = api.injectEndpoints({
     endpoints: (builder) => ({
-        getComplaints: builder.query<Complaint[], string | void>({
+        getComplaints: builder.query({
           query: (studentId) => (studentId ? `complaints?studentId=${studentId}` : 'complaints'),
-          providesTags: (result) => result ? [...result.map(({ _id }) => ({ type: 'Complaints' as const, id: _id })), { type: 'Complaints', id: 'LIST' }] : [{ type: 'Complaints', id: 'LIST' }],
+          providesTags: (result) => result ? [...result.map(({ _id }) => ({ type: 'Complaints', id: _id })), { type: 'Complaints', id: 'LIST' }] : [{ type: 'Complaints', id: 'LIST' }],
         }),
-        addComplaint: builder.mutation<Complaint, Partial<Complaint>>({
+        addComplaint: builder.mutation({
           query: (body) => ({
             url: 'complaints',
             method: 'POST',
@@ -256,7 +235,7 @@ export const complaintsApi = api.injectEndpoints({
           }),
           invalidatesTags: [{ type: 'Complaints', id: 'LIST' }],
         }),
-        updateComplaintStatus: builder.mutation<Complaint, { id: string; status: 'In Progress' | 'Resolved' }>({
+        updateComplaintStatus: builder.mutation({
           query: ({ id, status }) => ({
             url: `complaints?id=${id}`,
             method: 'PUT',
@@ -264,7 +243,7 @@ export const complaintsApi = api.injectEndpoints({
           }),
           invalidatesTags: (result, error, { id }) => [{ type: 'Complaints', id }],
         }),
-        deleteComplaint: builder.mutation<{ success: boolean; id: string }, string>({
+        deleteComplaint: builder.mutation({
             query: (id) => ({
                 url: `complaints?id=${id}`,
                 method: 'DELETE',
@@ -283,11 +262,11 @@ export const {
 
 export const noticesApi = api.injectEndpoints({
     endpoints: (builder) => ({
-        getNotices: builder.query<Notice[], void>({
+        getNotices: builder.query({
           query: () => 'notices',
           providesTags: ['Notices'],
         }),
-        addNotice: builder.mutation<Notice, Omit<Notice, '_id' | 'id' | 'publishedAt'>>({
+        addNotice: builder.mutation({
             query: (body) => ({
                 url: 'notices',
                 method: 'POST',
@@ -295,7 +274,7 @@ export const noticesApi = api.injectEndpoints({
             }),
             invalidatesTags: ['Notices'],
         }),
-        updateNotice: builder.mutation<Notice, {id: string, body: Partial<Notice>}>({
+        updateNotice: builder.mutation({
             query: ({id, body}) => ({
                 url: `notices?id=${id}`,
                 method: 'PUT',
@@ -303,14 +282,14 @@ export const noticesApi = api.injectEndpoints({
             }),
             invalidatesTags: ['Notices'],
         }),
-        deleteNotice: builder.mutation<{success: boolean, id: string}, string>({
+        deleteNotice: builder.mutation({
             query: (id) => ({
                 url: `notices?id=${id}`,
                 method: 'DELETE',
             }),
             invalidatesTags: ['Notices'],
         }),
-        reorderNotices: builder.mutation<void, { orderedIds: string[] }>({
+        reorderNotices: builder.mutation({
             query: (body) => ({
                 url: 'notices/reorder',
                 method: 'POST',
@@ -332,11 +311,11 @@ export const {
 
 export const boardMembersApi = api.injectEndpoints({
     endpoints: (builder) => ({
-        getBoardMembers: builder.query<BoardMember[], { visibleOnly?: boolean }>({
+        getBoardMembers: builder.query({
           query: ({ visibleOnly = false }) => `board-members?visible=${visibleOnly}`,
           providesTags: ['BoardMembers'],
         }),
-        addBoardMember: builder.mutation<BoardMember, FormData>({
+        addBoardMember: builder.mutation({
           query: (body) => ({
             url: 'board-members',
             method: 'POST',
@@ -344,7 +323,7 @@ export const boardMembersApi = api.injectEndpoints({
           }),
           invalidatesTags: ['BoardMembers'],
         }),
-        updateBoardMember: builder.mutation<BoardMember, { id: string; body: FormData | Partial<BoardMember> }>({
+        updateBoardMember: builder.mutation({
           query: ({ id, body }) => ({
             url: `board-members?id=${id}`,
             method: 'PUT',
@@ -352,7 +331,7 @@ export const boardMembersApi = api.injectEndpoints({
           }),
           invalidatesTags: ['BoardMembers'],
         }),
-        deleteBoardMember: builder.mutation<{ success: boolean; id: string }, string>({
+        deleteBoardMember: builder.mutation({
           query: (id) => ({
             url: `board-members?id=${id}`,
             method: 'DELETE',
@@ -372,11 +351,11 @@ export const {
 
 export const settingsApi = api.injectEndpoints({
     endpoints: (builder) => ({
-        getSettings: builder.query<SettingsData, void>({
+        getSettings: builder.query({
           query: () => 'settings',
           providesTags: ['Settings'],
         }),
-        updateSettings: builder.mutation<SettingsData, Partial<SettingsData>>({
+        updateSettings: builder.mutation({
           query: (body) => ({
             url: 'settings',
             method: 'POST',
@@ -392,14 +371,14 @@ export const { useGetSettingsQuery, useUpdateSettingsMutation } = settingsApi;
 
 export const faqsApi = api.injectEndpoints({
     endpoints: (builder) => ({
-        getFaqs: builder.query<Faq[], void>({
+        getFaqs: builder.query({
           query: () => 'faqs',
           providesTags: (result) => 
             result 
-              ? [...result.map(({ _id }) => ({ type: 'Faqs' as const, id: _id })), { type: 'Faqs', id: 'LIST' }]
+              ? [...result.map(({ _id }) => ({ type: 'Faqs', id: _id })), { type: 'Faqs', id: 'LIST' }]
               : [{ type: 'Faqs', id: 'LIST' }],
         }),
-        addFaq: builder.mutation<Faq, Omit<Faq, '_id' | 'order'>>({
+        addFaq: builder.mutation({
           query: (body) => ({
             url: 'faqs',
             method: 'POST',
@@ -407,7 +386,7 @@ export const faqsApi = api.injectEndpoints({
           }),
           invalidatesTags: [{ type: 'Faqs', id: 'LIST' }],
         }),
-        updateFaq: builder.mutation<Faq, { id: string; body: Partial<Faq> }>({
+        updateFaq: builder.mutation({
           query: ({ id, body }) => ({
             url: `faqs?id=${id}`,
             method: 'PUT',
@@ -415,14 +394,14 @@ export const faqsApi = api.injectEndpoints({
           }),
           invalidatesTags: (result, error, { id }) => [{ type: 'Faqs', id }],
         }),
-        deleteFaq: builder.mutation<{ success: boolean; id: string }, string>({
+        deleteFaq: builder.mutation({
           query: (id) => ({
             url: `faqs?id=${id}`,
             method: 'DELETE',
           }),
           invalidatesTags: [{ type: 'Faqs', id: 'LIST' }],
         }),
-        reorderFaqs: builder.mutation<void, { orderedIds: string[] }>({
+        reorderFaqs: builder.mutation({
             query: (body) => ({
                 url: 'faqs/reorder',
                 method: 'POST',
@@ -444,11 +423,11 @@ export const {
 
 export const galleryApi = api.injectEndpoints({
     endpoints: (builder) => ({
-        getGalleryImages: builder.query<GalleryImage[], void>({
+        getGalleryImages: builder.query({
           query: () => 'gallery',
           providesTags: ['Gallery'],
         }),
-        addGalleryImage: builder.mutation<GalleryImage, FormData>({
+        addGalleryImage: builder.mutation({
             query: (body) => ({
                 url: 'gallery',
                 method: 'POST',
@@ -456,7 +435,7 @@ export const galleryApi = api.injectEndpoints({
             }),
             invalidatesTags: ['Gallery'],
         }),
-        deleteGalleryImage: builder.mutation<{success: boolean, id: string}, string>({
+        deleteGalleryImage: builder.mutation({
             query: (id) => ({
                 url: `gallery?id=${id}`,
                 method: 'DELETE',
@@ -471,11 +450,11 @@ export const { useGetGalleryImagesQuery, useAddGalleryImageMutation, useDeleteGa
 
 export const feedbackApi = api.injectEndpoints({
     endpoints: (builder) => ({
-        getFeedback: builder.query<Feedback[], void>({
+        getFeedback: builder.query({
           query: () => 'feedback',
           providesTags: ['Feedback'],
         }),
-        addFeedback: builder.mutation<Feedback, Partial<Feedback>>({
+        addFeedback: builder.mutation({
             query: (body) => ({
                 url: 'feedback',
                 method: 'POST',
@@ -483,7 +462,7 @@ export const feedbackApi = api.injectEndpoints({
             }),
             invalidatesTags: ['Feedback'],
         }),
-        deleteFeedback: builder.mutation<{success: boolean, id: string}, string>({
+        deleteFeedback: builder.mutation({
             query: (id) => ({
                 url: `feedback?id=${id}`,
                 method: 'DELETE',
@@ -498,14 +477,14 @@ export const { useGetFeedbackQuery, useAddFeedbackMutation, useDeleteFeedbackMut
 
 export const utilitiesApi = api.injectEndpoints({
     endpoints: (builder) => ({
-        getUtilities: builder.query<Utility[], void>({
+        getUtilities: builder.query({
           query: () => 'utilities',
           providesTags: (result) => 
             result 
-              ? [...result.map(({ _id }) => ({ type: 'Utilities' as const, id: _id })), { type: 'Utilities', id: 'LIST' }]
+              ? [...result.map(({ _id }) => ({ type: 'Utilities', id: _id })), { type: 'Utilities', id: 'LIST' }]
               : [{ type: 'Utilities', id: 'LIST' }],
         }),
-        addUtility: builder.mutation<Utility, Partial<Utility>>({
+        addUtility: builder.mutation({
           query: (body) => ({
             url: 'utilities',
             method: 'POST',
@@ -513,7 +492,7 @@ export const utilitiesApi = api.injectEndpoints({
           }),
           invalidatesTags: [{ type: 'Utilities', id: 'LIST' }],
         }),
-        updateUtility: builder.mutation<Utility, { id: string; body: Partial<Utility> }>({
+        updateUtility: builder.mutation({
           query: ({ id, body }) => ({
             url: `utilities?id=${id}`,
             method: 'PUT',
@@ -521,7 +500,7 @@ export const utilitiesApi = api.injectEndpoints({
           }),
           invalidatesTags: (result, error, { id }) => [{ type: 'Utilities', id }],
         }),
-        deleteUtility: builder.mutation<{ success: boolean; id: string }, string>({
+        deleteUtility: builder.mutation({
           query: (id) => ({
             url: `utilities?id=${id}`,
             method: 'DELETE',
@@ -541,11 +520,11 @@ export const {
 
 export const inquiriesApi = api.injectEndpoints({
     endpoints: (builder) => ({
-        getInquiries: builder.query<Inquiry[], void>({
+        getInquiries: builder.query({
           query: () => 'inquiries',
           providesTags: ['Inquiries'],
         }),
-        addInquiry: builder.mutation<Inquiry, Partial<Inquiry>>({
+        addInquiry: builder.mutation({
             query: (body) => ({
                 url: 'inquiry',
                 method: 'POST',
@@ -553,7 +532,7 @@ export const inquiriesApi = api.injectEndpoints({
             }),
             invalidatesTags: ['Inquiries'],
         }),
-        updateInquiry: builder.mutation<Inquiry, { id: string; body: Partial<Inquiry> }>({
+        updateInquiry: builder.mutation({
           query: ({ id, body }) => ({
             url: `inquiries?id=${id}`,
             method: 'PUT',
