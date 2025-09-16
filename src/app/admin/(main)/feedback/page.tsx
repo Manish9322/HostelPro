@@ -25,37 +25,18 @@ import { useToast } from "@/hooks/use-toast";
 import { Feedback } from "@/lib/types";
 import { Skeleton } from "@/components/ui/skeleton";
 import { DeleteConfirmationDialog } from "@/components/modals/delete-confirmation-modal";
+import { useGetFeedbackQuery, useDeleteFeedbackMutation } from "@/store/api";
 
 const ITEMS_PER_PAGE = 7;
 
 export default function FeedbackPage() {
-  const [feedbackList, setFeedbackList] = useState<Feedback[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const { data: feedbackList = [], error, isLoading, refetch } = useGetFeedbackQuery();
+  const [deleteFeedback] = useDeleteFeedbackMutation();
+
   const [currentPage, setCurrentPage] = useState(1);
   const [isDeleteModalOpen, setDeleteModalOpen] = useState(false);
   const [selectedFeedback, setSelectedFeedback] = useState<Feedback | null>(null);
   const { toast } = useToast();
-
-  const fetchFeedback = async () => {
-    try {
-      setLoading(true);
-      setError(null);
-      const response = await fetch('/api/feedback');
-      if (!response.ok) throw new Error("Failed to fetch feedback");
-      const data = await response.json();
-      setFeedbackList(data);
-    } catch (error) {
-      setError("Failed to load feedback. Please try again.");
-      console.error(error);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    fetchFeedback();
-  }, []);
 
   const totalPages = Math.ceil(feedbackList.length / ITEMS_PER_PAGE);
   const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
@@ -76,11 +57,8 @@ export default function FeedbackPage() {
   const handleDelete = async () => {
     if (!selectedFeedback) return;
     try {
-        const response = await fetch(`/api/feedback?id=${selectedFeedback._id}`, { method: 'DELETE' });
-        if (!response.ok) throw new Error('Failed to delete feedback');
-        
+        await deleteFeedback(selectedFeedback._id).unwrap();
         toast({ title: "Success", description: "Feedback deleted successfully." });
-        fetchFeedback();
         setDeleteModalOpen(false);
     } catch (error) {
         toast({ title: "Error", description: "Failed to delete feedback.", variant: "destructive" });
@@ -108,7 +86,7 @@ export default function FeedbackPage() {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {loading ? (
+              {isLoading ? (
                   Array.from({ length: ITEMS_PER_PAGE }).map((_, i) => (
                       <TableRow key={i}>
                           <TableCell><Skeleton className="h-4 w-40" /></TableCell>
@@ -124,8 +102,8 @@ export default function FeedbackPage() {
                             <div className="flex flex-col items-center gap-4">
                                 <AlertTriangle className="h-12 w-12 text-destructive" />
                                 <h3 className="text-xl font-semibold">Error Loading Feedback</h3>
-                                <p className="text-muted-foreground">{error}</p>
-                                <Button onClick={fetchFeedback} variant="outline">
+                                <p className="text-muted-foreground">Failed to load feedback. Please try again.</p>
+                                <Button onClick={() => refetch()} variant="outline">
                                     <RefreshCw className="mr-2 h-4 w-4" /> Try Again
                                 </Button>
                             </div>

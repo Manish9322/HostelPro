@@ -18,7 +18,7 @@ import { useToast } from "@/hooks/use-toast";
 import { Skeleton } from "@/components/ui/skeleton";
 import { AlertTriangle, FileWarning, RefreshCw, MessageSquareWarning, Clock, CheckCircle2 } from "lucide-react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-
+import { useGetComplaintsQuery, useUpdateComplaintStatusMutation } from "@/store/api";
 
 const urgencyVariant = (urgency: string) => {
   switch (urgency) {
@@ -47,35 +47,15 @@ const statusVariant = (status: string) => {
 const ITEMS_PER_PAGE = 4;
 
 export default function ComplaintsPage() {
-  const [allComplaints, setAllComplaints] = useState<Complaint[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const { data: allComplaints = [], error, isLoading, refetch } = useGetComplaintsQuery();
+  const [updateStatus] = useUpdateComplaintStatusMutation();
+
   const [currentPage, setCurrentPage] = useState(1);
   const { toast } = useToast();
   
   const [statusFilter, setStatusFilter] = useState('all');
   const [categoryFilter, setCategoryFilter] = useState('all');
   const [urgencyFilter, setUrgencyFilter] = useState('all');
-
-  const fetchComplaints = async () => {
-    try {
-      setLoading(true);
-      setError(null);
-      const response = await fetch('/api/complaints');
-      if (!response.ok) throw new Error("Failed to fetch complaints");
-      const data = await response.json();
-      setAllComplaints(data);
-    } catch (error) {
-      setError("Failed to load complaints. Please try again.");
-      console.error(error);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    fetchComplaints();
-  }, []);
 
   const stats = useMemo(() => {
     return {
@@ -106,22 +86,11 @@ export default function ComplaintsPage() {
 
   const handleUpdateStatus = async (id: string, status: 'In Progress' | 'Resolved') => {
     try {
-        const response = await fetch(`/api/complaints?id=${id}`, {
-            method: 'PUT',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ status }),
-        });
-
-        if (!response.ok) {
-            throw new Error(`Failed to update complaint status`);
-        }
-
+        await updateStatus({ id, status }).unwrap();
         toast({
             title: "Success",
             description: `Complaint status updated to "${status}".`,
         });
-
-        fetchComplaints();
     } catch (error) {
         console.error(error);
         toast({
@@ -205,7 +174,7 @@ export default function ComplaintsPage() {
             </div>
           </CardHeader>
           <CardContent className="space-y-6">
-            {loading ? (
+            {isLoading ? (
               Array.from({ length: ITEMS_PER_PAGE }).map((_, i) => (
                 <div key={i} className="border p-4 rounded-lg">
                     <div className="flex justify-between mb-2">
@@ -232,8 +201,8 @@ export default function ComplaintsPage() {
                   <div className="flex flex-col items-center gap-4">
                     <AlertTriangle className="h-12 w-12 text-destructive" />
                     <h3 className="text-xl font-semibold">Error Loading Complaints</h3>
-                    <p className="text-muted-foreground">{error}</p>
-                    <Button onClick={fetchComplaints} variant="outline">
+                    <p className="text-muted-foreground">Failed to load complaints. Please try again.</p>
+                    <Button onClick={() => refetch()} variant="outline">
                       <RefreshCw className="mr-2 h-4 w-4" />
                       Try Again
                     </Button>

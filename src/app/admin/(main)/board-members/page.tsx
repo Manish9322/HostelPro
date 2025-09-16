@@ -35,49 +35,24 @@ import { useToast } from "@/hooks/use-toast";
 import { BoardMember } from "@/lib/types";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Switch } from "@/components/ui/switch";
-
+import { useGetBoardMembersQuery, useAddBoardMemberMutation, useUpdateBoardMemberMutation, useDeleteBoardMemberMutation, useGetSettingsQuery } from "@/store/api";
 
 const ITEMS_PER_PAGE = 5;
 
 export default function BoardMembersPage() {
-  const [members, setMembers] = useState<BoardMember[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const { data: members = [], error, isLoading, refetch } = useGetBoardMembersQuery({ visibleOnly: false });
+  const { data: settings } = useGetSettingsQuery();
+  const [addBoardMember] = useAddBoardMemberMutation();
+  const [updateBoardMember] = useUpdateBoardMemberMutation();
+  const [deleteBoardMember] = useDeleteBoardMemberMutation();
+  
   const [currentPage, setCurrentPage] = useState(1);
   const [isModalOpen, setModalOpen] = useState(false);
   const [isDeleteModalOpen, setDeleteModalOpen] = useState(false);
   const [selectedMember, setSelectedMember] = useState<BoardMember | null>(null);
   const { toast } = useToast();
-  const [designations, setDesignations] = useState<string[]>([]);
 
-  const fetchMembers = async () => {
-    try {
-      setLoading(true);
-      setError(null);
-      const [membersRes, settingsRes] = await Promise.all([
-        fetch('/api/board-members'),
-        fetch('/api/settings')
-      ]);
-
-      if (!membersRes.ok) throw new Error("Failed to fetch board members");
-      const data = await membersRes.json();
-      setMembers(data);
-
-      if (!settingsRes.ok) throw new Error("Failed to fetch settings");
-      const settingsData = await settingsRes.json();
-      setDesignations(settingsData.boardMemberDesignations || []);
-
-    } catch (error) {
-      setError("Failed to load board members. Please try again.");
-      console.error(error);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    fetchMembers();
-  }, []);
+  const designations = settings?.boardMemberDesignations || [];
 
   const totalPages = Math.ceil(members.length / ITEMS_PER_PAGE);
   const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
@@ -101,53 +76,37 @@ export default function BoardMembersPage() {
   };
 
   const handleFormSubmit = async (formData: FormData) => {
-    const method = selectedMember ? 'PUT' : 'POST';
-    const url = selectedMember ? `/api/board-members?id=${selectedMember._id}` : '/api/board-members';
-    
     try {
-        const response = await fetch(url, {
-            method,
-            body: formData,
-        });
-        if (!response.ok) throw new Error(`Failed to ${selectedMember ? 'update' : 'create'} board member`);
-        
-        toast({ title: "Success", description: `Board member ${selectedMember ? 'updated' : 'created'} successfully.` });
-        fetchMembers();
-        setModalOpen(false);
+      if (selectedMember) {
+        await updateBoardMember({ id: selectedMember._id, body: formData }).unwrap();
+        toast({ title: "Success", description: "Board member updated successfully." });
+      } else {
+        await addBoardMember(formData).unwrap();
+        toast({ title: "Success", description: "Board member created successfully." });
+      }
+      setModalOpen(false);
     } catch (error) {
-        toast({ title: "Error", description: `Failed to ${selectedMember ? 'update' : 'create'} board member.`, variant: "destructive" });
+      toast({ title: "Error", description: `Failed to ${selectedMember ? 'update' : 'create'} board member.`, variant: "destructive" });
     }
   };
 
   const handleDelete = async () => {
     if (!selectedMember) return;
     try {
-        const response = await fetch(`/api/board-members?id=${selectedMember._id}`, { method: 'DELETE' });
-        if (!response.ok) throw new Error('Failed to delete board member');
-        
-        toast({ title: "Success", description: "Board member deleted successfully." });
-        fetchMembers();
-        setDeleteModalOpen(false);
+      await deleteBoardMember(selectedMember._id).unwrap();
+      toast({ title: "Success", description: "Board member deleted successfully." });
+      setDeleteModalOpen(false);
     } catch (error) {
-        toast({ title: "Error", description: "Failed to delete board member.", variant: "destructive" });
+      toast({ title: "Error", description: "Failed to delete board member.", variant: "destructive" });
     }
   };
   
   const handleVisibilityChange = async (member: BoardMember, newVisibility: boolean) => {
-    const originalMembers = [...members];
-    setMembers(members.map(m => m._id === member._id ? {...m, visible: newVisibility} : m));
-
     try {
-        const response = await fetch(`/api/board-members?id=${member._id}`, {
-            method: 'PUT',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ visible: newVisibility }),
-        });
-        if (!response.ok) throw new Error('Failed to update visibility');
-        toast({ title: "Success", description: `Visibility updated.` });
+      await updateBoardMember({ id: member._id, body: { visible: newVisibility } }).unwrap();
+      toast({ title: "Success", description: `Visibility updated.` });
     } catch (error) {
-        setMembers(originalMembers);
-        toast({ title: "Error", description: "Failed to update visibility.", variant: "destructive" });
+      toast({ title: "Error", description: "Failed to update visibility.", variant: "destructive" });
     }
   };
 
@@ -180,7 +139,7 @@ export default function BoardMembersPage() {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {loading ? (
+              {isLoading ? (
                 Array.from({ length: ITEMS_PER_PAGE }).map((_, i) => (
                   <TableRow key={i}>
                     <TableCell className="flex items-center gap-3"><Skeleton className="h-9 w-9 rounded-full" /><Skeleton className="h-4 w-32" /></TableCell>
@@ -196,8 +155,8 @@ export default function BoardMembersPage() {
                     <div className="flex flex-col items-center gap-4">
                         <AlertTriangle className="h-12 w-12 text-destructive" />
                         <h3 className="text-xl font-semibold">Error Loading Members</h3>
-                        <p className="text-muted-foreground">{error}</p>
-                        <Button onClick={fetchMembers} variant="outline">
+                        <p className="text-muted-foreground">Failed to load board members. Please try again.</p>
+                        <Button onClick={() => refetch()} variant="outline">
                           <RefreshCw className="mr-2 h-4 w-4" />
                           Try Again
                         </Button>
@@ -300,4 +259,3 @@ export default function BoardMembersPage() {
     </>
   );
 }
-

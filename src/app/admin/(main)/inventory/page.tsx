@@ -35,6 +35,7 @@ import { useToast } from "@/hooks/use-toast";
 import { InventoryItem } from "@/lib/types";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { useGetInventoryQuery, useAddInventoryItemMutation, useUpdateInventoryItemMutation, useDeleteInventoryItemMutation } from "@/store/api";
 
 const conditionVariant = (condition: string) => {
   switch (condition) {
@@ -66,9 +67,11 @@ const statusVariant = (status: string) => {
 const ITEMS_PER_PAGE = 7;
 
 export default function InventoryPage() {
-  const [allInventory, setAllInventory] = useState<InventoryItem[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const { data: allInventory = [], error, isLoading, refetch } = useGetInventoryQuery();
+  const [addInventoryItem] = useAddInventoryItemMutation();
+  const [updateInventoryItem] = useUpdateInventoryItemMutation();
+  const [deleteInventoryItem] = useDeleteInventoryItemMutation();
+
   const [currentPage, setCurrentPage] = useState(1);
   const [isModalOpen, setModalOpen] = useState(false);
   const [isDeleteModalOpen, setDeleteModalOpen] = useState(false);
@@ -78,26 +81,6 @@ export default function InventoryPage() {
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
   const [conditionFilter, setConditionFilter] = useState('all');
-
-  const fetchInventory = async () => {
-    try {
-      setLoading(true);
-      setError(null);
-      const response = await fetch('/api/inventory');
-      if (!response.ok) throw new Error("Failed to fetch inventory");
-      const data = await response.json();
-      setAllInventory(data);
-    } catch (error) {
-      setError("Failed to load inventory. Please try again.");
-      console.error(error);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    fetchInventory();
-  }, []);
 
   const totalItems = allInventory.length;
   const inUseItems = allInventory.filter(item => item.status === 'In Use').length;
@@ -136,19 +119,14 @@ export default function InventoryPage() {
   };
 
   const handleFormSubmit = async (itemData: Omit<InventoryItem, '_id' | 'id'>) => {
-    const method = selectedItem ? 'PUT' : 'POST';
-    const url = selectedItem ? `/api/inventory?id=${selectedItem._id}` : '/api/inventory';
-
     try {
-        const response = await fetch(url, {
-            method,
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(itemData),
-        });
-        if (!response.ok) throw new Error(`Failed to ${selectedItem ? 'update' : 'add'} item`);
-        
-        toast({ title: "Success", description: `Item ${selectedItem ? 'updated' : 'added'} successfully.` });
-        fetchInventory();
+        if (selectedItem) {
+            await updateInventoryItem({ id: selectedItem._id, body: itemData }).unwrap();
+            toast({ title: "Success", description: "Item updated successfully." });
+        } else {
+            await addInventoryItem(itemData).unwrap();
+            toast({ title: "Success", description: "Item added successfully." });
+        }
         setModalOpen(false);
     } catch (error) {
         toast({ title: "Error", description: `Failed to ${selectedItem ? 'update' : 'add'} item.`, variant: "destructive" });
@@ -158,11 +136,8 @@ export default function InventoryPage() {
   const handleDelete = async () => {
     if (!selectedItem) return;
     try {
-        const response = await fetch(`/api/inventory?id=${selectedItem._id}`, { method: 'DELETE' });
-        if (!response.ok) throw new Error('Failed to delete item');
-        
+        await deleteInventoryItem(selectedItem._id).unwrap();
         toast({ title: "Success", description: "Item deleted successfully." });
-        fetchInventory();
         setDeleteModalOpen(false);
     } catch (error) {
         toast({ title: "Error", description: "Failed to delete item.", variant: "destructive" });
@@ -269,7 +244,7 @@ export default function InventoryPage() {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {loading ? (
+                {isLoading ? (
                     Array.from({ length: ITEMS_PER_PAGE }).map((_, i) => (
                         <TableRow key={i}>
                             <TableCell><Skeleton className="h-4 w-32" /></TableCell>
@@ -286,8 +261,8 @@ export default function InventoryPage() {
                         <div className="flex flex-col items-center gap-4">
                             <AlertTriangle className="h-12 w-12 text-destructive" />
                             <h3 className="text-xl font-semibold">Error Loading Inventory</h3>
-                            <p className="text-muted-foreground">{error}</p>
-                            <Button onClick={fetchInventory} variant="outline">
+                            <p className="text-muted-foreground">Failed to load inventory. Please try again.</p>
+                            <Button onClick={() => refetch()} variant="outline">
                             <RefreshCw className="mr-2 h-4 w-4" />
                             Try Again
                             </Button>

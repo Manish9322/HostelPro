@@ -36,6 +36,7 @@ import { Room } from "@/lib/types";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { useGetRoomsQuery, useAddRoomMutation, useUpdateRoomMutation, useDeleteRoomMutation } from "@/store/api";
 
 const roomStatusVariant = (status: string) => {
   switch (status) {
@@ -68,9 +69,11 @@ const roomConditionVariant = (condition: string) => {
 const ITEMS_PER_PAGE = 7;
 
 export default function RoomsPage() {
-    const [allRooms, setAllRooms] = useState<Room[]>([]);
-    const [loading, setLoading] = useState(true);
-    const [error, setError] = useState<string | null>(null);
+    const { data: allRooms = [], error, isLoading, refetch } = useGetRoomsQuery();
+    const [addRoom] = useAddRoomMutation();
+    const [updateRoom] = useUpdateRoomMutation();
+    const [deleteRoom] = useDeleteRoomMutation();
+
     const [currentPage, setCurrentPage] = useState(1);
     const [isRoomModalOpen, setRoomModalOpen] = useState(false);
     const [isOccupantModalOpen, setOccupantModalOpen] = useState(false);
@@ -81,26 +84,6 @@ export default function RoomsPage() {
     const [searchQuery, setSearchQuery] = useState('');
     const [statusFilter, setStatusFilter] = useState('all');
     const [conditionFilter, setConditionFilter] = useState('all');
-
-    const fetchRooms = async () => {
-        try {
-            setLoading(true);
-            setError(null);
-            const response = await fetch('/api/rooms');
-            if (!response.ok) throw new Error("Failed to fetch rooms");
-            const data = await response.json();
-            setAllRooms(data);
-        } catch (error) {
-            setError("Failed to load rooms. Please try again.");
-            console.error(error);
-        } finally {
-            setLoading(false);
-        }
-    };
-
-    useEffect(() => {
-        fetchRooms();
-    }, []);
     
     const stats = useMemo(() => {
         const totalCapacity = allRooms.reduce((sum, room) => sum + room.capacity, 0);
@@ -151,33 +134,26 @@ export default function RoomsPage() {
     };
 
     const handleFormSubmit = async (roomData: any) => {
-        const method = selectedRoom ? 'PUT' : 'POST';
-        const url = selectedRoom ? `/api/rooms?id=${selectedRoom._id}` : '/api/rooms';
-        
         try {
-            const response = await fetch(url, {
-                method,
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(roomData),
-            });
-            if (!response.ok) throw new Error(`Failed to ${selectedRoom ? 'update' : 'create'} room`);
-            
-            toast({ title: "Success", description: `Room ${selectedRoom ? 'updated' : 'created'} successfully.` });
-            fetchRooms();
+            if (selectedRoom) {
+                await updateRoom({ id: selectedRoom._id, body: roomData }).unwrap();
+                toast({ title: "Success", description: "Room updated successfully." });
+            } else {
+                await addRoom(roomData).unwrap();
+                toast({ title: "Success", description: "Room created successfully." });
+            }
             setRoomModalOpen(false);
-        } catch (error) {
-            toast({ title: "Error", description: `Failed to ${selectedRoom ? 'update' : 'create'} room.`, variant: "destructive" });
+        } catch (error: any) {
+            const errorMessage = error.data?.error || `Failed to ${selectedRoom ? 'update' : 'create'} room.`;
+            toast({ title: "Error", description: errorMessage, variant: "destructive" });
         }
     };
 
     const handleDelete = async () => {
         if (!selectedRoom) return;
         try {
-            const response = await fetch(`/api/rooms?id=${selectedRoom._id}`, { method: 'DELETE' });
-            if (!response.ok) throw new Error('Failed to delete room');
-            
+            await deleteRoom(selectedRoom._id).unwrap();
             toast({ title: "Success", description: "Room deleted successfully." });
-            fetchRooms();
             setDeleteModalOpen(false);
         } catch (error) {
             toast({ title: "Error", description: "Failed to delete room.", variant: "destructive" });
@@ -293,7 +269,7 @@ export default function RoomsPage() {
                 </TableRow>
                 </TableHeader>
                 <TableBody>
-                {loading ? (
+                {isLoading ? (
                     Array.from({ length: ITEMS_PER_PAGE }).map((_, i) => (
                         <TableRow key={i}>
                             <TableCell><Skeleton className="h-4 w-16" /></TableCell>
@@ -310,8 +286,8 @@ export default function RoomsPage() {
                             <div className="flex flex-col items-center gap-4">
                                 <AlertTriangle className="h-12 w-12 text-destructive" />
                                 <h3 className="text-xl font-semibold">Error Loading Rooms</h3>
-                                <p className="text-muted-foreground">{error}</p>
-                                <Button onClick={fetchRooms} variant="outline">
+                                <p className="text-muted-foreground">Failed to load rooms. Please try again.</p>
+                                <Button onClick={() => refetch()} variant="outline">
                                 <RefreshCw className="mr-2 h-4 w-4" />
                                 Try Again
                                 </Button>
@@ -402,7 +378,7 @@ export default function RoomsPage() {
         isOpen={isOccupantModalOpen}
         onClose={() => setOccupantModalOpen(false)}
         room={selectedRoom}
-        onUpdate={fetchRooms}
+        onUpdate={refetch}
       />
       <DeleteConfirmationDialog
         isOpen={isDeleteModalOpen}

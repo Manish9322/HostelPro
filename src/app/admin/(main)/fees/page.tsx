@@ -36,6 +36,7 @@ import { useToast } from "@/hooks/use-toast";
 import { FeePayment } from "@/lib/types";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { useGetFeePaymentsQuery, useAddFeePaymentMutation, useUpdateFeePaymentMutation, useDeleteFeePaymentMutation } from "@/store/api";
 
 const statusVariant = (status: string) => {
   switch (status) {
@@ -53,9 +54,11 @@ const statusVariant = (status: string) => {
 const ITEMS_PER_PAGE = 7;
 
 export default function FeesPage() {
-  const [allPayments, setAllPayments] = useState<FeePayment[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const { data: allPayments = [], error, isLoading, refetch } = useGetFeePaymentsQuery();
+  const [addFeePayment] = useAddFeePaymentMutation();
+  const [updateFeePayment] = useUpdateFeePaymentMutation();
+  const [deleteFeePayment] = useDeleteFeePaymentMutation();
+
   const [currentPage, setCurrentPage] = useState(1);
   const [isModalOpen, setModalOpen] = useState(false);
   const [isDeleteModalOpen, setDeleteModalOpen] = useState(false);
@@ -64,26 +67,6 @@ export default function FeesPage() {
   
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
-
-  const fetchPayments = async () => {
-    try {
-      setLoading(true);
-      setError(null);
-      const response = await fetch('/api/fees');
-      if (!response.ok) throw new Error("Failed to fetch payments");
-      const data = await response.json();
-      setAllPayments(data);
-    } catch (error) {
-      setError("Failed to load fee payments. Please try again.");
-      console.error(error);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    fetchPayments();
-  }, []);
 
   const totalRevenue = allPayments.filter(p => p.status === 'Paid').reduce((sum, p) => sum + p.amount, 0);
   const outstandingFees = allPayments.filter(p => p.status === 'Overdue').reduce((sum, p) => sum + p.amount, 0);
@@ -121,36 +104,28 @@ export default function FeesPage() {
   };
 
   const handleFormSubmit = async (paymentData: Omit<FeePayment, '_id' | 'id'>) => {
-    const method = selectedPayment ? 'PUT' : 'POST';
-    const url = selectedPayment ? `/api/fees?id=${selectedPayment._id}` : '/api/fees';
-    
     try {
-        const response = await fetch(url, {
-            method,
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(paymentData),
-        });
-        if (!response.ok) throw new Error(`Failed to ${selectedPayment ? 'update' : 'log'} payment`);
-        
-        toast({ title: "Success", description: `Payment ${selectedPayment ? 'updated' : 'logged'} successfully.` });
-        fetchPayments();
-        setModalOpen(false);
+      if (selectedPayment) {
+        await updateFeePayment({ id: selectedPayment._id, body: paymentData }).unwrap();
+        toast({ title: "Success", description: "Payment updated successfully." });
+      } else {
+        await addFeePayment(paymentData).unwrap();
+        toast({ title: "Success", description: "Payment logged successfully." });
+      }
+      setModalOpen(false);
     } catch (error) {
-        toast({ title: "Error", description: `Failed to ${selectedPayment ? 'update' : 'log'} payment.`, variant: "destructive" });
+      toast({ title: "Error", description: `Failed to ${selectedPayment ? 'update' : 'log'} payment.`, variant: "destructive" });
     }
   };
 
   const handleDelete = async () => {
     if (!selectedPayment) return;
     try {
-        const response = await fetch(`/api/fees?id=${selectedPayment._id}`, { method: 'DELETE' });
-        if (!response.ok) throw new Error('Failed to delete payment');
-        
-        toast({ title: "Success", description: "Payment record deleted successfully." });
-        fetchPayments();
-        setDeleteModalOpen(false);
+      await deleteFeePayment(selectedPayment._id).unwrap();
+      toast({ title: "Success", description: "Payment record deleted successfully." });
+      setDeleteModalOpen(false);
     } catch (error) {
-        toast({ title: "Error", description: "Failed to delete payment record.", variant: "destructive" });
+      toast({ title: "Error", description: "Failed to delete payment record.", variant: "destructive" });
     }
   };
   
@@ -247,7 +222,7 @@ export default function FeesPage() {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {loading ? (
+                {isLoading ? (
                   Array.from({ length: ITEMS_PER_PAGE }).map((_, i) => (
                     <TableRow key={i}>
                         <TableCell><Skeleton className="h-4 w-32" /></TableCell>
@@ -265,8 +240,8 @@ export default function FeesPage() {
                         <div className="flex flex-col items-center gap-4">
                             <AlertTriangle className="h-12 w-12 text-destructive" />
                             <h3 className="text-xl font-semibold">Error Loading Payments</h3>
-                            <p className="text-muted-foreground">{error}</p>
-                            <Button onClick={fetchPayments} variant="outline">
+                            <p className="text-muted-foreground">Failed to load fee payments. Please try again.</p>
+                            <Button onClick={() => refetch()} variant="outline">
                             <RefreshCw className="mr-2 h-4 w-4" />
                             Try Again
                             </Button>

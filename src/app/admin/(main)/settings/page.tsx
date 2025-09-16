@@ -25,6 +25,8 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Label } from "@/components/ui/label";
 import Image from "next/image";
+import { useGetSettingsQuery, useUpdateSettingsMutation, useGetGalleryImagesQuery, useAddGalleryImageMutation, useDeleteGalleryImageMutation } from "@/store/api";
+import { GalleryImage } from "@/lib/types";
 
 interface SettingsData {
   _id: string;
@@ -38,12 +40,6 @@ interface SettingsData {
   locationAddress: string;
   locationMapLink: string;
   [key: string]: any; 
-}
-
-interface GalleryImage {
-  _id: string;
-  url: string;
-  alt: string;
 }
 
 const CategorySettingsSection = ({ 
@@ -190,63 +186,20 @@ const CategorySettingsSection = ({
 };
 
 export default function SettingsPage() {
-    const [settings, setSettings] = useState<SettingsData | null>(null);
-    const [galleryImages, setGalleryImages] = useState<GalleryImage[]>([]);
-    const [loading, setLoading] = useState(true);
-    const [error, setError] = useState<string | null>(null);
+    const { data: settings, error: settingsError, isLoading: settingsLoading, refetch: refetchSettings } = useGetSettingsQuery();
+    const { data: galleryImages = [], error: galleryError, isLoading: galleryLoading, refetch: refetchGallery } = useGetGalleryImagesQuery();
+    const [updateSettings] = useUpdateSettingsMutation();
+    const [addGalleryImage] = useAddGalleryImageMutation();
+    const [deleteGalleryImage] = useDeleteGalleryImageMutation();
+
     const { toast } = useToast();
 
-    const fetchSettings = async () => {
-        try {
-            setLoading(true);
-            setError(null);
-            const [settingsRes, galleryRes] = await Promise.all([
-                fetch('/api/settings'),
-                fetch('/api/gallery')
-            ]);
-            if (!settingsRes.ok) throw new Error("Failed to fetch settings");
-            if (!galleryRes.ok) throw new Error("Failed to fetch gallery images");
-            
-            const settingsData = await settingsRes.json();
-            const galleryData = await galleryRes.json();
-
-            setSettings(settingsData);
-            setGalleryImages(galleryData);
-
-        } catch (error) {
-            setError("Failed to load settings data. Please try again.");
-            console.error(error);
-        } finally {
-            setLoading(false);
-        }
-    };
-    
-    useEffect(() => {
-        fetchSettings();
-    }, []);
-
     const handleUpdateSettings = async (updateData: Partial<SettingsData>) => {
-        if (!settings) return;
-        
-        const originalSettings = {...settings};
-        const updatedSettings = { ...settings, ...updateData };
-
-        setSettings(updatedSettings);
-
         try {
-            const response = await fetch('/api/settings', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(updateData),
-            });
-            if (!response.ok) {
-                 const errorData = await response.json();
-                 throw new Error(errorData.details || "Failed to update settings");
-            }
+            await updateSettings(updateData).unwrap();
             toast({ title: "Success", description: "Settings updated successfully." });
         } catch (error) {
-            toast({ title: "Error", description: (error as Error).message, variant: "destructive" });
-            setSettings(originalSettings);
+            toast({ title: "Error", description: "Failed to update settings.", variant: "destructive" });
         }
     };
 
@@ -263,13 +216,8 @@ export default function SettingsPage() {
       const formData = new FormData(e.currentTarget);
       
       try {
-        const response = await fetch('/api/gallery', {
-            method: 'POST',
-            body: formData,
-        });
-        if(!response.ok) throw new Error('Image upload failed');
+        await addGalleryImage(formData).unwrap();
         toast({ title: 'Success', description: 'Image uploaded successfully.'});
-        fetchSettings(); // Refresh gallery
         (e.target as HTMLFormElement).reset();
       } catch (error) {
         toast({ title: 'Error', description: 'Failed to upload image.', variant: 'destructive'});
@@ -278,32 +226,31 @@ export default function SettingsPage() {
 
     const handleImageDelete = async (id: string) => {
         try {
-            const response = await fetch(`/api/gallery?id=${id}`, { method: 'DELETE' });
-            if(!response.ok) throw new Error('Failed to delete image');
+            await deleteGalleryImage(id).unwrap();
             toast({ title: 'Success', description: 'Image deleted successfully.'});
-            fetchSettings(); // Refresh gallery
         } catch(error) {
              toast({ title: 'Error', description: 'Failed to delete image.', variant: 'destructive'});
         }
     };
 
+    const categorySettingSections = [
+        { key: 'roomConditions', title: 'Room Conditions', description: 'Manage the condition options for rooms (e.g., Excellent, Good).' },
+        { key: 'inventoryCategories', title: 'Inventory Categories', description: 'Manage categories for inventory items.' },
+        { key: 'inventoryConditions', title: 'Inventory Conditions', description: 'Manage condition options for inventory items.' },
+        { key: 'complaintCategories', title: 'Complaint Categories', description: 'Manage categories for student complaints.' },
+        { key: 'noticeCategories', title: 'Notice Categories', description: 'Manage categories for public notices.' },
+    ] as const;
 
-  const categorySettingSections = [
-    { key: 'roomConditions', title: 'Room Conditions', description: 'Manage the condition options for rooms (e.g., Excellent, Good).' },
-    { key: 'inventoryCategories', title: 'Inventory Categories', description: 'Manage categories for inventory items.' },
-    { key: 'inventoryConditions', title: 'Inventory Conditions', description: 'Manage condition options for inventory items.' },
-    { key: 'complaintCategories', title: 'Complaint Categories', description: 'Manage categories for student complaints.' },
-    { key: 'noticeCategories', title: 'Notice Categories', description: 'Manage categories for public notices.' },
-  ] as const;
+    const error = settingsError || galleryError;
 
-  if (error && !settings) {
+  if (error) {
      return (
         <div className="text-center py-16">
             <div className="flex flex-col items-center gap-4">
             <AlertTriangle className="h-12 w-12 text-destructive" />
             <h3 className="text-xl font-semibold">Error Loading Settings</h3>
-            <p className="text-muted-foreground">{error}</p>
-            <Button onClick={fetchSettings} variant="outline">
+            <p className="text-muted-foreground">Failed to load settings data. Please try again.</p>
+            <Button onClick={() => { refetchSettings(); refetchGallery(); }} variant="outline">
                 <RefreshCw className="mr-2 h-4 w-4" />
                 Try Again
             </Button>
@@ -338,7 +285,7 @@ export default function SettingsPage() {
                             items={settings[section.key]}
                             categoryKey={section.key}
                             onUpdate={(key, items) => handleUpdateSettings({ [key]: items })}
-                            loading={loading}
+                            loading={settingsLoading}
                         />
                     )
                 ))}
@@ -353,7 +300,7 @@ export default function SettingsPage() {
                     items={settings.boardMemberDesignations}
                     categoryKey="boardMemberDesignations"
                     onUpdate={(key, items) => handleUpdateSettings({ [key]: items })}
-                    loading={loading}
+                    loading={settingsLoading}
                 />
             ) : (
                 <Card>
@@ -391,7 +338,7 @@ export default function SettingsPage() {
                     <Separator/>
                     <div className="mt-6">
                         <h4 className="font-medium mb-4">Current Images</h4>
-                        {loading ? (
+                        {galleryLoading ? (
                             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                                 <Skeleton className="w-full h-32"/>
                                 <Skeleton className="w-full h-32"/>
@@ -445,5 +392,3 @@ export default function SettingsPage() {
     </div>
   );
 }
-
-    

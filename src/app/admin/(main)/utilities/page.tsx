@@ -22,6 +22,7 @@ import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
 import { Skeleton } from "@/components/ui/skeleton";
 import { AlertTriangle, RefreshCw, PlusCircle, Trash2, Pen, X, Check } from "lucide-react";
+import { useGetUtilitiesQuery, useAddUtilityMutation, useUpdateUtilityMutation, useDeleteUtilityMutation } from "@/store/api";
 
 interface Utility {
     _id: string;
@@ -30,9 +31,10 @@ interface Utility {
 }
 
 export default function UtilitiesPage() {
-    const [utilities, setUtilities] = useState<Utility[]>([]);
-    const [loading, setLoading] = useState(true);
-    const [error, setError] = useState<string | null>(null);
+    const { data: utilities = [], error, isLoading, refetch } = useGetUtilitiesQuery();
+    const [addUtility] = useAddUtilityMutation();
+    const [updateUtility] = useUpdateUtilityMutation();
+    const [deleteUtility] = useDeleteUtilityMutation();
     const { toast } = useToast();
 
     const [isAdding, setIsAdding] = useState(false);
@@ -43,26 +45,6 @@ export default function UtilitiesPage() {
     const [editingName, setEditingName] = useState("");
     const [editingPrice, setEditingPrice] = useState("");
 
-
-    const fetchUtilities = async () => {
-        try {
-            setLoading(true);
-            setError(null);
-            const response = await fetch('/api/utilities');
-            if (!response.ok) throw new Error("Failed to fetch utilities");
-            const data = await response.json();
-            setUtilities(data);
-        } catch (error) {
-            setError("Failed to load utilities. Please try again.");
-        } finally {
-            setLoading(false);
-        }
-    };
-
-    useEffect(() => {
-        fetchUtilities();
-    }, []);
-
     const handleAdd = async () => {
         if (!newItemName.trim() || !newItemPrice.trim()) {
             toast({ title: "Error", description: "Name and price cannot be empty.", variant: "destructive" });
@@ -70,22 +52,13 @@ export default function UtilitiesPage() {
         }
 
         try {
-            const response = await fetch('/api/utilities', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ name: newItemName, price: parseFloat(newItemPrice) }),
-            });
-            if (!response.ok) {
-                const errorData = await response.json();
-                throw new Error(errorData.error || 'Failed to add utility');
-            }
+            await addUtility({ name: newItemName, price: parseFloat(newItemPrice) }).unwrap();
             toast({ title: "Success", description: "Utility added successfully." });
             setNewItemName("");
             setNewItemPrice("");
             setIsAdding(false);
-            fetchUtilities();
-        } catch (error) {
-            toast({ title: "Error", description: (error as Error).message, variant: "destructive" });
+        } catch (error: any) {
+            toast({ title: "Error", description: error.data?.error || 'Failed to add utility', variant: "destructive" });
         }
     };
     
@@ -108,31 +81,20 @@ export default function UtilitiesPage() {
         }
 
         try {
-            const response = await fetch(`/api/utilities?id=${id}`, {
-                method: 'PUT',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ name: editingName, price: parseFloat(editingPrice) }),
-            });
-            if (!response.ok) {
-                const errorData = await response.json();
-                throw new Error(errorData.error || 'Failed to update utility');
-            }
+            await updateUtility({ id, body: { name: editingName, price: parseFloat(editingPrice) } }).unwrap();
             toast({ title: "Success", description: "Utility updated successfully." });
             cancelEditing();
-            fetchUtilities();
-        } catch (error) {
-            toast({ title: "Error", description: (error as Error).message, variant: "destructive" });
+        } catch (error: any) {
+            toast({ title: "Error", description: error.data?.error || 'Failed to update utility', variant: "destructive" });
         }
     };
     
     const handleDelete = async (id: string) => {
         try {
-            const response = await fetch(`/api/utilities?id=${id}`, { method: 'DELETE' });
-            if(!response.ok) throw new Error("Failed to delete utility");
+            await deleteUtility(id).unwrap();
             toast({ title: "Success", description: "Utility deleted successfully." });
-            fetchUtilities();
         } catch (error) {
-             toast({ title: "Error", description: (error as Error).message, variant: "destructive" });
+             toast({ title: "Error", description: "Failed to delete utility", variant: "destructive" });
         }
     }
 
@@ -144,7 +106,7 @@ export default function UtilitiesPage() {
                 <CardDescription>Add, edit, or remove utilities and their monthly costs. These will be available when managing rooms.</CardDescription>
             </CardHeader>
             <CardContent>
-                {loading ? (
+                {isLoading ? (
                     <div className="space-y-2">
                         {Array.from({length: 4}).map((_, i) => <Skeleton key={i} className="h-12 w-full" />)}
                     </div>
@@ -152,8 +114,8 @@ export default function UtilitiesPage() {
                     <div className="text-center py-16">
                         <AlertTriangle className="mx-auto h-12 w-12 text-destructive" />
                         <h3 className="mt-4 text-lg font-semibold">Error Loading Data</h3>
-                        <p className="text-muted-foreground">{error}</p>
-                        <Button onClick={fetchUtilities} variant="outline" className="mt-4">
+                        <p className="text-muted-foreground">Failed to load utilities. Please try again.</p>
+                        <Button onClick={() => refetch()} variant="outline" className="mt-4">
                             <RefreshCw className="mr-2 h-4 w-4" /> Try Again
                         </Button>
                     </div>
@@ -213,7 +175,7 @@ export default function UtilitiesPage() {
                         </TableBody>
                     </Table>
                 )}
-                 {!isAdding && !loading && (
+                 {!isAdding && !isLoading && (
                     <Button variant="outline" className="mt-4 w-full" onClick={() => setIsAdding(true)}>
                         <PlusCircle className="mr-2 h-4 w-4" /> Add New Utility
                     </Button>

@@ -1,7 +1,7 @@
 
 "use client";
 
-import { useState, useEffect, useMemo } from "react";
+import { useState, useMemo } from "react";
 import {
   Card,
   CardContent,
@@ -35,6 +35,7 @@ import { useToast } from "@/hooks/use-toast";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { useGetApplicationsQuery, useUpdateApplicationStatusMutation } from "@/store/api";
 
 const statusVariant = (status: string) => {
   switch (status) {
@@ -52,42 +53,22 @@ const statusVariant = (status: string) => {
 const ITEMS_PER_PAGE = 7;
 
 export default function ApplicationsPage() {
-  const [allApplications, setAllApplications] = useState<Application[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const { data: allApplications = [], error, isLoading, refetch } = useGetApplicationsQuery();
+  const [updateStatus] = useUpdateApplicationStatusMutation();
+
   const [currentPage, setCurrentPage] = useState(1);
   const [selectedApplication, setSelectedApplication] = useState<Application | null>(null);
   const { toast } = useToast();
   
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
-
-  const fetchApplications = async () => {
-    try {
-      setLoading(true);
-      setError(null);
-      const response = await fetch('/api/applications');
-      if (!response.ok) throw new Error("Failed to fetch applications");
-      const data = await response.json();
-      setAllApplications(data);
-    } catch (error) {
-       setError("Failed to load applications. Please try again.");
-       console.error(error);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    fetchApplications();
-  }, []);
   
   const filteredApplications = useMemo(() => {
       return allApplications
         .filter(app => {
             const matchesSearch = app.name.toLowerCase().includes(searchQuery.toLowerCase()) || 
                                   app.course.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                                  app.studentId.toLowerCase().includes(searchQuery.toLowerCase());
+                                  (app.studentId && app.studentId.toLowerCase().includes(searchQuery.toLowerCase()));
             const matchesStatus = statusFilter === 'all' || app.status === statusFilter;
             return matchesSearch && matchesStatus;
         })
@@ -119,22 +100,12 @@ export default function ApplicationsPage() {
   
   const handleUpdateStatus = async (id: string, status: 'Approved' | 'Rejected') => {
     try {
-        const response = await fetch(`/api/applications?id=${id}`, {
-            method: 'PUT',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ status }),
-        });
-
-        if (!response.ok) {
-            throw new Error(`Failed to update application status`);
-        }
-
+        await updateStatus({ id, status }).unwrap();
         toast({
             title: "Success",
             description: `Application has been ${status.toLowerCase()}.`,
         });
 
-        fetchApplications();
         if(selectedApplication && selectedApplication._id === id) {
             setSelectedApplication(prev => prev ? { ...prev, status } : null);
         }
@@ -225,7 +196,7 @@ export default function ApplicationsPage() {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {loading ? (
+                {isLoading ? (
                   Array.from({ length: ITEMS_PER_PAGE }).map((_, i) => (
                     <TableRow key={i}>
                       <TableCell><Skeleton className="h-4 w-32" /></TableCell>
@@ -241,8 +212,8 @@ export default function ApplicationsPage() {
                       <div className="flex flex-col items-center gap-4">
                         <AlertTriangle className="h-12 w-12 text-destructive" />
                         <h3 className="text-xl font-semibold">Error Loading Applications</h3>
-                        <p className="text-muted-foreground">{error}</p>
-                        <Button onClick={fetchApplications} variant="outline">
+                        <p className="text-muted-foreground">Failed to load applications. Please try again.</p>
+                        <Button onClick={() => refetch()} variant="outline">
                           <RefreshCw className="mr-2 h-4 w-4" />
                           Try Again
                         </Button>

@@ -33,39 +33,22 @@ import { DeleteConfirmationDialog } from "@/components/modals/delete-confirmatio
 import { useToast } from "@/hooks/use-toast";
 import { Notice } from "@/lib/types";
 import { Skeleton } from "@/components/ui/skeleton";
+import { useGetNoticesQuery, useAddNoticeMutation, useUpdateNoticeMutation, useDeleteNoticeMutation, useReorderNoticesMutation } from "@/store/api";
 
 const ITEMS_PER_PAGE = 7;
 
 export default function NoticesAdminPage() {
-  const [notices, setNotices] = useState<Notice[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const { data: notices = [], error, isLoading, refetch } = useGetNoticesQuery();
+  const [addNotice] = useAddNoticeMutation();
+  const [updateNotice] = useUpdateNoticeMutation();
+  const [deleteNotice] = useDeleteNoticeMutation();
+  const [reorderNotices] = useReorderNoticesMutation();
+  
   const [currentPage, setCurrentPage] = useState(1);
   const [isModalOpen, setModalOpen] = useState(false);
   const [isDeleteModalOpen, setDeleteModalOpen] = useState(false);
   const [selectedNotice, setSelectedNotice] = useState<Notice | null>(null);
   const { toast } = useToast();
-
-  const fetchNotices = async () => {
-    try {
-      setLoading(true);
-      setError(null);
-      const response = await fetch('/api/notices');
-      if (!response.ok) throw new Error("Failed to fetch notices");
-      const data = await response.json();
-      setNotices(data);
-    } catch (error) {
-      setError("Failed to load notices. Please try again.");
-      console.error(error);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    fetchNotices();
-  }, []);
-
 
   const totalPages = Math.ceil(notices.length / ITEMS_PER_PAGE);
   const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
@@ -89,36 +72,28 @@ export default function NoticesAdminPage() {
   };
 
   const handleFormSubmit = async (noticeData: Omit<Notice, '_id' | 'id' | 'publishedAt'>) => {
-    const method = selectedNotice ? 'PUT' : 'POST';
-    const url = selectedNotice ? `/api/notices?id=${selectedNotice._id}` : '/api/notices';
-    
     try {
-        const response = await fetch(url, {
-            method,
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(noticeData),
-        });
-        if (!response.ok) throw new Error(`Failed to ${selectedNotice ? 'update' : 'post'} notice`);
-        
-        toast({ title: "Success", description: `Notice ${selectedNotice ? 'updated' : 'posted'} successfully.` });
-        fetchNotices();
-        setModalOpen(false);
+      if (selectedNotice) {
+        await updateNotice({ id: selectedNotice._id, body: noticeData }).unwrap();
+        toast({ title: "Success", description: "Notice updated successfully." });
+      } else {
+        await addNotice(noticeData).unwrap();
+        toast({ title: "Success", description: "Notice posted successfully." });
+      }
+      setModalOpen(false);
     } catch (error) {
-        toast({ title: "Error", description: `Failed to ${selectedNotice ? 'update' : 'post'} notice.`, variant: "destructive" });
+      toast({ title: "Error", description: `Failed to ${selectedNotice ? 'update' : 'post'} notice.`, variant: "destructive" });
     }
   };
 
   const handleDelete = async () => {
     if (!selectedNotice) return;
     try {
-        const response = await fetch(`/api/notices?id=${selectedNotice._id}`, { method: 'DELETE' });
-        if (!response.ok) throw new Error('Failed to delete notice');
-        
-        toast({ title: "Success", description: "Notice deleted successfully." });
-        fetchNotices();
-        setDeleteModalOpen(false);
+      await deleteNotice(selectedNotice._id).unwrap();
+      toast({ title: "Success", description: "Notice deleted successfully." });
+      setDeleteModalOpen(false);
     } catch (error) {
-        toast({ title: "Error", description: "Failed to delete notice.", variant: "destructive" });
+      toast({ title: "Error", description: "Failed to delete notice.", variant: "destructive" });
     }
   };
   
@@ -132,19 +107,10 @@ export default function NoticesAdminPage() {
     newNotices.splice(index, 1);
     newNotices.splice(swapIndex, 0, item);
     
-    const originalNotices = [...notices];
-    setNotices(newNotices); // Optimistic update
-
     try {
-        const response = await fetch('/api/notices/reorder', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ orderedIds: newNotices.map(n => n._id) }),
-        });
-        if (!response.ok) throw new Error('Failed to reorder notices');
+        await reorderNotices({ orderedIds: newNotices.map(n => n._id) }).unwrap();
         toast({ title: "Success", description: "Notice order updated." });
     } catch (error) {
-        setNotices(originalNotices); // Revert on failure
         toast({ title: "Error", description: "Failed to reorder notices.", variant: "destructive" });
     }
   };
@@ -179,7 +145,7 @@ export default function NoticesAdminPage() {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {loading ? (
+              {isLoading ? (
                   Array.from({ length: ITEMS_PER_PAGE }).map((_, i) => (
                       <TableRow key={i}>
                           <TableCell><Skeleton className="h-8 w-16" /></TableCell>
@@ -195,8 +161,8 @@ export default function NoticesAdminPage() {
                         <div className="flex flex-col items-center gap-4">
                             <AlertTriangle className="h-12 w-12 text-destructive" />
                             <h3 className="text-xl font-semibold">Error Loading Notices</h3>
-                            <p className="text-muted-foreground">{error}</p>
-                            <Button onClick={fetchNotices} variant="outline">
+                            <p className="text-muted-foreground">Failed to load notices. Please try again.</p>
+                            <Button onClick={() => refetch()} variant="outline">
                             <RefreshCw className="mr-2 h-4 w-4" />
                             Try Again
                             </Button>

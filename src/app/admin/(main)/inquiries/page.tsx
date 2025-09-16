@@ -25,6 +25,7 @@ import {
 } from "@/components/ui/accordion";
 import { UpdateStatusConfirmationDialog } from "@/components/modals/update-status-confirmation-modal";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { useGetInquiriesQuery, useUpdateInquiryMutation } from "@/store/api";
 
 const urgencyVariant = (urgency?: string) => {
   if (!urgency) return 'outline';
@@ -59,9 +60,9 @@ const categoryVariant = (category: string) => {
 const ITEMS_PER_PAGE = 5;
 
 export default function InquiriesPage() {
-  const [allInquiries, setAllInquiries] = useState<Inquiry[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const { data: allInquiries = [], error, isLoading, refetch } = useGetInquiriesQuery();
+  const [updateInquiry] = useUpdateInquiryMutation();
+
   const [currentPage, setCurrentPage] = useState(1);
   const [confirmationState, setConfirmationState] = useState<{
     isOpen: boolean;
@@ -72,26 +73,6 @@ export default function InquiriesPage() {
 
   const [statusFilter, setStatusFilter] = useState('all');
   const [categoryFilter, setCategoryFilter] = useState('all');
-
-  const fetchInquiries = async () => {
-    try {
-      setLoading(true);
-      setError(null);
-      const response = await fetch('/api/inquiries');
-      if (!response.ok) throw new Error("Failed to fetch inquiries");
-      const data = await response.json();
-      setAllInquiries(data);
-    } catch (error) {
-      setError("Failed to load inquiries. Please try again.");
-      console.error(error);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    fetchInquiries();
-  }, []);
   
   const filteredInquiries = useMemo(() => {
       return allInquiries.filter(i => 
@@ -117,26 +98,14 @@ export default function InquiriesPage() {
   
   const handleUpdateStatus = async () => {
     if (!confirmationState) return;
-
     const { inquiryId, newStatus } = confirmationState;
 
     try {
-        const response = await fetch(`/api/inquiries?id=${inquiryId}`, {
-            method: 'PUT',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ status: newStatus }),
-        });
-
-        if (!response.ok) {
-            throw new Error(`Failed to update inquiry status`);
-        }
-
+        await updateInquiry({ id: inquiryId, body: { status: newStatus } }).unwrap();
         toast({
             title: "Success",
             description: `Inquiry status updated to "${newStatus}".`,
         });
-
-        fetchInquiries();
     } catch (error) {
         console.error(error);
         toast({
@@ -179,7 +148,7 @@ export default function InquiriesPage() {
         </div>
       </CardHeader>
       <CardContent className="space-y-6">
-        {loading ? (
+        {isLoading ? (
           Array.from({ length: ITEMS_PER_PAGE }).map((_, i) => (
             <div key={i} className="border p-4 rounded-lg">
                 <div className="flex justify-between mb-2">
@@ -205,8 +174,8 @@ export default function InquiriesPage() {
               <div className="flex flex-col items-center gap-4">
                 <AlertTriangle className="h-12 w-12 text-destructive" />
                 <h3 className="text-xl font-semibold">Error Loading Inquiries</h3>
-                <p className="text-muted-foreground">{error}</p>
-                <Button onClick={fetchInquiries} variant="outline">
+                <p className="text-muted-foreground">Failed to load inquiries. Please try again.</p>
+                <Button onClick={() => refetch()} variant="outline">
                   <RefreshCw className="mr-2 h-4 w-4" />
                   Try Again
                 </Button>

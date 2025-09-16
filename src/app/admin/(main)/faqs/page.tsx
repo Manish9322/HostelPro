@@ -32,36 +32,19 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { FaqModal } from "@/components/modals/faq-modal";
 import { DeleteConfirmationDialog } from "@/components/modals/delete-confirmation-modal";
 import { Switch } from "@/components/ui/switch";
-
+import { useGetFaqsQuery, useAddFaqMutation, useUpdateFaqMutation, useDeleteFaqMutation, useReorderFaqsMutation } from "@/store/api";
 
 export default function FaqsAdminPage() {
-  const [faqs, setFaqs] = useState<Faq[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const { data: faqs = [], error, isLoading, refetch } = useGetFaqsQuery();
+  const [addFaq] = useAddFaqMutation();
+  const [updateFaq] = useUpdateFaqMutation();
+  const [deleteFaq] = useDeleteFaqMutation();
+  const [reorderFaqs] = useReorderFaqsMutation();
+  
   const [isModalOpen, setModalOpen] = useState(false);
   const [isDeleteModalOpen, setDeleteModalOpen] = useState(false);
   const [selectedFaq, setSelectedFaq] = useState<Faq | null>(null);
   const { toast } = useToast();
-
-  const fetchFaqs = async () => {
-    try {
-      setLoading(true);
-      setError(null);
-      const response = await fetch('/api/faqs');
-      if (!response.ok) throw new Error("Failed to fetch FAQs");
-      const data = await response.json();
-      setFaqs(data);
-    } catch (error) {
-      setError("Failed to load FAQs. Please try again.");
-      console.error(error);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    fetchFaqs();
-  }, []);
 
   const handleOpenModal = (faq: Faq | null = null) => {
     setSelectedFaq(faq);
@@ -74,36 +57,28 @@ export default function FaqsAdminPage() {
   };
 
   const handleFormSubmit = async (faqData: Omit<Faq, '_id' | 'order'>) => {
-    const method = selectedFaq ? 'PUT' : 'POST';
-    const url = selectedFaq ? `/api/faqs?id=${selectedFaq._id}` : '/api/faqs';
-    
     try {
-        const response = await fetch(url, {
-            method,
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(faqData),
-        });
-        if (!response.ok) throw new Error(`Failed to ${selectedFaq ? 'update' : 'create'} FAQ`);
-        
-        toast({ title: "Success", description: `FAQ ${selectedFaq ? 'updated' : 'created'} successfully.` });
-        fetchFaqs();
-        setModalOpen(false);
+      if (selectedFaq) {
+        await updateFaq({ id: selectedFaq._id, body: faqData }).unwrap();
+        toast({ title: "Success", description: "FAQ updated successfully." });
+      } else {
+        await addFaq(faqData).unwrap();
+        toast({ title: "Success", description: "FAQ created successfully." });
+      }
+      setModalOpen(false);
     } catch (error) {
-        toast({ title: "Error", description: `Failed to ${selectedFaq ? 'update' : 'create'} FAQ.`, variant: "destructive" });
+      toast({ title: "Error", description: `Failed to ${selectedFaq ? 'update' : 'create'} FAQ.`, variant: "destructive" });
     }
   };
 
   const handleDelete = async () => {
     if (!selectedFaq) return;
     try {
-        const response = await fetch(`/api/faqs?id=${selectedFaq._id}`, { method: 'DELETE' });
-        if (!response.ok) throw new Error('Failed to delete FAQ');
-        
-        toast({ title: "Success", description: "FAQ deleted successfully." });
-        fetchFaqs();
-        setDeleteModalOpen(false);
+      await deleteFaq(selectedFaq._id).unwrap();
+      toast({ title: "Success", description: "FAQ deleted successfully." });
+      setDeleteModalOpen(false);
     } catch (error) {
-        toast({ title: "Error", description: "Failed to delete FAQ.", variant: "destructive" });
+      toast({ title: "Error", description: "Failed to delete FAQ.", variant: "destructive" });
     }
   };
   
@@ -117,37 +92,19 @@ export default function FaqsAdminPage() {
     newFaqs.splice(index, 1);
     newFaqs.splice(swapIndex, 0, item);
     
-    const originalFaqs = [...faqs];
-    setFaqs(newFaqs); // Optimistic update
-
     try {
-        const response = await fetch('/api/faqs/reorder', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ orderedIds: newFaqs.map(n => n._id) }),
-        });
-        if (!response.ok) throw new Error('Failed to reorder FAQs');
+        await reorderFaqs({ orderedIds: newFaqs.map(n => n._id) }).unwrap();
         toast({ title: "Success", description: "FAQ order updated." });
     } catch (error) {
-        setFaqs(originalFaqs); // Revert on failure
         toast({ title: "Error", description: "Failed to reorder FAQs.", variant: "destructive" });
     }
   };
 
   const handleVisibilityChange = async (faq: Faq, newVisibility: boolean) => {
-    const originalFaqs = [...faqs];
-    setFaqs(faqs.map(f => f._id === faq._id ? {...f, visible: newVisibility} : f)); // Optimistic update
-    
     try {
-        const response = await fetch(`/api/faqs?id=${faq._id}`, {
-            method: 'PUT',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ visible: newVisibility }),
-        });
-        if (!response.ok) throw new Error('Failed to update visibility');
+        await updateFaq({ id: faq._id, body: { visible: newVisibility } }).unwrap();
         toast({ title: "Success", description: `FAQ visibility updated.` });
     } catch (error) {
-        setFaqs(originalFaqs);
         toast({ title: "Error", description: "Failed to update visibility.", variant: "destructive" });
     }
   };
@@ -170,7 +127,7 @@ export default function FaqsAdminPage() {
           </Button>
         </CardHeader>
         <CardContent>
-             {loading ? (
+             {isLoading ? (
                 <div className="space-y-4">
                     {Array.from({ length: 5 }).map((_, i) => (
                         <Skeleton key={i} className="h-14 w-full" />
@@ -181,8 +138,8 @@ export default function FaqsAdminPage() {
                     <div className="flex flex-col items-center gap-4">
                         <AlertTriangle className="h-12 w-12 text-destructive" />
                         <h3 className="text-xl font-semibold">Error Loading FAQs</h3>
-                        <p className="text-muted-foreground">{error}</p>
-                        <Button onClick={fetchFaqs} variant="outline">
+                        <p className="text-muted-foreground">Failed to load FAQs. Please try again.</p>
+                        <Button onClick={() => refetch()} variant="outline">
                             <RefreshCw className="mr-2 h-4 w-4" /> Try Again
                         </Button>
                     </div>

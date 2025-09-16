@@ -1,7 +1,7 @@
 
 "use client";
 
-import { useState, useEffect, useMemo } from "react";
+import { useState, useMemo } from "react";
 import {
   Card,
   CardContent,
@@ -34,11 +34,14 @@ import { useToast } from "@/hooks/use-toast";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { useGetStudentsQuery, useAddStudentMutation, useUpdateStudentMutation, useDeleteStudentMutation } from "@/store/api";
 
 export default function StudentsPage() {
-  const [allStudents, setAllStudents] = useState<Student[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const { data: allStudents = [], error, isLoading, refetch } = useGetStudentsQuery();
+  const [addStudent] = useAddStudentMutation();
+  const [updateStudent] = useUpdateStudentMutation();
+  const [deleteStudent] = useDeleteStudentMutation();
+
   const [isModalOpen, setModalOpen] = useState(false);
   const [isDeleteModalOpen, setDeleteModalOpen] = useState(false);
   const [selectedStudent, setSelectedStudent] = useState<Student | null>(null);
@@ -47,28 +50,6 @@ export default function StudentsPage() {
   const [searchQuery, setSearchQuery] = useState('');
   const [roomFilter, setRoomFilter] = useState('all');
   const [yearFilter, setYearFilter] = useState('all');
-
-  const fetchStudents = async () => {
-    try {
-      setLoading(true);
-      setError(null);
-      const response = await fetch('/api/students');
-      if (!response.ok) {
-        throw new Error('Failed to fetch students');
-      }
-      const data = await response.json();
-      setAllStudents(data);
-    } catch (error) {
-      console.error(error);
-      setError("Failed to load students. Please try again.");
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    fetchStudents();
-  }, []);
 
   const stats = useMemo(() => {
     return {
@@ -86,7 +67,7 @@ export default function StudentsPage() {
         const matchesRoom = roomFilter === 'all' || 
                             (roomFilter === 'assigned' && student.roomNumber !== 'Unassigned') ||
                             (roomFilter === 'unassigned' && student.roomNumber === 'Unassigned');
-        const matchesYear = yearFilter === 'all' || student.year === parseInt(yearFilter);
+        const matchesYear = yearFilter === 'all' || student.year.toString() === yearFilter;
         return matchesSearch && matchesRoom && matchesYear;
     });
   }, [allStudents, searchQuery, roomFilter, yearFilter]);
@@ -102,65 +83,30 @@ export default function StudentsPage() {
   };
 
   const handleFormSubmit = async (studentData: Omit<Student, 'id' | 'avatar' | '_id'>) => {
-    const method = selectedStudent ? 'PUT' : 'POST';
-    const url = selectedStudent ? `/api/students?id=${selectedStudent._id}` : '/api/students';
-
     try {
-      const response = await fetch(url, {
-        method,
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(studentData),
-      });
-
-      if (!response.ok) {
-        throw new Error(`Failed to ${selectedStudent ? 'update' : 'create'} student`);
+      if (selectedStudent) {
+        await updateStudent({ id: selectedStudent._id, body: studentData }).unwrap();
+        toast({ title: "Success", description: "Student updated successfully." });
+      } else {
+        await addStudent(studentData).unwrap();
+        toast({ title: "Success", description: "Student created successfully." });
       }
-
-      toast({
-        title: "Success",
-        description: `Student ${selectedStudent ? 'updated' : 'created'} successfully.`,
-      });
-
-      fetchStudents(); // Refresh data
       setModalOpen(false);
-
     } catch (error) {
-        console.error(error);
-        toast({
-            title: "Error",
-            description: `Failed to ${selectedStudent ? 'update' : 'create'} student.`,
-            variant: "destructive",
-        });
+      console.error(error);
+      toast({ title: "Error", description: `Failed to ${selectedStudent ? 'update' : 'create'} student.`, variant: "destructive" });
     }
   };
 
   const handleDelete = async () => {
     if (!selectedStudent) return;
-
     try {
-        const response = await fetch(`/api/students?id=${selectedStudent._id}`, {
-            method: 'DELETE',
-        });
-
-        if (!response.ok) {
-            throw new Error('Failed to delete student');
-        }
-
-        toast({
-            title: "Success",
-            description: "Student deleted successfully.",
-        });
-
-        fetchStudents(); // Refresh data
-        setDeleteModalOpen(false);
-
+      await deleteStudent(selectedStudent._id).unwrap();
+      toast({ title: "Success", description: "Student deleted successfully." });
+      setDeleteModalOpen(false);
     } catch (error) {
-        console.error(error);
-        toast({
-            title: "Error",
-            description: "Failed to delete student.",
-            variant: "destructive",
-        });
+      console.error(error);
+      toast({ title: "Error", description: "Failed to delete student.", variant: "destructive" });
     }
   };
 
@@ -252,7 +198,7 @@ export default function StudentsPage() {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {loading ? (
+              {isLoading ? (
                 Array.from({ length: 5 }).map((_, i) => (
                   <TableRow key={i}>
                     <TableCell><Skeleton className="h-4 w-32" /></TableCell>
@@ -268,8 +214,8 @@ export default function StudentsPage() {
                     <div className="flex flex-col items-center gap-4">
                       <AlertTriangle className="h-12 w-12 text-destructive" />
                       <h3 className="text-xl font-semibold">Error Loading Students</h3>
-                      <p className="text-muted-foreground">{error}</p>
-                      <Button onClick={fetchStudents} variant="outline">
+                      <p className="text-muted-foreground">Failed to load students. Please try again.</p>
+                      <Button onClick={() => refetch()} variant="outline">
                         <RefreshCw className="mr-2 h-4 w-4" />
                         Try Again
                       </Button>
