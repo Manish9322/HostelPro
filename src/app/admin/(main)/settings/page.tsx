@@ -294,7 +294,6 @@ export default function SettingsPage() {
     { key: 'inventoryConditions', title: 'Inventory Conditions', description: 'Manage condition options for inventory items.' },
     { key: 'complaintCategories', title: 'Complaint Categories', description: 'Manage categories for student complaints.' },
     { key: 'noticeCategories', title: 'Notice Categories', description: 'Manage categories for public notices.' },
-    { key: 'boardMemberDesignations', title: 'Board Member Designations', description: 'Manage the positions for board members (e.g., Chairperson).' },
   ] as const;
 
   if (error && !settings) {
@@ -321,11 +320,13 @@ export default function SettingsPage() {
       </div>
      
       <Tabs defaultValue="general">
-        <TabsList className="grid w-full grid-cols-3">
+        <TabsList className="grid w-full grid-cols-4">
           <TabsTrigger value="general">General</TabsTrigger>
+          <TabsTrigger value="designations">Designations</TabsTrigger>
           <TabsTrigger value="gallery">Gallery</TabsTrigger>
           <TabsTrigger value="location">Location</TabsTrigger>
         </TabsList>
+
         <TabsContent value="general" className="mt-6">
             <div className="grid gap-8 grid-cols-1 xl:grid-cols-2">
                 {categorySettingSections.map(section => (
@@ -343,6 +344,20 @@ export default function SettingsPage() {
                 ))}
             </div>
         </TabsContent>
+
+        <TabsContent value="designations" className="mt-6">
+            {settings && settings.boardMemberDesignations && (
+                <CategorySettingsSection
+                    title="Board Member Designations"
+                    description="Manage the positions available for board members (e.g., Chairperson, Treasurer)."
+                    items={settings.boardMemberDesignations}
+                    categoryKey="boardMemberDesignations"
+                    onUpdate={(key, items) => handleUpdateSettings({ [key]: items })}
+                    loading={loading}
+                />
+            )}
+        </TabsContent>
+
         <TabsContent value="gallery" className="mt-6">
             <Card>
                 <CardHeader>
@@ -421,4 +436,3 @@ export default function SettingsPage() {
     </div>
   );
 }
-
