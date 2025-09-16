@@ -18,14 +18,18 @@ import {
   ChartLegend,
   ChartLegendContent,
 } from "@/components/ui/chart"
-import { Users, FileText, MessageSquareWarning } from "lucide-react";
-import { mockStudents, mockApplications, mockComplaints, mockRooms } from "@/lib/data";
+import { Users, FileText, MessageSquareWarning, RefreshCw, AlertTriangle } from "lucide-react";
 import React from "react";
 import Link from "next/link";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { format } from "date-fns";
+import { useGetStudentsQuery } from "@/store/api";
+import { useGetApplicationsQuery } from "@/store/api";
+import { useGetComplaintsQuery } from "@/store/api";
+import { useGetRoomsQuery } from "@/store/api";
+import { Skeleton } from "@/components/ui/skeleton";
 
 const roomChartConfig = {
   value: {
@@ -106,8 +110,23 @@ const urgencyVariant = (urgency: string) => {
 
 
 export default function Dashboard() {
+  const { data: students = [], isLoading: isLoadingStudents, error: errorStudents, refetch: refetchStudents } = useGetStudentsQuery({});
+  const { data: applications = [], isLoading: isLoadingApplications, error: errorApplications, refetch: refetchApplications } = useGetApplicationsQuery({});
+  const { data: complaints = [], isLoading: isLoadingComplaints, error: errorComplaints, refetch: refetchComplaints } = useGetComplaintsQuery({});
+  const { data: rooms = [], isLoading: isLoadingRooms, error: errorRooms, refetch: refetchRooms } = useGetRoomsQuery({});
+  
+  const isLoading = isLoadingStudents || isLoadingApplications || isLoadingComplaints || isLoadingRooms;
+  const error = errorStudents || errorApplications || errorComplaints || errorRooms;
+
+  const refetchAll = () => {
+    refetchStudents();
+    refetchApplications();
+    refetchComplaints();
+    refetchRooms();
+  }
+
   const roomStats = React.useMemo(() => {
-    const stats = mockRooms.reduce((acc, room) => {
+    const stats = rooms.reduce((acc, room) => {
         acc[room.status] = (acc[room.status] || 0) + 1;
         return acc;
     }, {} as Record<string, number>);
@@ -116,10 +135,10 @@ export default function Dashboard() {
         value: count, 
         fill: `var(--color-${status.replace(/ /g, '-')})` 
     }));
-  }, []);
+  }, [rooms]);
 
   const complaintStats = React.useMemo(() => {
-    const stats = mockComplaints.reduce((acc, complaint) => {
+    const stats = complaints.reduce((acc, complaint) => {
         const category = complaint.category as string;
         if (category !== 'Uncategorized' && category !== 'Harassment') {
           acc[category] = (acc[category] || 0) + 1;
@@ -131,10 +150,10 @@ export default function Dashboard() {
         value: count, 
         fill: `var(--color-${category})` 
     }));
-  }, []);
+  }, [complaints]);
 
   const applicationStats = React.useMemo(() => {
-      const stats = mockApplications.reduce((acc, app) => {
+      const stats = applications.reduce((acc, app) => {
           acc[app.status] = (acc[app.status] || 0) + 1;
           return acc;
       }, {} as Record<string, number>);
@@ -143,10 +162,10 @@ export default function Dashboard() {
           value: count, 
           fill: `var(--color-${status})` 
       }));
-  }, []);
+  }, [applications]);
 
   const studentYearStats = React.useMemo(() => {
-      const stats: { [key: string]: number } = mockStudents.reduce((acc, student) => {
+      const stats: { [key: string]: number } = students.reduce((acc, student) => {
           const yearLabel = `Year ${student.year}`;
           acc[yearLabel] = (acc[yearLabel] || 0) + 1;
           return acc;
@@ -154,22 +173,35 @@ export default function Dashboard() {
       return Object.entries(stats)
         .map(([year, count]) => ({ name: year, students: count }))
         .sort((a,b) => a.name.localeCompare(b.name));
-  }, []);
+  }, [students]);
 
   const recentApplications = React.useMemo(() => {
-    return mockApplications
+    return [...applications]
       .filter((app) => app.status === "Pending")
-      .sort((a, b) => b.submittedAt.getTime() - a.submittedAt.getTime())
+      .sort((a, b) => new Date(b.submittedAt).getTime() - new Date(a.submittedAt).getTime())
       .slice(0, 5);
-  }, []);
+  }, [applications]);
 
   const recentComplaints = React.useMemo(() => {
-    return mockComplaints
+    return [...complaints]
       .filter((complaint) => complaint.status !== "Resolved")
-      .sort((a, b) => b.submittedAt.getTime() - a.submittedAt.getTime())
+      .sort((a, b) => new Date(b.submittedAt).getTime() - new Date(a.submittedAt).getTime())
       .slice(0, 5);
-  }, []);
+  }, [complaints]);
 
+  if(error) {
+    return (
+       <div className="flex flex-col items-center justify-center h-[70vh] gap-4">
+        <AlertTriangle className="h-12 w-12 text-destructive" />
+        <h3 className="text-xl font-semibold">Error Loading Dashboard</h3>
+        <p className="text-muted-foreground">Failed to load dashboard data. Please try again.</p>
+        <Button onClick={refetchAll} variant="outline">
+          <RefreshCw className="mr-2 h-4 w-4" />
+          Try Again
+        </Button>
+      </div>
+    )
+  }
 
   return (
     <div className="flex flex-col gap-8">
@@ -180,7 +212,7 @@ export default function Dashboard() {
             <Users className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{mockStudents.length}</div>
+            {isLoading ? <Skeleton className="h-7 w-12" /> : <div className="text-2xl font-bold">{students.length}</div> }
             <p className="text-xs text-muted-foreground">Currently living in the hostel</p>
           </CardContent>
         </Card>
@@ -190,9 +222,7 @@ export default function Dashboard() {
             <FileText className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">
-              {mockApplications.filter((a) => a.status === 'Pending').length}
-            </div>
+            {isLoading ? <Skeleton className="h-7 w-12" /> : <div className="text-2xl font-bold">{applications.filter((a) => a.status === 'Pending').length}</div>}
             <p className="text-xs text-muted-foreground">Awaiting review</p>
           </CardContent>
         </Card>
@@ -202,9 +232,7 @@ export default function Dashboard() {
             <MessageSquareWarning className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">
-              {mockComplaints.filter((c) => c.status !== 'Resolved').length}
-            </div>
+            {isLoading ? <Skeleton className="h-7 w-12" /> : <div className="text-2xl font-bold">{complaints.filter((c) => c.status !== 'Resolved').length}</div>}
             <p className="text-xs text-muted-foreground">Require attention</p>
           </CardContent>
         </Card>
@@ -217,11 +245,22 @@ export default function Dashboard() {
             <CardDescription>Newest student applications awaiting review.</CardDescription>
           </CardHeader>
           <CardContent className="grid gap-6">
-            {recentApplications.length > 0 ? (
+            {isLoading ? (
+                Array.from({ length: 3 }).map((_, i) => (
+                    <div key={i} className="flex items-center gap-4">
+                        <Skeleton className="h-10 w-10 rounded-full" />
+                        <div className="flex-1 space-y-2">
+                            <Skeleton className="h-4 w-24" />
+                            <Skeleton className="h-4 w-32" />
+                        </div>
+                        <Skeleton className="h-4 w-20" />
+                    </div>
+                ))
+            ) : recentApplications.length > 0 ? (
               recentApplications.map((app) => (
-                <div key={app.id} className="flex items-center gap-4">
+                <div key={app._id} className="flex items-center gap-4">
                   <Avatar className="h-10 w-10">
-                    <AvatarImage src={`https://placehold.co/40x40.png`} data-ai-hint="person avatar" alt="Avatar" />
+                    <AvatarImage src={app.profilePhoto} data-ai-hint="person avatar" alt="Avatar" />
                     <AvatarFallback>{app.name.split(' ').map(n => n[0]).join('')}</AvatarFallback>
                   </Avatar>
                   <div className="grid gap-1">
@@ -229,7 +268,7 @@ export default function Dashboard() {
                     <p className="text-sm text-muted-foreground">{app.course}</p>
                   </div>
                   <div className="ml-auto text-sm text-muted-foreground">
-                    {format(app.submittedAt, "PP")}
+                    {format(new Date(app.submittedAt), "PP")}
                   </div>
                 </div>
               ))
@@ -250,13 +289,23 @@ export default function Dashboard() {
             <CardDescription>Latest unresolved issues from residents.</CardDescription>
           </CardHeader>
           <CardContent className="grid gap-6">
-             {recentComplaints.length > 0 ? (
+             {isLoading ? (
+                Array.from({ length: 3 }).map((_, i) => (
+                    <div key={i} className="flex items-center gap-4">
+                       <div className="flex-1 space-y-2">
+                            <Skeleton className="h-4 w-full" />
+                            <Skeleton className="h-4 w-1/2" />
+                        </div>
+                        <Skeleton className="h-6 w-16 rounded-full" />
+                    </div>
+                ))
+             ) : recentComplaints.length > 0 ? (
                 recentComplaints.map((complaint) => (
-                  <div key={complaint.id} className="flex items-center gap-4">
+                  <div key={complaint._id} className="flex items-center gap-4">
                       <div className="grid gap-1">
                           <p className="text-sm font-medium leading-none">{complaint.summary}</p>
                           <p className="text-sm text-muted-foreground">
-                              Category: {complaint.category} &bull; {format(complaint.submittedAt, "PP")}
+                              Category: {complaint.category} &bull; {format(new Date(complaint.submittedAt), "PP")}
                           </p>
                       </div>
                       <div className="ml-auto font-medium">
@@ -283,6 +332,7 @@ export default function Dashboard() {
             <CardDescription>A summary of room availability.</CardDescription>
           </CardHeader>
           <CardContent>
+            {isLoading ? <Skeleton className="h-[250px] w-full" /> : 
              <ChartContainer config={roomChartConfig} className="min-h-[250px] w-full">
               <PieChart>
                 <ChartTooltip
@@ -305,7 +355,7 @@ export default function Dashboard() {
                 </Pie>
                 <ChartLegend content={<ChartLegendContent nameKey="name" />} />
               </PieChart>
-            </ChartContainer>
+            </ChartContainer>}
           </CardContent>
         </Card>
         
@@ -315,6 +365,7 @@ export default function Dashboard() {
             <CardDescription>Breakdown of all submitted complaints by category.</CardDescription>
           </CardHeader>
           <CardContent>
+            {isLoading ? <Skeleton className="h-[250px] w-full" /> : 
              <ChartContainer config={complaintChartConfig} className="min-h-[250px] w-full">
               <PieChart>
                 <ChartTooltip
@@ -337,7 +388,7 @@ export default function Dashboard() {
                 </Pie>
                  <ChartLegend content={<ChartLegendContent nameKey="name" />} />
               </PieChart>
-            </ChartContainer>
+            </ChartContainer>}
           </CardContent>
         </Card>
       </div>
@@ -349,6 +400,7 @@ export default function Dashboard() {
             <CardDescription>Overview of recent application outcomes.</CardDescription>
           </CardHeader>
           <CardContent>
+             {isLoading ? <Skeleton className="h-[250px] w-full" /> : 
              <ChartContainer config={applicationChartConfig} className="min-h-[250px] w-full">
               <PieChart>
                 <ChartTooltip
@@ -371,7 +423,7 @@ export default function Dashboard() {
                 </Pie>
                  <ChartLegend content={<ChartLegendContent nameKey="name" />} />
               </PieChart>
-            </ChartContainer>
+            </ChartContainer>}
           </CardContent>
         </Card>
         
@@ -381,6 +433,7 @@ export default function Dashboard() {
             <CardDescription>A breakdown of residents by their year of study.</CardDescription>
           </CardHeader>
           <CardContent>
+            {isLoading ? <Skeleton className="h-[250px] w-full" /> : 
              <ChartContainer config={studentYearChartConfig} className="min-h-[250px] w-full">
               <PieChart>
                 <ChartTooltip
@@ -403,7 +456,7 @@ export default function Dashboard() {
                 </Pie>
                  <ChartLegend content={<ChartLegendContent nameKey="name" />} />
               </PieChart>
-            </ChartContainer>
+            </ChartContainer>}
           </CardContent>
         </Card>
       </div>
