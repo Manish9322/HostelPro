@@ -87,3 +87,5 @@ export function BoardMemberModal({ isOpen, onClose, member, onSubmit, designatio
     </Dialog>
   );
 }
+
+    

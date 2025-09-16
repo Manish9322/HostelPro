@@ -91,7 +91,7 @@ export default function AboutPage() {
             <div className="container mx-auto px-4 md:px-6">
                 <div className="grid md:grid-cols-2 gap-12 items-center">
                     <div>
-                        <Image src="https://placehold.co/800x600" alt="Students collaborating in a common area" width={800} height={600} className="rounded-lg shadow-lg" data-ai-hint="hostel common area" />
+                        <Image src="https://picsum.photos/seed/hostel-mission/800/600" alt="Students collaborating in a common area" width={800} height={600} className="rounded-lg shadow-lg" data-ai-hint="hostel common area" />
                     </div>
                     <div className="space-y-4">
                         <SectionTag icon={Heart}>Our Mission</SectionTag>
@@ -115,41 +115,33 @@ export default function AboutPage() {
               <h2 className="text-3xl md:text-4xl font-bold font-headline">Facilities Built for Student Success</h2>
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
-              <Card className="bg-card border-2 border-transparent hover:border-primary/20 transition-all duration-300 transform hover:-translate-y-2 hover:shadow-2xl group">
-                <CardContent className="p-6">
-                    <div className="flex items-center justify-center w-16 h-16 rounded-full bg-primary/10 mx-auto mb-6 transition-transform group-hover:scale-110">
-                        <ShieldCheck className="h-8 w-8 text-primary"/>
-                    </div>
-                    <h3 className="font-semibold text-xl mb-2 text-center">24/7 Security</h3>
-                    <p className="text-sm text-muted-foreground flex-grow text-center">Monitored premises and secure access for your peace of mind.</p>
-                </CardContent>
+              <Card className="flex flex-col text-left p-6 bg-card border-2 border-transparent hover:border-primary/20 transition-all duration-300 transform hover:-translate-y-2 hover:shadow-2xl group">
+                  <div className="flex items-center justify-center w-16 h-16 rounded-full bg-primary/10 mb-6 transition-transform group-hover:scale-110 self-start">
+                      <ShieldCheck className="h-8 w-8 text-primary"/>
+                  </div>
+                  <h3 className="font-semibold text-xl mb-2">24/7 Security</h3>
+                  <p className="text-sm text-muted-foreground flex-grow">Monitored premises and secure access for your peace of mind.</p>
               </Card>
-              <Card className="bg-card border-2 border-transparent hover:border-primary/20 transition-all duration-300 transform hover:-translate-y-2 hover:shadow-2xl group">
-                 <CardContent className="p-6">
-                    <div className="flex items-center justify-center w-16 h-16 rounded-full bg-primary/10 mx-auto mb-6 transition-transform group-hover:scale-110">
-                        <Wifi className="h-8 w-8 text-primary"/>
-                    </div>
-                    <h3 className="font-semibold text-xl mb-2 text-center">High-Speed Wi-Fi</h3>
-                    <p className="text-sm text-muted-foreground flex-grow text-center">Reliable internet coverage for all your study and leisure needs across the campus.</p>
-                </CardContent>
+              <Card className="flex flex-col text-left p-6 bg-card border-2 border-transparent hover:border-primary/20 transition-all duration-300 transform hover:-translate-y-2 hover:shadow-2xl group">
+                 <div className="flex items-center justify-center w-16 h-16 rounded-full bg-primary/10 mb-6 transition-transform group-hover:scale-110 self-start">
+                      <Wifi className="h-8 w-8 text-primary"/>
+                  </div>
+                  <h3 className="font-semibold text-xl mb-2">High-Speed Wi-Fi</h3>
+                  <p className="text-sm text-muted-foreground flex-grow">Reliable internet coverage for all your study and leisure needs across the campus.</p>
               </Card>
-              <Card className="bg-card border-2 border-transparent hover:border-primary/20 transition-all duration-300 transform hover:-translate-y-2 hover:shadow-2xl group">
-                 <CardContent className="p-6">
-                     <div className="flex items-center justify-center w-16 h-16 rounded-full bg-primary/10 mx-auto mb-6 transition-transform group-hover:scale-110">
-                        <Users className="h-8 w-8 text-primary"/>
-                     </div>
-                    <h3 className="font-semibold text-xl mb-2 text-center">Community Events</h3>
-                    <p className="text-sm text-muted-foreground flex-grow text-center">Regular social and academic gatherings to foster connections and a sense of belonging.</p>
-                </CardContent>
+              <Card className="flex flex-col text-left p-6 bg-card border-2 border-transparent hover:border-primary/20 transition-all duration-300 transform hover:-translate-y-2 hover:shadow-2xl group">
+                   <div className="flex items-center justify-center w-16 h-16 rounded-full bg-primary/10 mb-6 transition-transform group-hover:scale-110 self-start">
+                      <Users className="h-8 w-8 text-primary"/>
+                   </div>
+                  <h3 className="font-semibold text-xl mb-2">Community Events</h3>
+                  <p className="text-sm text-muted-foreground flex-grow">Regular social and academic gatherings to foster connections and a sense of belonging.</p>
               </Card>
-              <Card className="bg-card border-2 border-transparent hover:border-primary/20 transition-all duration-300 transform hover:-translate-y-2 hover:shadow-2xl group">
-                 <CardContent className="p-6">
-                    <div className="flex items-center justify-center w-16 h-16 rounded-full bg-primary/10 mx-auto mb-6 transition-transform group-hover:scale-110">
-                        <Sparkles className="h-8 w-8 text-primary"/>
-                    </div>
-                    <h3 className="font-semibold text-xl mb-2 text-center">Modern Amenities</h3>
-                    <p className="text-sm text-muted-foreground flex-grow text-center">Includes a modern gym, laundry services, study rooms, and recreation areas.</p>
-                </CardContent>
+              <Card className="flex flex-col text-left p-6 bg-card border-2 border-transparent hover:border-primary/20 transition-all duration-300 transform hover:-translate-y-2 hover:shadow-2xl group">
+                 <div className="flex items-center justify-center w-16 h-16 rounded-full bg-primary/10 mb-6 transition-transform group-hover:scale-110 self-start">
+                      <Sparkles className="h-8 w-8 text-primary"/>
+                  </div>
+                  <h3 className="font-semibold text-xl mb-2">Modern Amenities</h3>
+                  <p className="text-sm text-muted-foreground flex-grow">Includes a modern gym, laundry services, study rooms, and recreation areas.</p>
               </Card>
             </div>
           </div>
@@ -314,19 +306,19 @@ export default function AboutPage() {
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
               <div className="relative group overflow-hidden rounded-lg">
-                <Image src="https://placehold.co/600x400" alt="Modern study lounge" width={600} height={400} className="w-full h-full object-cover transition-transform group-hover:scale-105" data-ai-hint="study lounge" />
+                <Image src="https://picsum.photos/seed/study-lounge/600/400" alt="Modern study lounge" width={600} height={400} className="w-full h-full object-cover transition-transform group-hover:scale-105" data-ai-hint="study lounge" />
                 <div className="absolute inset-0 bg-black/50 flex items-end p-4">
                   <h3 className="text-white font-bold text-lg">The Study Lounge</h3>
                 </div>
               </div>
                <div className="relative group overflow-hidden rounded-lg">
-                <Image src="https://placehold.co/600x400" alt="Outdoor courtyard" width={600} height={400} className="w-full h-full object-cover transition-transform group-hover:scale-105" data-ai-hint="hostel courtyard" />
+                <Image src="https://picsum.photos/seed/courtyard/600/400" alt="Outdoor courtyard" width={600} height={400} className="w-full h-full object-cover transition-transform group-hover:scale-105" data-ai-hint="hostel courtyard" />
                 <div className="absolute inset-0 bg-black/50 flex items-end p-4">
                   <h3 className="text-white font-bold text-lg">The Courtyard</h3>
                 </div>
               </div>
                <div className="relative group overflow-hidden rounded-lg">
-                <Image src="https://placehold.co/600x400" alt="Recreation room with games" width={600} height={400} className="w-full h-full object-cover transition-transform group-hover:scale-105" data-ai-hint="recreation room" />
+                <Image src="https://picsum.photos/seed/rec-room/600/400" alt="Recreation room with games" width={600} height={400} className="w-full h-full object-cover transition-transform group-hover:scale-105" data-ai-hint="recreation room" />
                 <div className="absolute inset-0 bg-black/50 flex items-end p-4">
                   <h3 className="text-white font-bold text-lg">The Rec Room</h3>
                 </div>
@@ -354,3 +346,5 @@ export default function AboutPage() {
     </div>
   );
 }
+
+    
