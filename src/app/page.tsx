@@ -470,7 +470,7 @@ export default function Home() {
             <div className="space-y-3">
               <h2 className="text-3xl font-bold tracking-tighter md:text-4xl/tight font-headline">
                 Ready to Join the HostelPro Community?
-              </h2>
+              </h2
               <p className="mx-auto max-w-[600px] text-primary-foreground/80 md:text-xl/relaxed lg:text-base/relaxed xl:text-xl/relaxed">
                 Our application process is quick, easy, and completely online. Secure your spot and find your new home today. We can't wait to welcome you.
               </p>
