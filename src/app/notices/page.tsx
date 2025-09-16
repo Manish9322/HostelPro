@@ -26,7 +26,7 @@ function NoticeModal({ notice, onClose }: { notice: Notice | null, onClose: () =
           <button
             onClick={onClose}
             aria-label="Close notice"
-            className="absolute -top-4 -right-4 z-20 bg-destructive text-destructive-foreground rounded-full p-1.5 hover:bg-destructive/80 transition-transform hover:scale-110 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
+            className="absolute -top-4 -right-4 z-20 bg-secondary text-primary rounded-full p-1.5 hover:bg-primary/80 hover:text-secondary transition-transform hover:scale-110 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
           >
             <X className="h-5 w-5" />
           </button>
